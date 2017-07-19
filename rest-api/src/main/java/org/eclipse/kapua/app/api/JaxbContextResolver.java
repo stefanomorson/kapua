@@ -19,11 +19,11 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.JAXBContext;
 
-import org.eclipse.kapua.app.api.exception.model.EntityNotFoundExceptionInfo;
-import org.eclipse.kapua.app.api.exception.model.IllegalArgumentExceptionInfo;
-import org.eclipse.kapua.app.api.exception.model.IllegalNullArgumentExceptionInfo;
-import org.eclipse.kapua.app.api.exception.model.ThrowableInfo;
-import org.eclipse.kapua.app.api.v1.resources.model.CountResult;
+import org.eclipse.kapua.commons.rest.api.exception.model.EntityNotFoundExceptionInfo;
+import org.eclipse.kapua.commons.rest.api.exception.model.IllegalArgumentExceptionInfo;
+import org.eclipse.kapua.commons.rest.api.exception.model.IllegalNullArgumentExceptionInfo;
+import org.eclipse.kapua.commons.rest.api.exception.model.ThrowableInfo;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.CountResult;
 import org.eclipse.kapua.message.device.data.KapuaDataChannel;
 import org.eclipse.kapua.message.device.data.KapuaDataMessage;
 import org.eclipse.kapua.message.device.data.KapuaDataPayload;

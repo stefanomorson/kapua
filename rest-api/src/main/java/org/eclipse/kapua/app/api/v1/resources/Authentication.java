@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.kapua.commons.rest.api.v1.resources.AbstractKapuaResource;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.authentication.ApiKeyCredentials;

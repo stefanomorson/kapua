@@ -20,8 +20,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.eclipse.kapua.app.api.v1.resources.model.EntityId;
-import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
+import org.eclipse.kapua.commons.rest.api.v1.resources.AbstractKapuaResource;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.EntityId;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.device.management.packages.DevicePackageManagementService;

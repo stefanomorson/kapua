@@ -22,11 +22,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.kapua.KapuaEntityNotFoundException;
-import org.eclipse.kapua.app.api.v1.resources.model.CountResult;
-import org.eclipse.kapua.app.api.v1.resources.model.EntityId;
-import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.commons.model.query.predicate.AndPredicate;
 import org.eclipse.kapua.commons.model.query.predicate.AttributePredicate;
+import org.eclipse.kapua.commons.rest.api.v1.resources.AbstractKapuaResource;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.CountResult;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.EntityId;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.device.registry.Device;

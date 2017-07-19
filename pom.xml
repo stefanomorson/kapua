@@ -74,7 +74,12 @@
         <log4j-to-slf4j.version>2.8.2</log4j-to-slf4j.version> <!-- same version used by elasticsearch -->
         <log4j2-mock.version>0.0.1</log4j2-mock.version>
         <tomcat.version>8.0.41</tomcat.version>
-
+        <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
+        <swagger-annotations.version>1.5.12</swagger-annotations.version>
+        <vertx-core.version>3.4.2</vertx-core.version>
+        <resteasy-vertx.version>3.1.3.Final</resteasy-vertx.version>
+        <vertx-service-discovery.version>3.4.2</vertx-service-discovery.version>
+        
         <!-- Plugins versions -->
         <checkstyle-maven-plugin.version>2.17</checkstyle-maven-plugin.version>
         <checkstyle.version>7.6.1</checkstyle.version>
@@ -354,7 +359,7 @@
 
                         <includeResources>false</includeResources>
                         <includeTestResources>false</includeTestResources>
- 
+
                         <sourceDirectory>${project.basedir}</sourceDirectory>
                         <includes>**/*.java, **/*.xml</includes>
                         <excludes>**/target/**/*, **/.settings/**/*, maven/**/*, .maven/**/*, .idea/**/*</excludes>
@@ -726,6 +731,41 @@
                 <artifactId>kapua-qa</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-rest-api-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-rest-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-rest-proxy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-msg-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-uservice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-rest-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-account-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- External dependencies -->
 
@@ -991,6 +1031,36 @@
                 <artifactId>jose4j</artifactId>
                 <version>0.5.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>javax.ws.rs-api</artifactId>
+                <version>${javax.ws.rs-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-core</artifactId>
+                <version>${vertx-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-service-discovery</artifactId>
+                <version>${vertx-service-discovery.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.resteasy</groupId>
+                <artifactId>resteasy-vertx</artifactId>
+                <version>${resteasy-vertx.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -998,6 +1068,8 @@
         <module>build-tools</module>
 
         <module>external</module>
+
+        <module>account</module>
 
         <module>commons</module>
         <module>locator</module>
@@ -1014,6 +1086,7 @@
 
         <!-- Applications -->
         <module>rest-api</module>
+        <module>rest-api-commons</module>
 
         <!-- Simulator framework -->
         <module>simulator-kura</module>
@@ -1035,7 +1108,7 @@
                 <module>console</module>
             </modules>
         </profile>
-    
+
         <!-- Profile used only during release process. -->
         <profile>
             <id>release</id>
@@ -1253,7 +1326,7 @@
             <url>https://projects.eclipse.org/projects/iot.kapua/who</url>
         </developer>
     </developers>
-    
+
     <organization>
         <name>Eclipse.org</name>
         <url>http://www.eclipse.org</url>

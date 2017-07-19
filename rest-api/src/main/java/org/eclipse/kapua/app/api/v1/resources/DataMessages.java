@@ -23,11 +23,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.kapua.app.api.v1.resources.model.CountResult;
-import org.eclipse.kapua.app.api.v1.resources.model.DateParam;
-import org.eclipse.kapua.app.api.v1.resources.model.MetricType;
-import org.eclipse.kapua.app.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.app.api.v1.resources.model.StorableEntityId;
+import org.eclipse.kapua.commons.rest.api.v1.resources.AbstractKapuaResource;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.CountResult;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.DateParam;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.MetricType;
+import org.eclipse.kapua.commons.rest.api.v1.resources.model.ScopeId;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.message.device.data.KapuaDataMessage;
 import org.eclipse.kapua.model.type.ObjectValueConverter;

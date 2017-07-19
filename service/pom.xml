@@ -30,7 +30,6 @@
         <module>datastore</module>
         <module>device</module>
         <module>user</module>
-        <module>account</module>
         <module>tag</module>
         <module>liquibase</module>
         <module>stream</module>

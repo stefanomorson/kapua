@@ -16,6 +16,9 @@ import java.util.HashMap;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
+import org.eclipse.kapua.commons.rest.api.KapuaSerializableBodyWriter;
+import org.eclipse.kapua.commons.rest.api.ListBodyWriter;
+import org.eclipse.kapua.commons.rest.api.RestApiJAXBContextProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
