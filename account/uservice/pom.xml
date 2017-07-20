@@ -25,10 +25,6 @@
     <dependencies>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-service-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-account-api</artifactId>
         </dependency>
         <dependency>
@@ -37,15 +33,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-authentication-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-authorization-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-shiro</artifactId>
+            <artifactId>kapua-commons-rest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
@@ -53,30 +41,31 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-guice</artifactId>
+            <artifactId>kapua-service-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-account-rest-api</artifactId>
+            <artifactId>kapua-authentication-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-account-msg-api</artifactId>
+            <artifactId>kapua-authorization-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-rest-api-commons</artifactId>
+            <artifactId>kapua-auth-internal-shiro</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-account-commons</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-guice</artifactId>
         </dependency>
 
         <!-- External dependencies -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
@@ -86,12 +75,16 @@
             <artifactId>vertx-service-discovery</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-vertx</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
         </dependency>
         <dependency>
            <groupId>org.slf4j</groupId>

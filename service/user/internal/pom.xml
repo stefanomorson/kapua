@@ -32,7 +32,7 @@
         <!-- Required service interfaces -->
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-authorization-api</artifactId>
+            <artifactId>kapua-authorization-api</artifactId>
         </dependency>
 
         <!-- Internal dependencies -->

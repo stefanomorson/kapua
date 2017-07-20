@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-authorization-api</artifactId>
+            <artifactId>kapua-authorization-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
@@ -73,7 +73,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-shiro</artifactId>
+            <artifactId>kapua-auth-internal-shiro</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>

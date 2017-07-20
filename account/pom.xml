@@ -24,12 +24,8 @@
     <artifactId>account-service</artifactId>
 
     <modules>
-        <module>api</module>
-        <module>internal</module>
-        <module>commons</module>
-        <module>rest-api</module>
-        <module>rest-proxy</module>
-        <module>msg-api</module>
+        <module>account-api</module>
+        <module>account-internal</module>
         <module>uservice</module>
         <module>rest-client</module>
     </modules>

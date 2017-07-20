@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-shiro</artifactId>
+            <artifactId>kapua-auth-internal-shiro</artifactId>
             <scope>test</scope>
         </dependency>
 

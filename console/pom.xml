@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-shiro</artifactId>
+            <artifactId>kapua-auth-internal-shiro</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
@@ -141,7 +141,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-security-registration-simple</artifactId>
+            <artifactId>kapua-registration-internal-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
@@ -151,7 +151,7 @@
             <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-sso-provider</artifactId>
         </dependency>
-        
+
 
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
