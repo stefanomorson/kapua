@@ -118,7 +118,7 @@
                                     implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>io.vertx.core.Launcher</Main-Class>
-                                        <Main-Verticle>org.eclipse.kapua.auth.service.uservice.AuthServer</Main-Verticle>
+                                        <Main-Verticle>org.eclipse.kapua.auth.service.server.AuthServer</Main-Verticle>
                                     </manifestEntries>
                                 </transformer>
                                 <transformer

@@ -26,8 +26,8 @@
     <modules>
         <module>account-api</module>
         <module>account-internal</module>
+        <module>account-proxy-rest</module>
         <module>uservice</module>
-        <module>rest-client</module>
     </modules>
 
 </project>
