@@ -98,7 +98,6 @@ public class AccountsResource extends AbstractKapuaResource {
         new AuthenticatedSessionExecutor(vertx, headers).exec(
                 future -> {
                     try {
-                        System.out.println("Thread id: " + Thread.currentThread().getId());
                         AccountQuery query = accountFactory.newQuery(scopeId);
 
                         AndPredicate andPredicate = new AndPredicate();
@@ -160,7 +159,6 @@ public class AccountsResource extends AbstractKapuaResource {
         new AuthenticatedSessionExecutor(vertx, headers).exec(
                 future -> {
                     try {
-                        System.out.println("Thread id: " + Thread.currentThread().getId());
                         query.setScopeId(scopeId);
                         AccountListResult result = accountService.query(query);
                         future.complete(result);

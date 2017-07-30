@@ -41,6 +41,14 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-account-internal</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-user-internal</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-commons-rest</artifactId>
         </dependency>
         <dependency>
@@ -66,9 +74,22 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-discovery</artifactId>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
+        </dependency> -->
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+            <version>3.1.3.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -102,6 +123,14 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                          <relocations>
+                            <relocation>
+                              <pattern>org.apache.http</pattern>
+                              <shadedPattern>org.shaded.apache.http</shadedPattern>
+                              <excludes>
+                              </excludes>
+                            </relocation>
+                          </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -121,10 +150,10 @@
                                         <Main-Verticle>org.eclipse.kapua.auth.service.server.AuthServer</Main-Verticle>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer
+                                <!-- <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
-                                </transformer>
+                                </transformer> -->
                                 <transformer
                                     implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
                                     <resource>META-INF/persistence.xml</resource>

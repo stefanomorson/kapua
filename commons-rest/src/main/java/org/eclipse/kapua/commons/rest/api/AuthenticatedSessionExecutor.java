@@ -22,6 +22,8 @@ import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.service.authentication.AuthenticationService;
 import org.eclipse.kapua.service.authentication.CredentialsFactory;
 import org.eclipse.kapua.service.authentication.SessionCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -29,6 +31,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
 public class AuthenticatedSessionExecutor {
+
+    public static final Logger logger = LoggerFactory.getLogger(AuthenticatedSessionExecutor.class);
 
     private Vertx vertx;
     private MultivaluedMap<String, String> headers;
@@ -51,10 +55,16 @@ public class AuthenticatedSessionExecutor {
             KapuaSession session;
             session = KapuaSecurityUtils.getSession();
             if (session == null) {
-                List<String> authHeader = headers.get("Authorization");
-                String jwtToken = authHeader.get(0).replaceAll("Bearer ", "");
-                SessionCredentials credentials = credentialsFactory.newAccessTokenCredentials(jwtToken);
                 try {
+                    List<String> authHeader = headers.get("Authorization");
+                    if (authHeader == null || authHeader.size() == 0) {
+                        throw KapuaException.internalError("Invalid header.");
+                    }
+                    String jwtToken = authHeader.get(0);
+                    if (jwtToken != null) {
+                        jwtToken = jwtToken.replaceAll("Bearer ", "");
+                    }
+                    SessionCredentials credentials = credentialsFactory.newAccessTokenCredentials(jwtToken);
                     authcService.authenticate(credentials);
                 } catch (KapuaException e) {
                     future.fail(e);

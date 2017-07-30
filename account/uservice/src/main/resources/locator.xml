@@ -52,8 +52,7 @@
         <package>org.eclipse.kapua.commons</package>
         <package>org.eclipse.kapua.service.account</package>
         <package>org.eclipse.kapua.service.user</package>
-        <package>org.eclipse.kapua.service.authentication</package>
-        <package>org.eclipse.kapua.service.authorization</package>
+        <package>org.eclipse.kapua.auth.service.proxy.rest</package>
         <package>org.eclipse.kapua.service.model</package>
     </packages>
 </locator-config>

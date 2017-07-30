@@ -27,10 +27,10 @@
         <module>authentication-api</module>
         <module>authorization-api</module>
         <module>auth-internal-shiro</module>
+        <module>auth-proxy-rest</module>
         <module>registration-api</module>
         <module>registration-internal-simple</module>
         <module>uservice</module>
-        <module>rest-client</module>
     </modules>
 
 </project>

@@ -9,14 +9,26 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.account.service.uservice.server;
+package org.eclipse.kapua.auth.service.uservice.server;
 
 import javax.xml.bind.JAXBContext;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.util.Factory;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.account.service.uservice.messaging.AccountsVertx;
-import org.eclipse.kapua.account.service.uservice.rest.AccountsResource;
-import org.eclipse.kapua.account.service.uservice.rest.JaxbContextResolver;
+import org.eclipse.kapua.auth.service.uservice.rest.AccessInfosResource;
+import org.eclipse.kapua.auth.service.uservice.rest.AccessPermissionsResource;
+import org.eclipse.kapua.auth.service.uservice.rest.AccessRolesResource;
+import org.eclipse.kapua.auth.service.uservice.rest.AuthenticationResource;
+import org.eclipse.kapua.auth.service.uservice.rest.AuthorizationResource;
+import org.eclipse.kapua.auth.service.uservice.rest.CredentialsResource;
+import org.eclipse.kapua.auth.service.uservice.rest.DomainsResource;
+import org.eclipse.kapua.auth.service.uservice.rest.GroupsResource;
+import org.eclipse.kapua.auth.service.uservice.rest.JaxbContextResolver;
+import org.eclipse.kapua.auth.service.uservice.rest.RolesPermissionsResource;
+import org.eclipse.kapua.auth.service.uservice.rest.RolesResource;
 import org.eclipse.kapua.commons.rest.api.KapuaSerializableBodyReader;
 import org.eclipse.kapua.commons.rest.api.KapuaSerializableBodyWriter;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
@@ -30,10 +42,9 @@ import io.vertx.core.VertxOptions;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.ServiceDiscoveryOptions;
-import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.servicediscovery.types.HttpEndpoint;
 
-public class AccountsServer extends AbstractVerticle {
+public class AuthServer extends AbstractVerticle {
 
     private ServiceDiscovery discovery;
     private VertxResteasyDeployment deployment;
@@ -41,7 +52,7 @@ public class AccountsServer extends AbstractVerticle {
     // Convenience method so you can run it in your IDE
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx(new VertxOptions());
-        vertx.deployVerticle(new AccountsServer());
+        vertx.deployVerticle(new AuthServer());
     }
 
     @Override
@@ -50,16 +61,21 @@ public class AccountsServer extends AbstractVerticle {
         vertx.executeBlocking(future ->{
 
             final String host = System.getProperty("host", "localhost");
-            final int port = Integer.parseInt(System.getProperty("port", "8080"));
+            final int port = Integer.parseInt(System.getProperty("port", "8183"));
+
+            Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+            SecurityManager securityManager = factory.getInstance();
+            SecurityUtils.setSecurityManager(securityManager);
 
             // Create discovery service
             discovery = ServiceDiscovery.create(vertx, new ServiceDiscoveryOptions().setBackendConfiguration(config()));
 
+            // Publish RESTful endpoint
             deployment = createRestEndpoint(host, port);
-
-            // Publish services on ServiceDiscovery
             publishRestEndpoint(host, port);
-            publishEventBusService();
+
+            // Publish EventBus service
+            //publishEventBusService();            
 
             future.complete();
         },
@@ -85,16 +101,25 @@ public class AccountsServer extends AbstractVerticle {
         }
     }
 
-    private VertxResteasyDeployment createRestEndpoint(final String host, final int port) {
+    private VertxResteasyDeployment createRestEndpoint(String host, int port) {
 
         VertxResteasyDeployment deployment = new VertxResteasyDeployment();
         final JaxbContextResolver jaxbContextResolver = new JaxbContextResolver();
-
         deployment.start();
+
         deployment.getProviderFactory().register(jaxbContextResolver);
         deployment.getProviderFactory().register(new KapuaSerializableBodyWriter());
         deployment.getProviderFactory().register(new KapuaSerializableBodyReader());
-        deployment.getRegistry().addPerInstanceResource(AccountsResource.class);
+        deployment.getRegistry().addPerInstanceResource(AccessInfosResource.class);
+        deployment.getRegistry().addPerInstanceResource(AccessPermissionsResource.class);
+        deployment.getRegistry().addPerInstanceResource(AccessRolesResource.class);
+        deployment.getRegistry().addPerInstanceResource(AuthenticationResource.class);
+        deployment.getRegistry().addPerInstanceResource(AuthorizationResource.class);
+        deployment.getRegistry().addPerInstanceResource(CredentialsResource.class);
+        deployment.getRegistry().addPerInstanceResource(DomainsResource.class);
+        deployment.getRegistry().addPerInstanceResource(GroupsResource.class);
+        deployment.getRegistry().addPerInstanceResource(RolesPermissionsResource.class);
+        deployment.getRegistry().addPerInstanceResource(RolesResource.class);
 
         XmlUtil.setContextProvider(new JAXBContextProvider() {
 
@@ -122,8 +147,8 @@ public class AccountsServer extends AbstractVerticle {
         return deployment;
     }
 
-    private void publishRestEndpoint(final String host, final int port) { 
-        Record record = HttpEndpoint.createRecord("kapua-account-api", host, port, "/");
+    private void publishRestEndpoint(String host, int port) { 
+        Record record = HttpEndpoint.createRecord("kapua-auth-api", host, port, "/");
         discovery.publish(record, ar -> {
             if (ar.succeeded()) {
                 System.out.println("Service published : " + record.getName());
@@ -134,20 +159,20 @@ public class AccountsServer extends AbstractVerticle {
     }
 
     private void publishEventBusService() {
-
-        //(Need Proxy generation) Register the service proxy on the event bus
-        //AccountsVertx accountsService = new AccountsVertxImpl();
-        //MessageConsumer<JsonObject> consumer = ProxyHelper.registerService(AccountsVertx.class, vertx, accountsService, AccountsVertx.ADDRESS);
-
-        // Publish it in the discovery infrastructure
-        Record record = EventBusService.createRecord("kapua-account-msg", AccountsVertx.ADDRESS, AccountsVertx.class);
-        discovery.publish(record, ar -> {
-            if (ar.succeeded()) {
-                // publication succeeded
-                System.out.println("Service published : " + record.getName());
-            } else {
-                ar.cause().printStackTrace();
-            }
-        });
+//
+//        // Register the service proxy on the event bus
+//        Accounts accountsService = new AccountsImpl();
+//        MessageConsumer<JsonObject> consumer = ProxyHelper.registerService(Accounts.class, vertx, accountsService, Accounts.ADDRESS);
+//
+//        // Publish it in the discovery infrastructure
+//        Record record = EventBusService.createRecord("users", Accounts.ADDRESS, Accounts.class);
+//        discovery.publish(record, ar -> {
+//            if (ar.succeeded()) {
+//                // publication succeeded
+//                System.out.println("Service published : " + ar.succeeded());
+//            } else {
+//                ar.cause().printStackTrace();
+//            }
+//        });
     }
 }

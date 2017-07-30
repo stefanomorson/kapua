@@ -49,16 +49,12 @@ public class AccountServiceRestProxy implements AccountService {
 
     // TODO search the registry and get the endpoint to connect to
     // as well as the mount point
-    private final int port = Integer.parseInt(System.getProperty("port", "8182"));
-    private final String host = System.getProperty("host", "localhost");
+    private final int port = Integer.parseInt(System.getProperty("acct_port", "8182"));
+    private final String host = System.getProperty("acct_host", "localhost");
 
     private Client client;
 
     public AccountServiceRestProxy() {
-        this.client = ClientBuilder.newClient()
-                .register(JaxbContextResolver.class)
-                .register(KapuaSerializableBodyReader.class)
-                .register(KapuaSerializableBodyWriter.class);
     }
 
     public static void main(String[] args) throws KapuaException {
@@ -73,6 +69,8 @@ public class AccountServiceRestProxy implements AccountService {
     @Override
     public AccountListResult query(KapuaQuery<Account> query) throws KapuaException {
 
+        Client client = getClient();
+
         final String file = String.format("/_/accounts/_query");
 
         Response response = null;
@@ -82,6 +80,7 @@ public class AccountServiceRestProxy implements AccountService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .post(Entity.entity(query, MediaType.APPLICATION_JSON));
+            checkResponse(response);
             AccountListResult result = response.readEntity(AccountListResult.class);
             return result;
         } catch (MalformedURLException | URISyntaxException e) {
@@ -100,6 +99,8 @@ public class AccountServiceRestProxy implements AccountService {
     @Override
     public Account create(AccountCreator creator) throws KapuaException {
 
+        Client client = getClient();
+
         final String file = String.format("/_/accounts/");
 
         Response response = null;
@@ -109,6 +110,7 @@ public class AccountServiceRestProxy implements AccountService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .post(Entity.entity(creator, MediaType.APPLICATION_JSON));
+            checkResponse(response);
             Account result = response.readEntity(Account.class);
             return result;
         } catch (MalformedURLException | URISyntaxException e) {
@@ -124,6 +126,8 @@ public class AccountServiceRestProxy implements AccountService {
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(entityId, "entityId");
 
+        Client client = getClient();
+
         final String file = String.format("/%s/accounts/%s",scopeId.toCompactId(), entityId.toCompactId());
 
         Response response = null;
@@ -134,6 +138,7 @@ public class AccountServiceRestProxy implements AccountService {
                     .header(HttpHeaders.AUTHORIZATION, "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3d3dy5lY2xpcHNlLm9yZy9rYXB1YSIsImlhdCI6MTUwMDcxNDA1OCwiZXhwIjoxNTAwNzE1ODU4LCJzdWIiOiJBUSIsInNJZCI6IkFRIn0.d2j_EVJIh301EA6Eu-w62WWFJVYuth2BElSruO1jIgbSpKNmkN67RyB1e9YgnheLsDhdqxg553IApoy_QIo8ZTDVclFwyACLOnH-mRmPqWJitbCZb3vRB8j7g_mFvc7fbD8mAuPS33X_YC9Vn9Bcm62ZcvgzfFwD889dbTB2gLfSgaQRmrKupp1haaLg761IHon19_pjuU-_gBH0pPZ5kUBv4aRTzpnE8l_3hceUaSwnlTyNYjqbQxKipgZ74P2kEeHZLDz_BhhzF-rd-K41iaXG8E6J-rEIUsGG856WLDGt1z8YjgDJXyKVV7XsDCaFLl3N-uKeu2iZm-GCWXF-kg")
                     //.header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .get();
+            checkResponse(response);
             Account account = response.readEntity(Account.class);
             return account;
         } catch (MalformedURLException | URISyntaxException e) {
@@ -146,6 +151,8 @@ public class AccountServiceRestProxy implements AccountService {
     @Override
     public long count(KapuaQuery<Account> query) throws KapuaException {
 
+        Client client = getClient();
+
         final String file = String.format("/_/accounts/_count");
 
         Response response = null;
@@ -155,8 +162,8 @@ public class AccountServiceRestProxy implements AccountService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .post(Entity.entity(query, MediaType.APPLICATION_JSON));
-            long count = response.readEntity(Long.class);
-            return count;
+            checkResponse(response);
+            return response.readEntity(Long.class);
         } catch (MalformedURLException | URISyntaxException e) {
             throw KapuaException.internalError(e);
         } finally {
@@ -170,6 +177,8 @@ public class AccountServiceRestProxy implements AccountService {
         ArgumentValidator.notNull(scopeId, "scopeId");
         ArgumentValidator.notNull(entityId, "entityId");
 
+        Client client = getClient();
+
         final String file = String.format("/%s/accounts/%s", scopeId.toCompactId(), entityId.toCompactId());
 
         Response response = null;
@@ -179,7 +188,7 @@ public class AccountServiceRestProxy implements AccountService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .delete();
-            return;
+            checkResponse(response);
         } catch (MalformedURLException | URISyntaxException e) {
             throw KapuaException.internalError(e);
         } finally {
@@ -190,7 +199,9 @@ public class AccountServiceRestProxy implements AccountService {
     @Override
     public Account update(Account entity) throws KapuaException {
 
-        final String file = String.format("/_/accounts/");
+        Client client = getClient();
+
+       final String file = String.format("/_/accounts/");
 
         Response response = null;
         try {
@@ -199,6 +210,7 @@ public class AccountServiceRestProxy implements AccountService {
                     .accept(MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.AUTHORIZATION, KapuaSecurityUtils.getSession().getAccessToken().getTokenId())
                     .put(Entity.entity(entity, MediaType.APPLICATION_JSON));
+            checkResponse(response);
             Account result = response.readEntity(Account.class);
             return result;
         } catch (MalformedURLException | URISyntaxException e) {
@@ -229,5 +241,21 @@ public class AccountServiceRestProxy implements AccountService {
     @Override
     public void setConfigValues(KapuaId scopeId, KapuaId parentId, Map<String, Object> values) throws KapuaException {
         throw KapuaException.internalError("Not implemented yet");
+    }
+
+    private void checkResponse(Response response) throws KapuaException {
+        if (response.getStatus() != 200) {
+            throw KapuaException.internalError("Error code: " + response.getStatus() + ", desc: " + response.getStatusInfo().getReasonPhrase());
+        }
+    }
+
+    private Client getClient() {
+        if (client == null) {
+            this.client = ClientBuilder.newClient()
+                    .register(JaxbContextResolver.class)
+                    .register(KapuaSerializableBodyReader.class)
+                    .register(KapuaSerializableBodyWriter.class);
+        }
+        return client;
     }
 }

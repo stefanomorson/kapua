@@ -641,7 +641,7 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-auth-rest-client</artifactId>
+                <artifactId>kapua-auth-proxy-rest</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

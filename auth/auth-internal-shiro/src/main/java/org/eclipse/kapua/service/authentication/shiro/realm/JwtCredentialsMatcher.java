@@ -15,6 +15,8 @@ package org.eclipse.kapua.service.authentication.shiro.realm;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.eclipse.kapua.service.authentication.credential.Credential;
+import org.eclipse.kapua.service.authentication.shiro.JwtCredentialsImpl;
 import org.eclipse.kapua.sso.jwt.JwtProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,39 +38,38 @@ public class JwtCredentialsMatcher implements CredentialsMatcher {
 
     @Override
     public boolean doCredentialsMatch(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo) {
-//
-//        final String jwt = ((JwtCredentialsImpl) authenticationToken).getJwt();
-//        if (jwt == null) {
-//            // we don't have a JWT
-//            return false;
-//        }
-//
-//        // check for correct credentials type
-//
-//        final Object credentialsValue = authenticationInfo.getCredentials();
-//        if (!(credentialsValue instanceof Credential)) {
-//            return false;
-//        }
-//
-//        // extract credentials
-//
-//        final Credential credentials = (Credential) credentialsValue;
-//
-//        // Match token with info
-//
-//        if (!jwt.equals(credentials.getCredentialKey())) {
-//            return false;
-//        }
-//
-//        try {
-//            // validate the JWT
-//            return this.jwtProcessor.validate(jwt);
-//        } catch (Exception e) {
-//            logger.error("Error while validating JWT credentials", e);
-//        }
-//
-//        return false;
-        return true;
+
+        final String jwt = ((JwtCredentialsImpl) authenticationToken).getJwt();
+        if (jwt == null) {
+            // we don't have a JWT
+            return false;
+        }
+
+        // check for correct credentials type
+
+        final Object credentialsValue = authenticationInfo.getCredentials();
+        if (!(credentialsValue instanceof Credential)) {
+            return false;
+        }
+
+        // extract credentials
+
+        final Credential credentials = (Credential) credentialsValue;
+
+        // Match token with info
+
+        if (!jwt.equals(credentials.getCredentialKey())) {
+            return false;
+        }
+
+        try {
+            // validate the JWT
+            return this.jwtProcessor.validate(jwt);
+        } catch (Exception e) {
+            logger.error("Error while validating JWT credentials", e);
+        }
+
+        return false;
     }
 
 }

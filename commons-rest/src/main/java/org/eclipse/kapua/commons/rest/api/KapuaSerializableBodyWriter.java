@@ -30,11 +30,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import org.eclipse.kapua.KapuaSerializable;
-
 @Provider
 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-public class KapuaSerializableBodyWriter implements MessageBodyWriter<KapuaSerializable> {
+public class KapuaSerializableBodyWriter implements MessageBodyWriter<Object> {
 
     private static final String PROP_ECLIPSE_LINK_MEDIA_TYPE = "eclipselink.media-type";
     private static final String PROP_ECLIPSE_LINK_JSON_INCLUDE_ROOT = "eclipselink.json.include-root";
@@ -50,12 +48,12 @@ public class KapuaSerializableBodyWriter implements MessageBodyWriter<KapuaSeria
     }
 
     @Override
-    public long getSize(KapuaSerializable t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return 0;
     }
 
     @Override
-    public void writeTo(KapuaSerializable t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
+    public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
             throws IOException, WebApplicationException {
         try {
