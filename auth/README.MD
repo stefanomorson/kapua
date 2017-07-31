@@ -39,7 +39,7 @@ $> ./auth/uservice
 7 - Run the auth server instance
 
 ```
-$> vertx run -cp ./target/kapua-auth-uservice-0.3.0-SNAPSHOT.jar org.eclipse.kapua.auth.service.uservice.server.AuthServer -Dport=8183
+$> vertx run -cp ./target/kapua-auth-uservice-0.3.0-SNAPSHOT.jar org.eclipse.kapua.auth.service.uservice.server.AuthServer -Dport=8183 -D -Dcommons.db.connection.host=localhost
 ```
 
 ### Interact with the auth service

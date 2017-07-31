@@ -39,7 +39,7 @@ $> cd ./account/uservice
 7 - Run the account server instance
 
 ```
-$> vertx run -cp target/kapua-account-uservice-0.3.0-SNAPSHOT.jar org.eclipse.kapua.account.service.uservice.server.AccountsServer -Dport=8182
+$> vertx run -cp target/kapua-account-uservice-0.3.0-SNAPSHOT.jar org.eclipse.kapua.account.service.uservice.server.AccountsServer -Dport=8182 -Dcommons.db.connection.host=localhost
 ```
 
 8 - Open a new terminal window
