@@ -23,24 +23,20 @@ $> mvn clean install -Dmaven.test.skip=true -Pdocker
 4 - Run an instance of the database component
 
 ```
-$> docker run -td --name kapua-sql -p 8181:8181 -p 3306:3306 kapua/kapua-sql
+docker run -td --name kapua-sql -p 8181:8181 -p 3306:3306 kapua/kapua-sql
+docker run -td --name kapua-elasticsearch -p 9200:9200 -p 9300:9300 elasticsearch:5.4.0 -Ecluster.name=kapua-datastore -Ediscovery.type=single-node -Etransport.host=_site_ -Etransport.ping_schedule=-1 -Etransport.tcp.connect_timeout=30s
+docker run -td --name kapua-broker --link kapua-sql:db --link kapua-elasticsearch:es -p 1883:1883 -p 61614:61614 kapua/kapua-broker
 ```
 
-5 - Run an instance of the broker component
+5 - Open a new terminal window
 
-```
-$> docker run -td --name kapua-broker --link kapua-sql:db --link kapua-elasticsearch:es -p 1883:1883 -p
-```
-
-6 - Open a new terminal window
-
-7 - Under kapua root folder move to the auth service folder
+6 - Under kapua root folder move to the auth service folder
 
 ```
 $> ./auth/uservice
 ```
 
-8 - Run the auth server instance
+7 - Run the auth server instance
 
 ```
 $> vertx run -cp ./target/kapua-auth-uservice-0.3.0-SNAPSHOT.jar org.eclipse.kapua.auth.service.uservice.server.AuthServer -Dport=8183
