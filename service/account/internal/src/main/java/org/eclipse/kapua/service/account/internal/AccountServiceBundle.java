@@ -43,14 +43,14 @@ public class AccountServiceBundle implements ServiceBundle {
         //eventbus.subscribe("updatream event addresses", accountService);
         
         // Event store listener 
-        String accountEventsAddressSubscribe = "account::account";
+        String accountEventsAddressSubscribe = "events.account::account";
         eventStoreListener = new EventStoreListener();
         eventbus.subscribe(accountEventsAddressSubscribe, eventStoreListener);
         
         // House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
         
-        String accountEventsAddressPublish = "account";
+        String accountEventsAddressPublish = "events.account";
         Runnable houseKeeperJob = new HouseKeeperJob(eventbus, accountEventsAddressPublish);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> beeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
