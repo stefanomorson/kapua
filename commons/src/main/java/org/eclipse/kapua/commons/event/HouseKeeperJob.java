@@ -11,16 +11,25 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event;
 
-import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaEventListener;
+import org.eclipse.kapua.commons.event.bus.EventBus;
 
-/**
- * @since 0.3.0
- */
-public interface EventBus {
+public class HouseKeeperJob implements Runnable {
+
+    private EventBus eventbus;
+    private String address;
     
-    public void publish(KapuaEvent event);
-    public void subscribe(KapuaEventListener eventListener);
-    public KapuaEventListener unsubscribe(KapuaEventListener eventListener);
-    public boolean isSubscribed(KapuaEventListener eventListener);
+    public HouseKeeperJob(EventBus eventbus, String address) {
+        this.eventbus = eventbus;
+        this.address = address;
+    }
+    
+    @Override
+    public void run() {
+        // Execute 
+        // Check last housekeeper run
+        // Send unprocessed events
+        // Cleanup event store
+        // Update last housekeeper run
+    }
+
 }

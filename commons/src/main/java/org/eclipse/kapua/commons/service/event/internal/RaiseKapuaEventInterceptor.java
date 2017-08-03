@@ -11,16 +11,21 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.service.event.internal;
 
+import java.util.Date;
+
 import javax.inject.Inject;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.eclipse.kapua.commons.event.EventBus;
-import org.eclipse.kapua.commons.event.EventContextScope;
+import org.eclipse.kapua.commons.event.EventScope;
+import org.eclipse.kapua.commons.event.bus.EventBus;
+import org.eclipse.kapua.commons.event.bus.EventBusException;
+import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.locator.inject.Interceptor;
 import org.eclipse.kapua.service.KapuaService;
-import org.eclipse.kapua.service.event.ActionPerformedOn;
+import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +39,8 @@ import org.slf4j.LoggerFactory;
 @Interceptor(matchSubclassOf=KapuaService.class, matchAnnotatedWith=RaiseKapuaEvent.class)
 public class RaiseKapuaEventInterceptor implements MethodInterceptor {
     
-    private static final Logger logger = LoggerFactory.getLogger(RaiseKapuaEventInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaiseKapuaEventInterceptor.class);
 
-    @Inject EventContextScope eventCtxScope;
     @Inject EventBus eventBus;
     
     @Override
@@ -46,40 +50,32 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         Throwable executionThrowable = null;
 
         try {
-            eventCtxScope.begin();
-            String contextId = eventCtxScope.get();
+            KapuaEvent event = EventScope.begin();
 
-            // cannot be null since "matchAnnotatedWith=RaiseWorkflowEvents.class"
-            RaiseKapuaEvent raiseEventAnnotation = invocation.getMethod().getAnnotation(RaiseKapuaEvent.class);
-            logger.info("***** Intercepted method before execution {}.{}(...) - performed on: {}",
-                    new Object[] { invocation.getMethod().getDeclaringClass(), invocation.getMethod().getName(), raiseEventAnnotation.eventActionPerformedOn() });
-
-            if (ActionPerformedOn.BEFORE.equals(raiseEventAnnotation.eventActionPerformedOn())) {
-                logger.debug("Send event before method call");
-                sendEvent(contextId, returnObject, invocation);
-            }
-
+            KapuaSession session = KapuaSecurityUtils.getSession();
+            // Context ID is initialized/managed by the EventScope object
+            event.setTimestamp(new Date());
+            event.setUserId(session.getUserId());
+            event.setScopeId(session.getScopeId());
+            
+            // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
+            //event.setService(service);
+            //event.setEntityType(entityType);
+            // if(!create) then the entity id can be set here
+            //event.setEntityId(entityId);
+            //event.setOperation(operation);
+            //event.setInputs(inputs);
+            //event.setProperties(properties);
+            
             try {
                 returnObject = invocation.proceed();
+
+                // Raise service event if the execution is successful
+                sendEvent(event, returnObject, invocation);
+                
             } catch (Throwable t) {
                 executionThrowable = t;
             }
-
-            if (ActionPerformedOn.AFTER.equals(raiseEventAnnotation.eventActionPerformedOn())) {
-                logger.debug("Send event after method call");
-                sendEvent(contextId, returnObject, invocation);
-            } else if (ActionPerformedOn.AFTER_IF_FAIL.equals(raiseEventAnnotation.eventActionPerformedOn()) && executionThrowable != null) {
-                logger.debug("Send event after method call failure");
-                sendEvent(contextId, returnObject, invocation);
-            } else if (ActionPerformedOn.AFTER_IF_SUCCESS.equals(raiseEventAnnotation.eventActionPerformedOn()) && executionThrowable == null) {
-                logger.debug("Send event after method call success");
-                sendEvent(contextId, returnObject, invocation);
-            }
-
-            logger.info("***** Intercepted method after {} execution {}.{}(...)",
-                    (executionThrowable != null ? String.format("failed (with exception) [%s]", executionThrowable.getMessage()) : "successful"),
-                    invocation.getMethod().getDeclaringClass(),
-                    invocation.getMethod().getName());
 
             if (executionThrowable != null) {
                 throw executionThrowable;
@@ -88,19 +84,13 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
             return returnObject;
             
         } finally {
-            eventCtxScope.end();
+            EventScope.end();
         }
     }
 
-    private void sendEvent(String contextId, Object returnedValue, MethodInvocation invocation) {
-        
-        // TODO 
-        // Improve the retrieval of the info for event
-        //
-        
-        KapuaEventImpl event = new KapuaEventImpl();
-        event.setContextId(contextId);
-        eventBus.publish(event);
+    private void sendEvent(KapuaEvent event, Object returnedValue, MethodInvocation invocation) throws EventBusException {
+        String address = String.format("%s", event.getService());
+        eventBus.publish(address, event);
     }
 
 }

@@ -53,9 +53,9 @@ public class KapuaTest extends Assert {
     @Before
     public void setUp() throws SQLException {
         logger.debug("Setting up test...");
-        container.startup();
-        locator = KapuaLocator.getInstance();
         try {
+            container.startup();
+            locator = KapuaLocator.getInstance();
             connection = DriverManager.getConnection("jdbc:h2:mem:kapua;MODE=MySQL", "kapua", "kapua");
 
             new KapuaLiquibaseClient("jdbc:h2:mem:kapua;MODE=MySQL", "kapua", "kapua").update();
@@ -95,11 +95,11 @@ public class KapuaTest extends Assert {
             AuthenticationService authenticationService = locator.getService(AuthenticationService.class);
 
             authenticationService.logout();
+            container.shutdown();
         } catch (KapuaException exc) {
             exc.printStackTrace();
         }
 
-        container.shutdown();
     }
 
     //

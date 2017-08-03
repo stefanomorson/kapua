@@ -14,16 +14,25 @@ package org.eclipse.kapua.app.api;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.core.Container;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestApiListener implements ServletContextListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(RestApiListener.class);
 
     private Container kapuaContainer;
     
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
         if (kapuaContainer != null) {
-            kapuaContainer.shutdown();
+            try {
+                kapuaContainer.shutdown();
+            } catch (KapuaException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -33,6 +42,10 @@ public class RestApiListener implements ServletContextListener {
             kapuaContainer = new Container() {};
         }
         
-        kapuaContainer.startup();
+        try {
+            kapuaContainer.startup();
+        } catch (KapuaException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

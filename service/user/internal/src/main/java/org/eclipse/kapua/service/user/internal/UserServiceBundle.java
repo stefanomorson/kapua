@@ -9,7 +9,7 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.account.internal;
+package org.eclipse.kapua.service.user.internal;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,14 +25,14 @@ import org.eclipse.kapua.commons.event.EventStoreListener;
 import org.eclipse.kapua.commons.event.HouseKeeperJob;
 import org.eclipse.kapua.commons.event.bus.EventBus;
 import org.eclipse.kapua.locator.inject.MultiService;
-import org.eclipse.kapua.service.account.AccountService;
+import org.eclipse.kapua.service.user.UserService;
 
 @ComponentProvider
 @MultiService(provides=ServiceBundle.class)
-public class AccountServiceBundle implements ServiceBundle {
+public class UserServiceBundle implements ServiceBundle {
 
     @Inject private EventBus eventbus;
-    @Inject private AccountService accountService;
+    @Inject private UserService userService;
     
     private EventStoreListener eventStoreListener;
     private ScheduledExecutorService houseKeeperScheduler;
@@ -40,18 +40,19 @@ public class AccountServiceBundle implements ServiceBundle {
     @Override
     public void start() throws KapuaException {
 
-        //eventbus.subscribe("updatream event addresses", accountService);
+        // Listen to upstream service events
+        eventbus.subscribe("account::account", userService);
         
         // Event store listener 
-        String accountEventsAddressSubscribe = "account::account";
+        String userEventsAddressSubscribe = "user::user";
         eventStoreListener = new EventStoreListener();
-        eventbus.subscribe(accountEventsAddressSubscribe, eventStoreListener);
+        eventbus.subscribe(userEventsAddressSubscribe, eventStoreListener);
         
-        // House keeper
+        // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
         
-        String accountEventsAddressPublish = "account";
-        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, accountEventsAddressPublish);
+        String userEventsAddressPublish = "account";
+        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, userEventsAddressPublish);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> beeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
     }

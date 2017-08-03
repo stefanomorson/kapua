@@ -32,6 +32,7 @@ import org.eclipse.kapua.service.authorization.domain.Domain;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.ListenKapuaEvent;
 import org.eclipse.kapua.service.user.User;
 import org.eclipse.kapua.service.user.UserCreator;
 import org.eclipse.kapua.service.user.UserFactory;
@@ -274,6 +275,12 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
         if ("kapua-sys".equals(name)) {
             throw new KapuaIllegalArgumentException("name", "kapua-sys");
         }
+    }
+
+    @Override
+    @ListenKapuaEvent
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+        // TODO Manage Events
     }
 
 }

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core;
 
+import org.eclipse.kapua.KapuaException;
+
 /**
  * Bundle manages the lifecycle of the services
  * 
@@ -18,6 +20,6 @@ package org.eclipse.kapua.commons.core;
  */
 public interface ServiceBundle {
     
-    public void start();
-    public void stop();
+    public void start() throws KapuaException;
+    public void stop() throws KapuaException;
 }

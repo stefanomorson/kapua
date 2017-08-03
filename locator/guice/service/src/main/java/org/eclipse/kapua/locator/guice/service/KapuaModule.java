@@ -28,7 +28,6 @@ import org.eclipse.kapua.locator.inject.Interceptor;
 import org.eclipse.kapua.locator.inject.LocatorConfig;
 import org.eclipse.kapua.model.KapuaObjectFactory;
 import org.eclipse.kapua.service.KapuaService;
-import org.eclipse.kapua.service.event.KapuaEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,7 @@ public class KapuaModule extends AbstractModule {
 
     private LocatorConfig locatorConfig;
     private List<Class<? extends KapuaService>> eventListeners;
-    
+
     public KapuaModule(LocatorConfig locatorConfig) {
         this.locatorConfig = locatorConfig;
         eventListeners = new ArrayList<>();
@@ -57,19 +56,19 @@ public class KapuaModule extends AbstractModule {
     public List<Class<? extends KapuaService>> getEventListeners() {
         return eventListeners;
     }
-   
+
     @Override
     protected void configure() {
         try {
             ClassLoader classLoader = locatorConfig.getClassLoader();
             boolean initialize = true;
-            
+
             // Packages are supposed to contain service implementations
             Set<Class<?>> providers = locatorConfig.getAnnotatedWith(KapuaProvider.class);
 
             // Provided names are the objects provided by the module (services or factories
             Collection<String> providedInterfaceNames = locatorConfig.getProvidedInterfaceNames();
-            
+
             logger.info("Binding service apis and factories...");
             for (String providedName : providedInterfaceNames) {
 
@@ -85,20 +84,13 @@ public class KapuaModule extends AbstractModule {
                         if (kapuaObject.isAssignableFrom(clazz)) {
                             ServiceResolver<KapuaService, ?> resolver = ServiceResolver.newInstance(kapuaObject, clazz);
                             bind(resolver.getServiceClass()).to(resolver.getImplementationClass()).in(Singleton.class);
-                            
-                            // This further EXPLICIT bind is necessary to let the service implementation be visible to 
+
+                            // This further EXPLICIT bind is necessary to let the service implementation be visible to
                             // Guice when an interceptor binding has to be applied later on at runtime.
                             bind(resolver.getImplementationClass()).in(Singleton.class);
                             //
                             //////
-                            
-                            // Create a list of all the services which also implements the KapuaEventListener
-                            // interface
-                            if (KapuaEventListener.class.isAssignableFrom(resolver.getServiceClass())) {
-                                eventListeners.add(resolver.getServiceClass());
-                            }
-                            //////
-                            
+
                             logger.info("Bind Kapua service {} to {}", kapuaObject, clazz);
                             isClassBound = true;
                             break;
@@ -130,47 +122,46 @@ public class KapuaModule extends AbstractModule {
 
                 logger.warn("No provider found for {}", kapuaObject);
             }
-            
-            // Bind interceptors            
+
+            // Bind interceptors
             logger.info("Binding interceptors ..");
             for (Class<?> clazz : providers) {
                 if (MethodInterceptor.class.isAssignableFrom(clazz)) {
                     Interceptor annotation = clazz.getAnnotation(Interceptor.class);
                     Class<?> parentClazz = annotation.matchSubclassOf();
                     Class<? extends Annotation> methodAnnotation = annotation.matchAnnotatedWith();
-                    
-                    // Need to request injection explicitely otherwise the interceptor would not 
+
+                    // Need to request injection explicitely otherwise the interceptor would not
                     // be injected.
                     MethodInterceptor interceptor = (MethodInterceptor) clazz.newInstance();
                     requestInjection(interceptor);
-                    
+
                     bindInterceptor(Matchers.subclassesOf(parentClazz), Matchers.annotatedWith(methodAnnotation), interceptor);
                     logger.info("Bind service interceptor {} to subclasses of {} annotated with {}", clazz, parentClazz, methodAnnotation);
                 }
             }
-            
-            
-//            logger.info("Binding lifecycle listeners ..");
-//            final KapuaModule thisModule = this;
-//            
-//            // When a new insance object is created by the injector the  
-//            // following listener is invoked
-//            if (this.getInjectorListener() != null) {
-//                this.bindListener(Matchers.any(), new TypeListener() {
-//                    
-//                    @Override
-//                    public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
-//                        typeEncounter.register(new InjectionListener<I>() {
-//
-//                            @Override
-//                            public void afterInjection(Object i) {
-//                                thisModule.getInjectorListener().onObjectAdded(i);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-            
+
+            // logger.info("Binding lifecycle listeners ..");
+            // final KapuaModule thisModule = this;
+            //
+            // // When a new insance object is created by the injector the
+            // // following listener is invoked
+            // if (this.getInjectorListener() != null) {
+            // this.bindListener(Matchers.any(), new TypeListener() {
+            //
+            // @Override
+            // public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
+            // typeEncounter.register(new InjectionListener<I>() {
+            //
+            // @Override
+            // public void afterInjection(Object i) {
+            // thisModule.getInjectorListener().onObjectAdded(i);
+            // }
+            // });
+            // }
+            // });
+            // }
+
             logger.trace("Binding completed");
 
         } catch (Exception e) {
@@ -178,7 +169,7 @@ public class KapuaModule extends AbstractModule {
             throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, e, "Cannot load " + SERVICE_RESOURCE);
         }
     }
-    
+
     @Override
     protected void bindInterceptor(Matcher<? super Class<?>> classMatcher, Matcher<? super Method> methodMatcher, MethodInterceptor... interceptors) {
         super.bindInterceptor(classMatcher, Matchers.not(SyntheticMethodMatcher.getInstance()).and(methodMatcher), interceptors);

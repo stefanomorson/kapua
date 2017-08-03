@@ -40,6 +40,11 @@ import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.domain.Domain;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.ListenKapuaEvent;
+import org.eclipse.kapua.service.event.RaiseKapuaEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link AccountService} implementation.
@@ -55,6 +60,8 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
     AccountQuery, 
     AccountFactory
 > implements AccountService {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     private static final Domain ACCOUNT_DOMAIN = new AccountDomain();
     private static final KapuaLocator LOCATOR = KapuaLocator.getInstance();
@@ -109,6 +116,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
     }
 
     @Override
+    @RaiseKapuaEvent
     public Account update(Account account)
             throws KapuaException {
         //
@@ -295,7 +303,14 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         return entityManagerSession.onResult(em -> AccountDAO.count(em, query));
     }
-
+    
+    @ListenKapuaEvent
+    @Override
+    public void onKapuaEvent(KapuaEvent event) {
+        // Manage upstream event
+        LOGGER.info(String.format("Received upstream event %s - %s - %s", event.getService(), event.getOperation(), event.getEntityType()));
+    }
+    
     /**
      * Find an {@link Account} without authorization checks.
      *

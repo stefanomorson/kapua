@@ -9,23 +9,16 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.commons.event;
+package org.eclipse.kapua.commons.event.bus;
 
+import org.eclipse.kapua.service.event.EventBusListener;
+import org.eclipse.kapua.service.event.KapuaEvent;
 
-public class EventContextImpl implements EventContext {
-
-    private String id;
+/**
+ * @since 0.3.0
+ */
+public interface EventBus {
     
-    private EventContextImpl(String id) {
-        this.id = id;
-    }
-    
-    public static EventContextImpl fromId(String id) {
-        return new EventContextImpl(id);
-    }
-    
-    @Override
-    public String getId() {
-        return id;
-    }
+    public void publish(String address, KapuaEvent event) throws EventBusException;
+    public void subscribe(String address, EventBusListener eventListener) throws EventBusException;
 }

@@ -27,6 +27,4 @@ public @interface ListenKapuaEvent {
     String entityType() default "*";
 
     String operation() default "*";
-
-    KapuaEvent.OperationStatus[] operationStatus() default { KapuaEvent.OperationStatus.OK, KapuaEvent.OperationStatus.FAIL };
 }

@@ -18,6 +18,11 @@ import org.eclipse.kapua.service.event.KapuaEvent;
 
 public class KapuaEventImpl implements KapuaEvent {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2416000835110726619L;
+    
     private String contextId;
     private Date timestamp;
     private KapuaId userId;
@@ -26,8 +31,6 @@ public class KapuaEventImpl implements KapuaEvent {
     private KapuaId scopeId;
     private KapuaId entityId;
     private String operation;
-    private OperationStatus operationStatus;
-    private String failureMessage;
     private String inputs;
     private String outputs;
     private String properties;
@@ -38,6 +41,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return contextId;
     }
 
+    @Override
     public void setContextId(String contextId) {
         this.contextId = contextId;
     }
@@ -47,6 +51,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return timestamp;
     }
 
+    @Override
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
@@ -56,6 +61,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return userId;
     }
 
+    @Override
     public void setUserId(KapuaId userId) {
         this.userId = userId;
     }
@@ -65,6 +71,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return service;
     }
 
+    @Override
     public void setService(String service) {
         this.service = service;
     }
@@ -74,6 +81,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return entityType;
     }
 
+    @Override
     public void setEntityType(String entityType) {
         this.entityType = entityType;
     }
@@ -83,6 +91,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return scopeId;
     }
 
+    @Override
     public void setScopeId(KapuaId scopeId) {
         this.scopeId = scopeId;
     }
@@ -92,6 +101,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return entityId;
     }
 
+    @Override
     public void setEntityId(KapuaId entityId) {
         this.entityId = entityId;
     }
@@ -101,26 +111,9 @@ public class KapuaEventImpl implements KapuaEvent {
         return operation;
     }
 
+    @Override
     public void setOperation(String operation) {
         this.operation = operation;
-    }
-
-    @Override
-    public OperationStatus getOperationStatus() {
-        return operationStatus;
-    }
-
-    public void setOperationStatus(OperationStatus operationStatus) {
-        this.operationStatus = operationStatus;
-    }
-
-    @Override
-    public String getFailureMessage() {
-        return failureMessage;
-    }
-
-    public void setFailureMessage(String failureMessage) {
-        this.failureMessage = failureMessage;
     }
 
     @Override
@@ -146,6 +139,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return properties;
     }
 
+    @Override
     public void setProperties(String properties) {
         this.properties = properties;
     }
@@ -155,6 +149,7 @@ public class KapuaEventImpl implements KapuaEvent {
         return note;
     }
 
+    @Override
     public void setNote(String note) {
         this.note = note;
     }

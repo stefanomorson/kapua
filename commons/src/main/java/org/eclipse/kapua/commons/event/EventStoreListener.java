@@ -11,13 +11,19 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event;
 
-import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.event.bus.EventBusException;
+import org.eclipse.kapua.service.event.EventBusListener;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.ListenKapuaEvent;
 
-public interface EventContextScope {
-
-    public boolean isInProgress();
-    public void begin();
-    public void begin(EventContext eventCtx) throws KapuaException;
-    public String get();
-    public void end();
+public class EventStoreListener implements EventBusListener {
+    
+    public EventStoreListener() throws EventBusException {
+    }
+    
+    @ListenKapuaEvent
+    public void onKapuaEvent(KapuaEvent event) {
+        // Mark the Event entry in the EventStore table
+        // as 'processed' successfully.
+    }
 }

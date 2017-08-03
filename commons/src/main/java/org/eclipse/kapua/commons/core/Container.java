@@ -13,6 +13,7 @@ package org.eclipse.kapua.commons.core;
 
 import java.util.List;
 
+import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.locator.ComponentLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public abstract class Container implements ContainerContext {
         ComponentLocator.getInstance();
     }
 
-    public final void startup() {
+    public final void startup() throws KapuaException {
         logger.info("Startup...");
         if (getComponentLocator().hasBinding(ServiceBundleProvider.class)) {
             ServiceBundleProvider bundleProvider = getComponentLocator().getComponent(ServiceBundleProvider.class);
@@ -59,7 +60,7 @@ public abstract class Container implements ContainerContext {
         return ComponentLocator.getInstance();
     }
 
-    public final void shutdown() {
+    public final void shutdown() throws KapuaException {
         logger.info("Shutdown...");
         List<LifecyleListener> listeners = configuration.getImplementationsOf(LifecyleListener.class);
         for(int i = listeners.size() - 1; i >= 0; i--) {

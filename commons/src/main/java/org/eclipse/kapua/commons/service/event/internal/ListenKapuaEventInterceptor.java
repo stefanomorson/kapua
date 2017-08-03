@@ -11,25 +11,23 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.service.event.internal;
 
-import javax.inject.Inject;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.eclipse.kapua.KapuaErrorCodes;
 import org.eclipse.kapua.KapuaRuntimeException;
-import org.eclipse.kapua.commons.event.EventContextImpl;
-import org.eclipse.kapua.commons.event.EventContextScope;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.locator.inject.Interceptor;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.ListenKapuaEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @KapuaProvider
 @Interceptor(matchAnnotatedWith = ListenKapuaEvent.class, matchSubclassOf = KapuaService.class)
 public class ListenKapuaEventInterceptor implements MethodInterceptor {
-
-    @Inject private EventContextScope eventContextService;
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListenKapuaEventInterceptor.class);
     
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -43,17 +41,16 @@ public class ListenKapuaEventInterceptor implements MethodInterceptor {
                 throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, "KapuaEvent expected, found " + args[0].getClass().getName());
             }
             
-            if (!eventContextService.isInProgress()) {
-                KapuaEvent kapuaEvent = (KapuaEvent) args[0];
-                String contextId = kapuaEvent.getContextId();
-                EventContextImpl eventCtx = EventContextImpl.fromId(contextId);
-                eventContextService.begin(eventCtx);
-            } else {
-                eventContextService.begin();
-            }
             return invocation.proceed();
         } finally {
-            eventContextService.end();
+        }
+    }
+
+    public void onInternalEvent(KapuaEvent event) {
+        if (event.getOperation().equals("check-unprocessed")) {
+            LOGGER.info(String.format("Received upstream event %s - %s - %s", event.getService(), event.getOperation(), event.getEntityType()));
+        } else {
+            LOGGER.info(String.format("Marked event %s as processed", event.getContextId()));
         }
     }
 

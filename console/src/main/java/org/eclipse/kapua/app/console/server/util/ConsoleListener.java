@@ -14,6 +14,7 @@ package org.eclipse.kapua.app.console.server.util;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.app.console.ConsoleJAXBContextProvider;
 import org.eclipse.kapua.commons.core.Container;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
@@ -30,7 +31,11 @@ public class ConsoleListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
         if (kapuaContainer != null) {
-            kapuaContainer.shutdown();
+            try {
+                kapuaContainer.shutdown();
+            } catch (KapuaException e) {
+                logger.error(e.getLocalizedMessage(), e);
+            }
         }
     }
 
@@ -40,10 +45,14 @@ public class ConsoleListener implements ServletContextListener {
             kapuaContainer = new Container() {};
         }
         
-        kapuaContainer.startup();
-       
-        logger.info("Initialize Console JABContext Provider");
-        JAXBContextProvider consoleProvider = new ConsoleJAXBContextProvider();
-        XmlUtil.setContextProvider(consoleProvider);
+        try {
+            kapuaContainer.startup();
+            
+            logger.info("Initialize Console JABContext Provider");
+            JAXBContextProvider consoleProvider = new ConsoleJAXBContextProvider();
+            XmlUtil.setContextProvider(consoleProvider);
+        } catch (KapuaException e) {
+            logger.error(e.getLocalizedMessage(), e);
+        }
     }
 }

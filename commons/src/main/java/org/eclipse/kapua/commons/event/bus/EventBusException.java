@@ -9,10 +9,22 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.commons.event;
+package org.eclipse.kapua.commons.event.bus;
+
+import org.eclipse.kapua.KapuaErrorCodes;
+import org.eclipse.kapua.KapuaException;
 
 
-public interface EventContext {
+public class EventBusException extends KapuaException {
 
-    public String getId();
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -5552411080939727864L;
+
+    public EventBusException(Throwable cause) {
+        // TODO Add error code for event bus
+        super(KapuaErrorCodes.INTERNAL_ERROR, cause, (Object[])null);
+     }
+
 }
