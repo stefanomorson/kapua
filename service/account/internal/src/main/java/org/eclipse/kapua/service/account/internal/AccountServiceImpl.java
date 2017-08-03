@@ -78,6 +78,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
     }
 
     @Override
+    @RaiseKapuaEvent
     public Account create(AccountCreator accountCreator)
             throws KapuaException {
         //
@@ -156,6 +157,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
     }
 
     @Override
+    @RaiseKapuaEvent
     public void delete(KapuaId scopeId, KapuaId accountId)
             throws KapuaException {
 
