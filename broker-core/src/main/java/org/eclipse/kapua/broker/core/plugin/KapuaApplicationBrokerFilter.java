@@ -62,7 +62,7 @@ public class KapuaApplicationBrokerFilter extends BrokerFilter {
         super.stop();
         synchronized(KapuaApplicationBrokerFilter.class) {
             if (application != null) {
-                application.shutdown();;
+                application.shutdown();
             }
         }
         logger.info(">>> Application broker filter: calling stop... DONE");

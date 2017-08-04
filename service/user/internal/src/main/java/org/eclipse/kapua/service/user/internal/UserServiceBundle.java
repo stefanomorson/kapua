@@ -24,33 +24,36 @@ import org.eclipse.kapua.commons.core.ServiceBundle;
 import org.eclipse.kapua.commons.event.EventStoreListener;
 import org.eclipse.kapua.commons.event.HouseKeeperJob;
 import org.eclipse.kapua.commons.event.bus.EventBus;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.locator.inject.MultiService;
 import org.eclipse.kapua.service.user.UserService;
 
 @ComponentProvider
-@MultiService(provides=ServiceBundle.class)
+@MultiService(provides = ServiceBundle.class)
 public class UserServiceBundle implements ServiceBundle {
 
-    @Inject private EventBus eventbus;
-    @Inject private UserService userService;
-    
+    @Inject
+    private EventBus eventbus;
+    private UserService userService;
+
     private EventStoreListener eventStoreListener;
     private ScheduledExecutorService houseKeeperScheduler;
-    
+
     @Override
     public void start() throws KapuaException {
 
+        userService = KapuaLocator.getInstance().getService(UserService.class);
         // Listen to upstream service events
-        eventbus.subscribe("events.account::user", userService);
+        eventbus.subscribe("events.account.user", userService);
         
-        // Event store listener 
-        String userEventsAddressSubscribe = "events.user::user";
+        // Event store listener
+        String userEventsAddressSubscribe = "events.user.user";
         eventStoreListener = new EventStoreListener();
         eventbus.subscribe(userEventsAddressSubscribe, eventStoreListener);
-        
+
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
-        
+
         String userEventsAddressPublish = "events.user";
         Runnable houseKeeperJob = new HouseKeeperJob(eventbus, userEventsAddressPublish);
         // Start time can be made random from 0 to 30 seconds

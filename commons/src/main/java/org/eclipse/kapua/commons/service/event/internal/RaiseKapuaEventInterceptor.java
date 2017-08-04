@@ -36,18 +36,17 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 @KapuaProvider
-@Interceptor(matchSubclassOf=KapuaService.class, matchAnnotatedWith=RaiseKapuaEvent.class)
+@Interceptor(matchSubclassOf = KapuaService.class, matchAnnotatedWith = RaiseKapuaEvent.class)
 public class RaiseKapuaEventInterceptor implements MethodInterceptor {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RaiseKapuaEventInterceptor.class);
 
-    @Inject EventBus eventBus;
-    
+    @Inject
+    EventBus eventBus;
+
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        
         Object returnObject = null;
-        Throwable executionThrowable = null;
 
         try {
             KapuaEvent event = EventScope.begin();
@@ -57,32 +56,23 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
             event.setTimestamp(new Date());
             event.setUserId(session.getUserId());
             event.setScopeId(session.getScopeId());
-            
+
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
-            //event.setService(service);
-            //event.setEntityType(entityType);
+            // event.setService(service);
+            // event.setEntityType(entityType);
             // if(!create) then the entity id can be set here
-            //event.setEntityId(entityId);
-            //event.setOperation(operation);
-            //event.setInputs(inputs);
-            //event.setProperties(properties);
-            
-            try {
-                returnObject = invocation.proceed();
+            // event.setEntityId(entityId);
+            // event.setOperation(operation);
+            // event.setInputs(inputs);
+            // event.setProperties(properties);
 
-                // Raise service event if the execution is successful
-                sendEvent(event, returnObject, invocation);
-                
-            } catch (Throwable t) {
-                executionThrowable = t;
-            }
+            returnObject = invocation.proceed();
 
-            if (executionThrowable != null) {
-                throw executionThrowable;
-            }
-            
+            // Raise service event if the execution is successful
+            sendEvent(event, returnObject, invocation);
+
             return returnObject;
-            
+
         } finally {
             EventScope.end();
         }
@@ -91,6 +81,7 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
     private void sendEvent(KapuaEvent event, Object returnedValue, MethodInvocation invocation) throws EventBusException {
         String address = String.format("%s", event.getService());
         eventBus.publish(address, event);
+        eventBus.publish(address + ".user", event);
     }
 
 }

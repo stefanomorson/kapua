@@ -14,7 +14,9 @@ package org.eclipse.kapua.commons.core;
 import java.util.List;
 
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.event.bus.EventBusBundle;
 import org.eclipse.kapua.commons.locator.ComponentLocator;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,7 @@ public abstract class Container implements ContainerContext {
     private final static Logger logger = LoggerFactory.getLogger(Container.class);
 
     private ContainerConfig configuration;
-    
+
     public Container() {
         this(new ContainerConfig());
     }
@@ -38,19 +40,30 @@ public abstract class Container implements ContainerContext {
         this.configuration = configuration;
         // Init the locator
         ComponentLocator.getInstance();
+        KapuaLocator.getInstance();
     }
 
     public final void startup() throws KapuaException {
         logger.info("Startup...");
         if (getComponentLocator().hasBinding(ServiceBundleProvider.class)) {
             ServiceBundleProvider bundleProvider = getComponentLocator().getComponent(ServiceBundleProvider.class);
-            for(ServiceBundle service:bundleProvider.getBundles()) {
-                service.start();
+            
+            for (ServiceBundle service : bundleProvider.getBundles()) {
+                if (service instanceof EventBusBundle) {
+                    EventBusBundle eventBusBundle = (EventBusBundle) service;
+                    eventBusBundle.start();
+                }
+            }
+            
+            for (ServiceBundle service : bundleProvider.getBundles()) {
+                if (!(service instanceof EventBusBundle)) {
+                    service.start();
+                }
             }
         }
-        
+
         List<LifecyleListener> listeners = configuration.getImplementationsOf(LifecyleListener.class);
-        for(LifecyleListener listener:listeners) {
+        for (LifecyleListener listener : listeners) {
             listener.onStartup(this);
         }
         logger.info("Startup...DONE");
@@ -63,10 +76,10 @@ public abstract class Container implements ContainerContext {
     public final void shutdown() throws KapuaException {
         logger.info("Shutdown...");
         List<LifecyleListener> listeners = configuration.getImplementationsOf(LifecyleListener.class);
-        for(int i = listeners.size() - 1; i >= 0; i--) {
+        for (int i = listeners.size() - 1; i >= 0; i--) {
             listeners.get(i).onShutdown(this);
         }
-        
+
         if (getComponentLocator().hasBinding(ServiceBundleProvider.class)) {
             ServiceBundleProvider bundleProvider = getComponentLocator().getComponent(ServiceBundleProvider.class);
             for (ServiceBundle service : bundleProvider.getBundles()) {

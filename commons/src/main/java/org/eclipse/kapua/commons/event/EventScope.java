@@ -18,48 +18,50 @@ import org.eclipse.kapua.commons.service.event.internal.KapuaEventImpl;
 import org.eclipse.kapua.service.event.KapuaEvent;
 
 public class EventScope {
+
     private static ThreadLocal<Stack<KapuaEvent>> eventContextThdLocal = new ThreadLocal<>();
 
     private EventScope() {
     }
 
     public static KapuaEvent begin() {
-        
+
         // Is it the first call in the stack? Is there already a Stack?
         Stack<KapuaEvent> eventStack = eventContextThdLocal.get();
         if (eventStack == null) {
-            eventStack = new Stack<KapuaEvent>();
+            eventStack = new Stack<>();
             eventContextThdLocal.set(eventStack);
         }
-        
+
         // Is it the first call in the stack?
         String contextId = null;
-        KapuaEvent lastKapuaEvent = eventStack.peek();
-        if (lastKapuaEvent != null) {
+        if (!eventStack.empty()) {
+            KapuaEvent lastKapuaEvent = eventStack.peek();
             contextId = lastKapuaEvent.getContextId();
-        }
-        else  {
+        } else {
             contextId = UUID.randomUUID().toString();
         }
-        
+
         KapuaEventImpl newKapuaEvent = new KapuaEventImpl();
         newKapuaEvent.setContextId(contextId);
+        eventStack.push(newKapuaEvent);
         return eventStack.peek();
     }
 
     public static KapuaEvent get() {
-        if (eventContextThdLocal.get() != null) {
-            return eventContextThdLocal.get().peek();
+        Stack<KapuaEvent> tmp = eventContextThdLocal.get();
+        if (tmp != null && !tmp.empty()) {
+            return tmp.peek();
         }
         return null;
     }
-    
+
     public static void end() {
         Stack<KapuaEvent> eventStack = eventContextThdLocal.get();
-        if (eventStack != null && eventStack.size() == 0) {
+        if (eventStack != null && !eventStack.empty()) {
             eventContextThdLocal.set(null);
         }
-        
+
         eventStack.pop();
     }
 }

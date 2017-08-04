@@ -41,14 +41,14 @@ import com.google.inject.multibindings.Multibinder;
 public class ComponentsModule extends PrivateModule {
 
     private static final Logger logger = LoggerFactory.getLogger(ComponentsModule.class);
-    
+
     private LocatorConfig locatorConfig;
     Map<Class<?>, Multibinder<Class<?>>> multibinders;
 
     public ComponentsModule(MessageListenersPool messageComponentsPool, LocatorConfig locatorConfig) {
         this.locatorConfig = locatorConfig;
     }
-    
+
     @Override
     protected void configure() {
 
@@ -56,18 +56,18 @@ public class ComponentsModule extends PrivateModule {
             bind(ObjectInspector.class).to(GuiceObjectInspector.class).in(Singleton.class);
 
             multibinders = new HashMap<>();
-            
+
             Set<Class<?>> componentProviders = locatorConfig.getAnnotatedWith(ComponentProvider.class);
-            for(Class<?> componentProvider:componentProviders) {
+            for (Class<?> componentProvider : componentProviders) {
                 // Bind bundles
                 MultiService multiServiceAnnotation = componentProvider.getAnnotation(MultiService.class);
                 if (multiServiceAnnotation != null) {
                     Class<?> multiserviceClass = multiServiceAnnotation.provides();
                     ComponentResolver resolver = ComponentResolver.newInstance(multiserviceClass, componentProvider);
                     if (!multibinders.containsKey(resolver.getProvidedClass())) {
-                        multibinders.put(resolver.getProvidedClass(), (Multibinder<Class<?>>) Multibinder.newSetBinder(binder(), resolver.getProvidedClass())); 
+                        multibinders.put(resolver.getProvidedClass(), (Multibinder<Class<?>>) Multibinder.newSetBinder(binder(), resolver.getProvidedClass()));
                     }
-                    
+
                     if (resolver.getProvidedClass().isAssignableFrom(componentProvider)) {
                         multibinders.get(resolver.getProvidedClass()).addBinding().to(resolver.getImplementationClass());
                     }
@@ -78,7 +78,7 @@ public class ComponentsModule extends PrivateModule {
                 Interceptor interceptorAnnotation = componentProvider.getAnnotation(Interceptor.class);
                 if (interceptorAnnotation != null) {
                     if (MethodInterceptor.class.isAssignableFrom(componentProvider)) {
-                        
+
                         Class<?> parentClazz = interceptorAnnotation.matchSubclassOf();
                         Class<? extends Annotation> methodAnnotation = interceptorAnnotation.matchAnnotatedWith();
                         bindInterceptor(Matchers.subclassesOf(parentClazz), Matchers.annotatedWith(methodAnnotation), (MethodInterceptor) componentProvider.newInstance());
@@ -86,17 +86,17 @@ public class ComponentsModule extends PrivateModule {
                         continue;
                     }
                 }
-                
+
                 // Bind services
                 Service serviceAnnotation = componentProvider.getAnnotation(Service.class);
                 if (serviceAnnotation != null) {
-                    Class<?>[] providedComponents  = serviceAnnotation.provides();
+                    Class<?>[] providedComponents = serviceAnnotation.provides();
                     if (providedComponents.length <= 0) {
                         throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, String.format("Annotation %s does not provide any interface to bind to.", serviceAnnotation));
                     }
 
                     ComponentResolver resolver = null;
-                    for (Class<?> providedComponent:providedComponents) {
+                    for (Class<?> providedComponent : providedComponents) {
                         resolver = ComponentResolver.newInstance(providedComponent, componentProvider);
                         bind(resolver.getProvidedClass()).to(resolver.getImplementationClass());
                         expose(resolver.getProvidedClass());

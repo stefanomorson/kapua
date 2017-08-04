@@ -28,6 +28,7 @@ import org.eclipse.kapua.locator.inject.Interceptor;
 import org.eclipse.kapua.locator.inject.LocatorConfig;
 import org.eclipse.kapua.model.KapuaObjectFactory;
 import org.eclipse.kapua.service.KapuaService;
+import org.eclipse.kapua.service.event.EventBusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +90,12 @@ public class KapuaModule extends AbstractModule {
                             // Guice when an interceptor binding has to be applied later on at runtime.
                             bind(resolver.getImplementationClass()).in(Singleton.class);
                             //
-                            //////
 
+                            // Create a list of all the services which also implements the EventBusListener
+                            // interface
+                            if (EventBusListener.class.isAssignableFrom(resolver.getServiceClass())) {
+                                eventListeners.add(resolver.getServiceClass());
+                            }
                             logger.info("Bind Kapua service {} to {}", kapuaObject, clazz);
                             isClassBound = true;
                             break;

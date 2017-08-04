@@ -82,7 +82,7 @@ public class EntityManagerSession {
             manager = entityManagerFactory.createEntityManager();
             transactionManager.beginTransaction(manager);
             entityManagerActionCallback.onAction(manager);
-            
+
             KapuaEvent kapuaEvent = appendKapuaEvent(manager);
 
             transactionManager.commit(manager);
@@ -133,7 +133,7 @@ public class EntityManagerSession {
             manager = entityManagerFactory.createEntityManager();
             transactionManager.beginTransaction(manager);
             T result = entityManagerResultCallback.onResult(manager);
-          
+
             KapuaEvent kapuaEvent = appendKapuaEvent(manager);
 
             transactionManager.commit(manager);
@@ -193,9 +193,9 @@ public class EntityManagerSession {
                 try {
                     transactionManager.beginTransaction(manager);
                     instance = entityManagerInsertCallback.onInsert(manager);
-                    
+
                     KapuaEvent kapuaEvent = appendKapuaEvent(manager);
-                    
+
                     transactionManager.commit(manager);
                     succeeded = true;
                 } catch (KapuaEntityExistsException e) {
@@ -227,16 +227,16 @@ public class EntityManagerSession {
         }
         return instance;
     }
-    
+
     private <T> KapuaEvent appendKapuaEvent(EntityManager manager) throws KapuaException {
         KapuaEvent persistedKapuaEvent = null;
-        
+
         // If a kapua event is in scope then persist it along with the entity
         KapuaEvent kapuaEvent = EventScope.get();
         if (kapuaEvent != null) {
             persistedKapuaEvent = EventStoreDAO.create(manager, kapuaEvent);
         }
-    
+
         return persistedKapuaEvent;
     }
 

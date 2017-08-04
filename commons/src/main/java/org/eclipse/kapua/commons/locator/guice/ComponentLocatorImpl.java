@@ -31,7 +31,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.PrivateModule;
 
-
 /**
  * @since 0.3.0
  *
@@ -43,39 +42,39 @@ public class ComponentLocatorImpl extends ComponentLocator {
     private static final String ROOT_INJECTOR_NAME = "rootLocatorInjector";
     private static final String COMMONS_INJECTOR_NAME = "commonsLocatorInjector";
     private static final String SERVICE_RESOURCE = "locator.xml";
-    
+
     public ComponentLocatorImpl() {
-        
+
         URL locatorConfigURL = null;
         try {
-            
+
             Injector rootInjector = Guice.createInjector(new PrivateModule() {
-                
+
                 private MessageListenersPoolImpl messageListenersPool;
 
                 @Override
                 protected void configure() {
-                    
-                    messageListenersPool = new MessageListenersPoolImpl(); 
+
+                    messageListenersPool = new MessageListenersPoolImpl();
                     bind(MessageListenersPool.class).toInstance(messageListenersPool);
                     expose(MessageListenersPool.class);
                 }
-                
+
             });
-            
+
             InjectorRegistry.add(ROOT_INJECTOR_NAME, rootInjector);
-            
+
             // Find locator configuration file
             List<URL> locatorConfigurations = Arrays.asList(ResourceUtils.getResource(SERVICE_RESOURCE));
             if (locatorConfigurations.isEmpty()) {
                 return;
             }
-    
+
             // Read configurations from resource files
             locatorConfigURL = locatorConfigurations.get(0);
             LocatorConfig locatorConfig;
             locatorConfig = LocatorConfig.fromURL(locatorConfigURL);
-            
+
             MessageListenersPool msgComponentsPool = rootInjector.getInstance(MessageListenersPool.class);
             Injector injector = rootInjector.createChildInjector(new ComponentsModule(msgComponentsPool, locatorConfig));
             InjectorRegistry.add(COMMONS_INJECTOR_NAME, injector);
@@ -88,7 +87,7 @@ public class ComponentLocatorImpl extends ComponentLocator {
             throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, e, "Cannot load " + locatorConfigURL);
         }
     }
-    
+
     @Override
     public <T> boolean hasBinding(Class<T> clazz) {
         try {
@@ -99,7 +98,7 @@ public class ComponentLocatorImpl extends ComponentLocator {
             return false;
         }
     }
-    
+
     @Override
     public <T> T getComponent(Class<T> superOrImplClass) {
         try {

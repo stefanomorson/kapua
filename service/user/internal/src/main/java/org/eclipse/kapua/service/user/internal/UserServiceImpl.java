@@ -51,9 +51,12 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final KapuaLocator locator = KapuaLocator.getInstance();
-
     private static final Domain USER_DOMAIN = new UserDomain();
+
+    @Inject
+    private AuthorizationService authorizationService;
+    @Inject
+    private PermissionFactory permissionFactory;
 
     /**
      * Constructor
@@ -89,8 +92,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.write, userCreator.getScopeId()));
 
         return entityManagerSession.onTransactedInsert(em -> UserDAO.create(em, userCreator));
@@ -115,8 +116,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.write, user.getScopeId()));
 
         //
@@ -144,8 +143,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.write, scopeId));
 
         // Do the delete
@@ -175,8 +172,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.read, accountId));
 
         // Do the find
@@ -217,8 +212,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.read, query.getScopeId()));
 
         return entityManagerSession.onResult(em -> UserDAO.query(em, query));
@@ -232,8 +225,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         //
         // Check Access
-        AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-        PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
         authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.read, query.getScopeId()));
 
         return entityManagerSession.onResult(em -> UserDAO.count(em, query));
@@ -262,8 +253,6 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
     private User checkReadAccess(final User user) throws KapuaException {
         if (user != null) {
-            AuthorizationService authorizationService = locator.getService(AuthorizationService.class);
-            PermissionFactory permissionFactory = locator.getFactory(PermissionFactory.class);
             authorizationService.checkPermission(permissionFactory.newPermission(USER_DOMAIN, Actions.read, user.getScopeId()));
         }
         return user;

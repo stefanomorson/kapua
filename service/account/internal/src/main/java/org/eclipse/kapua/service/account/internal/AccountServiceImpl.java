@@ -26,7 +26,6 @@ import org.eclipse.kapua.commons.configuration.AbstractKapuaConfigurableResource
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
-import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
@@ -52,28 +51,25 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 @KapuaProvider
-public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimitedService<
-    Account, 
-    AccountCreator, 
-    AccountService, 
-    AccountListResult, 
-    AccountQuery, 
-    AccountFactory
-> implements AccountService {
-    
+public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimitedService<Account, AccountCreator, AccountService, AccountListResult, AccountQuery, AccountFactory>
+        implements AccountService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     private static final Domain ACCOUNT_DOMAIN = new AccountDomain();
-    private static final KapuaLocator LOCATOR = KapuaLocator.getInstance();
-    private static final AuthorizationService AUTHORIZATION_SERVICE = LOCATOR.getService(AuthorizationService.class);
-    private static final PermissionFactory PERMISSION_FACTORY = LOCATOR.getFactory(PermissionFactory.class);
+
+    @Inject
+    private AuthorizationService authorizationService;
+    @Inject
+    private PermissionFactory permissionFactory;
 
     /**
      * Constructor.
      * 
      * @since 1.0.0
      */
-    @Inject public AccountServiceImpl(AccountEntityManagerFactory entityManagerFactory) {
+    @Inject
+    public AccountServiceImpl(AccountEntityManagerFactory entityManagerFactory) {
         super(AccountService.class.getName(), ACCOUNT_DOMAIN, entityManagerFactory, AccountService.class, AccountFactory.class);
     }
 
@@ -92,7 +88,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.write, accountCreator.getScopeId()));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.write, accountCreator.getScopeId()));
 
         // Check if the parent account exists
         if (findById(accountCreator.getScopeId()) == null) {
@@ -129,7 +125,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.write, account.getScopeId()));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.write, account.getScopeId()));
 
         //
         // Do update
@@ -169,7 +165,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
         //
         // Check Access
         Actions action = Actions.write;
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, action, scopeId));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, action, scopeId));
 
         //
         // Check if it has children
@@ -208,7 +204,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, scopeId));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, scopeId));
 
         //
         // Make sure account exists
@@ -224,7 +220,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, accountId));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, accountId));
 
         //
         // Make sure account exists
@@ -242,7 +238,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
             Account account = AccountDAO.findByName(em, name);
             // Check Access
             if (account != null) {
-                AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, account.getId()));
+                authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, account.getId()));
             }
 
             return account;
@@ -266,7 +262,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, account.getId()));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, account.getId()));
 
         return entityManagerSession.onResult(em -> {
             AccountListResult result = null;
@@ -288,7 +284,7 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, query.getScopeId()));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, query.getScopeId()));
 
         return entityManagerSession.onResult(em -> AccountDAO.query(em, query));
     }
@@ -301,18 +297,18 @@ public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimited
 
         //
         // Check Access
-        AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(ACCOUNT_DOMAIN, Actions.read, query.getScopeId()));
+        authorizationService.checkPermission(permissionFactory.newPermission(ACCOUNT_DOMAIN, Actions.read, query.getScopeId()));
 
         return entityManagerSession.onResult(em -> AccountDAO.count(em, query));
     }
-    
+
     @ListenKapuaEvent
     @Override
     public void onKapuaEvent(KapuaEvent event) {
         // Manage upstream event
         LOGGER.info(String.format("Received upstream event %s - %s - %s", event.getService(), event.getOperation(), event.getEntityType()));
     }
-    
+
     /**
      * Find an {@link Account} without authorization checks.
      *

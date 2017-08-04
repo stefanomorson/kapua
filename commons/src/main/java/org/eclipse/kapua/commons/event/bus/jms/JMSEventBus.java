@@ -38,38 +38,42 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @since 0.3.0
-  */
+ */
 @ComponentProvider
-@Service(provides=EventBus.class)
+@Service(provides = EventBus.class)
 public class JMSEventBus implements EventBus {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JMSEventBus.class);
-    
+
     // TODO retrieve from configuration
-    private final static String BROKER_URL = "tcp://192.168.33.10:61616";
+    private final static String BROKER_URL = "tcp://192.168.33.10:6666";
     private final static String USERNAME = "kapua-sys";
-    private final static String PASSWORD = "kapua-password";    
-    
+    private final static String PASSWORD = "kapua-password";
+
     private Connection jmsConnection;
     private Session jmsSession;
-    private Map<String,MessageProducer> jmsProducers;
-    private Map<String,EventBusListener> kapuaListeners;
+    private Map<String, MessageProducer> jmsProducers;
+    private Map<String, EventBusListener> kapuaListeners;
 
     public JMSEventBus() throws EventBusException {
-
         jmsProducers = new HashMap<>();
         kapuaListeners = new HashMap<>();
-
+    }
+    
+    public void start() throws EventBusException {
+        LOGGER.info("Start ...");
+        
         try {
             // TODO Make connection pluggable and provide Qpid JMS library
             ConnectionFactory jmsConnectionFactory = new ActiveMQConnectionFactory(BROKER_URL);
             jmsConnection = jmsConnectionFactory.createConnection(USERNAME, PASSWORD);
             jmsConnection.start();
-
+            
             jmsSession = jmsConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         } catch (JMSException e) {
             throw new EventBusException(e);
         }
+        LOGGER.info("Start ... DONE");
     }
 
     @Override
@@ -81,20 +85,21 @@ public class JMSEventBus implements EventBus {
                 jmsProducer = jmsSession.createProducer(jmsQueue);
                 jmsProducers.put(address, jmsProducer);
             }
-            
+
             // TODO Serialize outgoing kapua event ? Binary/JSON ?
             ObjectMessage message = jmsSession.createObjectMessage();
             message.setObject(kapuaEvent);
             message.acknowledge();
             jmsProducer.send(message);
-            
+
         } catch (JMSException e) {
             LOGGER.error("Message publish interrupted: {}", e.getMessage());
         }
     }
 
     @Override
-    public synchronized void subscribe(String address, final EventBusListener kapuaEventListener) throws EventBusException {
+    public synchronized void subscribe(String address, final EventBusListener kapuaEventListener)
+            throws EventBusException {
         try {
             if (kapuaListeners.get(address) == null) {
                 Queue jmsQueue = jmsSession.createQueue(address);
@@ -137,12 +142,16 @@ public class JMSEventBus implements EventBus {
         }
     }
 
-    public void stop() throws JMSException {
+    public void stop() throws EventBusException {
         LOGGER.info("Stopping...");
-        
-        jmsSession.close();
-        jmsConnection.close();
-        
+
+        try {
+            jmsSession.close();
+            jmsConnection.close();
+        } catch (JMSException e) {
+            throw new EventBusException(e);
+        }
+
         LOGGER.info("Stopping...DONE");
     }
 }
