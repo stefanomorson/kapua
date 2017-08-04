@@ -25,6 +25,7 @@ import org.eclipse.kapua.commons.event.EventStoreListener;
 import org.eclipse.kapua.commons.event.HouseKeeperJob;
 import org.eclipse.kapua.commons.event.bus.EventBus;
 import org.eclipse.kapua.locator.inject.MultiService;
+import org.eclipse.kapua.service.account.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +38,18 @@ public class AccountServiceBundle implements ServiceBundle {
     @Inject
     private EventBus eventbus;
 
+    @Inject
+    private AccountService accountService;
+
     private EventStoreListener eventStoreListener;
     private ScheduledExecutorService houseKeeperScheduler;
 
     @Override
     public void start() throws KapuaException {
         LOGGER.info("Start ...");
-        // eventbus.subscribe("updatream event addresses", accountService);
+        //eventbus.subscribe("updatream event addresses", accountService);
 
-        // Event store listener
+        // Event store listener 
         String accountEventsAddressSubscribe = "events.account.account";
         eventStoreListener = new EventStoreListener();
         eventbus.subscribe(accountEventsAddressSubscribe, eventStoreListener);
