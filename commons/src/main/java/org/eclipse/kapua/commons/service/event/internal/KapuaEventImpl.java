@@ -13,28 +13,73 @@ package org.eclipse.kapua.commons.service.event.internal;
 
 import java.util.Date;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.eclipse.kapua.commons.model.AbstractKapuaUpdatableEntity;
+import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.event.KapuaEvent;
 
-public class KapuaEventImpl implements KapuaEvent {
+@Entity(name = "KapuaEvent")
+@Table(name = "sys_service_event")
+public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements KapuaEvent {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2416000835110726619L;
-    
+
+    @Basic
+    @Column(name = "contextId", nullable = false, updatable = false)
     private String contextId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "event_on", nullable = false, updatable = false)
     private Date timestamp;
-    private KapuaId userId;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "eid", column = @Column(name = "user_id"))
+    })
+    private KapuaEid userId;
+
+    @Basic
+    @Column(name = "service", nullable = false, updatable = false)
     private String service;
+
+    @Basic
+    @Column(name = "entity_type", nullable = false, updatable = false)
     private String entityType;
-    private KapuaId scopeId;
-    private KapuaId entityId;
+
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "eid", column = @Column(name = "user_id"))
+    })
+    private KapuaEid entityId;
+
+    @Basic
+    @Column(name = "operation", nullable = false, updatable = false)
     private String operation;
+
+    @Basic
+    @Column(name = "inputs", nullable = false, updatable = false)
     private String inputs;
+
+    @Basic
+    @Column(name = "outputs", nullable = true, updatable = true)
     private String outputs;
-    private String properties;
-    private String note;
+
+    public KapuaEventImpl() {
+    }
+
+    public KapuaEventImpl(KapuaId scopeId) {
+        setScopeId(scopeId);
+    }
 
     @Override
     public String getContextId() {
@@ -63,7 +108,7 @@ public class KapuaEventImpl implements KapuaEvent {
 
     @Override
     public void setUserId(KapuaId userId) {
-        this.userId = userId;
+        this.userId = KapuaEid.parseKapuaId(userId);
     }
 
     @Override
@@ -93,7 +138,7 @@ public class KapuaEventImpl implements KapuaEvent {
 
     @Override
     public void setScopeId(KapuaId scopeId) {
-        this.scopeId = scopeId;
+        this.scopeId = KapuaEid.parseKapuaId(scopeId);
     }
 
     @Override
@@ -103,7 +148,7 @@ public class KapuaEventImpl implements KapuaEvent {
 
     @Override
     public void setEntityId(KapuaId entityId) {
-        this.entityId = entityId;
+        this.entityId = KapuaEid.parseKapuaId(entityId);
     }
 
     @Override
@@ -132,25 +177,5 @@ public class KapuaEventImpl implements KapuaEvent {
 
     public void setOutputs(String outputs) {
         this.outputs = outputs;
-    }
-
-    @Override
-    public String getProperties() {
-        return properties;
-    }
-
-    @Override
-    public void setProperties(String properties) {
-        this.properties = properties;
-    }
-
-    @Override
-    public String getNote() {
-        return note;
-    }
-
-    @Override
-    public void setNote(String note) {
-        this.note = note;
     }
 }

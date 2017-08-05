@@ -11,15 +11,32 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.service.event.internal;
 
-import org.eclipse.kapua.locator.KapuaProvider;
+import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventCreator;
 import org.eclipse.kapua.service.event.KapuaEventFactory;
+import org.eclipse.kapua.service.event.KapuaEventListResult;
+import org.eclipse.kapua.service.event.KapuaEventQuery;
 
-@KapuaProvider
 public class KapuaEventFactoryImpl implements KapuaEventFactory {
 
     @Override
-    public KapuaEvent newKapuaEvent() {
-        return new KapuaEventImpl();
+    public KapuaEvent newEntity(KapuaId scopeId) {
+        return new KapuaEventImpl(scopeId);
+    }
+
+    @Override
+    public KapuaEventCreator newCreator(KapuaId scopeId) {
+        return new KapuaEventCreatorImpl(scopeId);
+    }
+
+    @Override
+    public KapuaEventQuery newQuery(KapuaId scopeId) {
+        return new KapuaEventQueryImpl(scopeId);
+    }
+
+    @Override
+    public KapuaEventListResult newListResult() {
+        return new KapuaEventListResultImpl();
     }
 }

@@ -14,12 +14,17 @@ package org.eclipse.kapua.commons.event;
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.jpa.EntityManager;
+import org.eclipse.kapua.commons.service.event.internal.KapuaEventImpl;
+import org.eclipse.kapua.commons.service.event.internal.KapuaEventListResultImpl;
+import org.eclipse.kapua.commons.service.internal.ServiceDAO;
 import org.eclipse.kapua.model.id.KapuaId;
+import org.eclipse.kapua.model.query.KapuaQuery;
 import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventListResult;
 
-public class EventStoreDAO {
+public class ServiceEventDAO {
 
-    private EventStoreDAO() {
+    private ServiceEventDAO() {
     }
 
     /**
@@ -32,9 +37,7 @@ public class EventStoreDAO {
      */
     public static KapuaEvent create(EntityManager em, KapuaEvent kapuaEvent)
             throws KapuaException {
-
-        // TODO Implements persistency
-        return null;
+        return ServiceDAO.create(em, kapuaEvent);
     }
 
     /**
@@ -45,11 +48,12 @@ public class EventStoreDAO {
      * @return
      * @throws KapuaException
      */
-    public static KapuaEvent update(EntityManager em, KapuaEvent account)
+    public static KapuaEvent update(EntityManager em, KapuaEvent kapuaEvent)
             throws KapuaException {
 
-        // TODO Implements persistency
-        return null;
+        KapuaEventImpl kapuaEventImpl = (KapuaEventImpl) kapuaEvent;
+
+        return ServiceDAO.update(em, KapuaEventImpl.class, kapuaEventImpl);
     }
 
     /**
@@ -61,14 +65,39 @@ public class EventStoreDAO {
      *             If the {@link Account} is not found
      */
     public static void delete(EntityManager em, KapuaId eventId) throws KapuaEntityNotFoundException {
-        // TODO Implements persistency
+        ServiceDAO.delete(em, KapuaEventImpl.class, eventId);
     }
 
     /**
      * Finds the event by event identifier
      */
     public static KapuaEvent find(EntityManager em, KapuaId eventId) {
-        // TODO Implements persistency
-        return null;
+        return em.find(KapuaEventImpl.class, eventId);
+    }
+
+    /**
+     * Returns the kapuaEvent list matching the provided query
+     * 
+     * @param em
+     * @param kapuaEventQuery
+     * @return
+     * @throws KapuaException
+     */
+    public static KapuaEventListResult query(EntityManager em, KapuaQuery<KapuaEvent> kapuaEventQuery)
+            throws KapuaException {
+        return ServiceDAO.query(em, KapuaEvent.class, KapuaEventImpl.class, new KapuaEventListResultImpl(), kapuaEventQuery);
+    }
+
+    /**
+     * Returns the kapuaEvent count matching the provided query
+     * 
+     * @param em
+     * @param kapuaEventQuery
+     * @return
+     * @throws KapuaException
+     */
+    public static long count(EntityManager em, KapuaQuery<KapuaEvent> kapuaEventQuery)
+            throws KapuaException {
+        return ServiceDAO.count(em, KapuaEvent.class, KapuaEventImpl.class, kapuaEventQuery);
     }
 }

@@ -16,7 +16,7 @@ import javax.persistence.PersistenceException;
 import org.eclipse.kapua.KapuaEntityExistsException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.event.EventScope;
-import org.eclipse.kapua.commons.event.EventStoreDAO;
+import org.eclipse.kapua.commons.event.ServiceEventDAO;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.KapuaExceptionUtils;
@@ -234,7 +234,7 @@ public class EntityManagerSession {
         // If a kapua event is in scope then persist it along with the entity
         KapuaEvent kapuaEvent = EventScope.get();
         if (kapuaEvent != null) {
-            persistedKapuaEvent = EventStoreDAO.create(manager, kapuaEvent);
+            persistedKapuaEvent = ServiceEventDAO.create(manager, kapuaEvent);
         }
 
         return persistedKapuaEvent;

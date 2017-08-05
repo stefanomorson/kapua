@@ -9,16 +9,18 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.event;
+package org.eclipse.kapua.commons.service.event.internal;
 
-import org.eclipse.kapua.model.KapuaEntityFactory;
+import org.eclipse.kapua.commons.model.query.KapuaListResultImpl;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventListResult;
 
 /**
- * KapuaEvent factory service definition.
- * 
+ * KapuaEvent list result implementation.
+ *
  * @since 1.0
- * 
  */
-public interface KapuaEventFactory extends KapuaEntityFactory<KapuaEvent, KapuaEventCreator, KapuaEventQuery, KapuaEventListResult> {
+public class KapuaEventListResultImpl extends KapuaListResultImpl<KapuaEvent> implements KapuaEventListResult {
 
+    private static final long serialVersionUID = -5118004898345748297L;
 }

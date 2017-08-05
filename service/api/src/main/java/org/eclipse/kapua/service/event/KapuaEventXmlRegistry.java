@@ -20,8 +20,35 @@ public class KapuaEventXmlRegistry {
     @Inject
     private KapuaEventFactory kapuaEventFactory;
 
+    /**
+     * Creates a new kapuaEvent instance
+     * 
+     * @return
+     */
     public KapuaEvent newKapuaEvent() {
-        return kapuaEventFactory.newKapuaEvent();
+        return kapuaEventFactory.newEntity(null);
+    }
+
+    /**
+     * Creates a new kapuaEvent creator instance
+     * 
+     * @return
+     */
+    public KapuaEventCreator newKapuaEventCreator() {
+        return kapuaEventFactory.newCreator(null);
+    }
+
+    /**
+     * Creates a new kapuaEvent list result instance
+     * 
+     * @return
+     */
+    public KapuaEventListResult newKapuaEventListResult() {
+        return kapuaEventFactory.newListResult();
+    }
+
+    public KapuaEventQuery newQuery() {
+        return kapuaEventFactory.newQuery(null);
     }
 
 }

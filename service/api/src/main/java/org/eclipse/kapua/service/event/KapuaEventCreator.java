@@ -11,14 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import org.eclipse.kapua.model.KapuaEntityFactory;
+import org.eclipse.kapua.model.KapuaEntityCreator;
 
-/**
- * KapuaEvent factory service definition.
- * 
- * @since 1.0
- * 
- */
-public interface KapuaEventFactory extends KapuaEntityFactory<KapuaEvent, KapuaEventCreator, KapuaEventQuery, KapuaEventListResult> {
+public interface KapuaEventCreator extends KapuaEntityCreator<KapuaEvent> {
 
 }

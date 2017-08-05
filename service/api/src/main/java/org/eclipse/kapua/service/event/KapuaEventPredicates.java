@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,14 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import org.eclipse.kapua.model.KapuaEntityFactory;
+import org.eclipse.kapua.model.KapuaUpdatableEntityPredicates;
 
-/**
- * KapuaEvent factory service definition.
- * 
- * @since 1.0
- * 
- */
-public interface KapuaEventFactory extends KapuaEntityFactory<KapuaEvent, KapuaEventCreator, KapuaEventQuery, KapuaEventListResult> {
+public interface KapuaEventPredicates extends KapuaUpdatableEntityPredicates {
 
 }

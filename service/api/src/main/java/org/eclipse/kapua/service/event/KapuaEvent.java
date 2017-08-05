@@ -11,12 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import java.io.Serializable;
 import java.util.Date;
-
-import org.eclipse.kapua.model.id.KapuaId;
-import org.eclipse.kapua.model.id.KapuaIdAdapter;
-import org.eclipse.kapua.model.xml.DateXmlAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -24,6 +19,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.eclipse.kapua.model.KapuaUpdatableEntity;
+import org.eclipse.kapua.model.id.KapuaId;
+import org.eclipse.kapua.model.id.KapuaIdAdapter;
+import org.eclipse.kapua.model.xml.DateXmlAdapter;
 
 @XmlRootElement(name = "event")
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -42,9 +42,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 }, //
         factoryClass = KapuaEventXmlRegistry.class, //
         factoryMethod = "newKapuaEvent")
-public interface KapuaEvent extends Serializable {
+public interface KapuaEvent extends KapuaUpdatableEntity {
 
-    public static final String TYPE = "user";
+    public static final String TYPE = "kapuaEvent";
 
     public default String getType() {
         return TYPE;
@@ -58,7 +58,7 @@ public interface KapuaEvent extends Serializable {
     @XmlElement(name = "timestamp")
     @XmlJavaTypeAdapter(DateXmlAdapter.class)
     public Date getTimestamp();
-    
+
     public void setTimestamp(Date timestamp);
 
     @XmlElement(name = "userId")
@@ -103,14 +103,4 @@ public interface KapuaEvent extends Serializable {
     public String getOutputs();
 
     public void setOutputs(String outputs);
-
-    @XmlElement(name = "properties")
-    public String getProperties();
-
-    public void setProperties(String properties);
-
-    @XmlElement(name = "note")
-    public String getNote();
-
-    public void setNote(String note);
 }
