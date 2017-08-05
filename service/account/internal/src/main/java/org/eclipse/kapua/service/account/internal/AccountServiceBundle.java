@@ -25,7 +25,6 @@ import org.eclipse.kapua.commons.event.EventStoreListener;
 import org.eclipse.kapua.commons.event.HouseKeeperJob;
 import org.eclipse.kapua.commons.event.bus.EventBus;
 import org.eclipse.kapua.locator.inject.MultiService;
-import org.eclipse.kapua.service.account.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,26 +37,23 @@ public class AccountServiceBundle implements ServiceBundle {
     @Inject
     private EventBus eventbus;
 
-    @Inject
-    private AccountService accountService;
-
     private EventStoreListener eventStoreListener;
     private ScheduledExecutorService houseKeeperScheduler;
 
     @Override
     public void start() throws KapuaException {
         LOGGER.info("Start ...");
-        //eventbus.subscribe("updatream event addresses", accountService);
+        //eventbus.subscribe("upstream event addresses", accountService);
 
         // Event store listener 
-        String accountEventsAddressSubscribe = "events.account.account";
+        String accountEventsAddressSubscribe = "account.account"; //the event bus implicitly will add event. as prefix for each publish/subscribe
         eventStoreListener = new EventStoreListener();
         eventbus.subscribe(accountEventsAddressSubscribe, eventStoreListener);
 
         // House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
 
-        String accountEventsAddressPublish = "events.account";
+        String accountEventsAddressPublish = "account"; //the event bus implicitly will add event. as prefix for each publish/subscribe
         Runnable houseKeeperJob = new HouseKeeperJob(eventbus, accountEventsAddressPublish);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> beeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30,

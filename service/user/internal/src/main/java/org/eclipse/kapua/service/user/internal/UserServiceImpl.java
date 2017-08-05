@@ -269,6 +269,7 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
     @Override
     @ListenKapuaEvent
     public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+        logger.info("Received event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
         // TODO Manage Events
     }
 

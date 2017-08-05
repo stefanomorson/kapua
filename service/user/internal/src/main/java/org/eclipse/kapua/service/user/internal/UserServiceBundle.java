@@ -44,17 +44,17 @@ public class UserServiceBundle implements ServiceBundle {
 
         userService = KapuaLocator.getInstance().getService(UserService.class);
         // Listen to upstream service events
-        eventbus.subscribe("events.account.user", userService);
+        eventbus.subscribe("account.user", userService); //the event bus implicitly will add event. as prefix for each publish/subscribe
         
         // Event store listener
-        String userEventsAddressSubscribe = "events.user.user";
+        String userEventsAddressSubscribe = "user.user"; //the event bus implicitly will add event. as prefix for each publish/subscribe
         eventStoreListener = new EventStoreListener();
         eventbus.subscribe(userEventsAddressSubscribe, eventStoreListener);
 
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
 
-        String userEventsAddressPublish = "events.user";
+        String userEventsAddressPublish = "user"; //the event bus implicitly will add event. as prefix for each publish/subscribe
         Runnable houseKeeperJob = new HouseKeeperJob(eventbus, userEventsAddressPublish);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> beeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);

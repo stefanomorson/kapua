@@ -11,9 +11,4 @@
 #
 #*******************************************************************************
 # Kapua jars and activemq.xml need to be added before starting the activemq instance...
-# start the service broker
-cd ../../activemq-service/apache-activemq-5.14.5/
-./start-broker-service.sh
-cd ../../activemq/apache-activemq-5.14.5/
-./update-kapua-jars-cfg.sh
 bin/activemq start -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=* xbean:conf/activemq.xml

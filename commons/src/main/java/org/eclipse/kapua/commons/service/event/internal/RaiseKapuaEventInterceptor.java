@@ -24,6 +24,7 @@ import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.locator.inject.Interceptor;
+import org.eclipse.kapua.model.KapuaEntity;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
@@ -49,6 +50,7 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         Object returnObject = null;
 
         try {
+            // if(!create) then the entity id can be set here
             KapuaEvent event = EventScope.begin();
 
             KapuaSession session = KapuaSecurityUtils.getSession();
@@ -56,16 +58,32 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
             event.setTimestamp(new Date());
             event.setUserId(session.getUserId());
             event.setScopeId(session.getScopeId());
+            Object[] arguments = invocation.getArguments();
+            if (arguments!=null) {
+                for (Object obj : arguments) {
+                    if (obj instanceof KapuaEntity) {
+                        event.setEntityType(obj.getClass().getName());
+                        event.setEntityId(((KapuaEntity) obj).getId());
+                        break;
+                    }
+                }
+            }
+            event.setOperation(invocation.getMethod().getName());
+            //get the service name
+            //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
+            //then keep the interface from this object
+            Class<?> wrappedClass = invocation.getThis().getClass().getSuperclass(); //this object should be not null
+            Class<?>[] impementedClass = wrappedClass.getInterfaces();
+            String interfaceName = impementedClass[0].getName();
+            String tmp[] = interfaceName.split("\\.");
+            String serviceName = tmp[tmp.length-1];
+            event.setService(serviceName.substring(0, serviceName.length()-"Service".length()).toLowerCase());
 
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
-            // event.setService(service);
-            // event.setEntityType(entityType);
-            // if(!create) then the entity id can be set here
-            // event.setEntityId(entityId);
-            // event.setOperation(operation);
             // event.setInputs(inputs);
             // event.setProperties(properties);
 
+               //execute the business logic
             returnObject = invocation.proceed();
 
             // Raise service event if the execution is successful
@@ -78,10 +96,10 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         }
     }
 
-    private void sendEvent(KapuaEvent event, Object returnedValue, MethodInvocation invocation) throws EventBusException {
-        String address = String.format("%s", event.getService());
-        eventBus.publish(address, event);
-        eventBus.publish(address + ".user", event);
+    private void sendEvent(KapuaEvent kapuaEvent, Object returnedValue, MethodInvocation invocation) throws EventBusException {
+        String address = String.format("%s", kapuaEvent.getService());
+        eventBus.publish(address, kapuaEvent);
+        LOGGER.info("SENT event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
     }
 
 }

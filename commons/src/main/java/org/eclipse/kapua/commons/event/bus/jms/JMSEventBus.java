@@ -78,6 +78,7 @@ public class JMSEventBus implements EventBus {
 
     @Override
     public synchronized void publish(String address, KapuaEvent kapuaEvent) {
+        address = String.format("events.%s", address);
         try {
             MessageProducer jmsProducer = jmsProducers.get(address);
             if (jmsProducer == null) {
@@ -89,8 +90,8 @@ public class JMSEventBus implements EventBus {
             // TODO Serialize outgoing kapua event ? Binary/JSON ?
             ObjectMessage message = jmsSession.createObjectMessage();
             message.setObject(kapuaEvent);
-            message.acknowledge();
             jmsProducer.send(message);
+            message.acknowledge();
 
         } catch (JMSException e) {
             LOGGER.error("Message publish interrupted: {}", e.getMessage());
@@ -101,6 +102,7 @@ public class JMSEventBus implements EventBus {
     public synchronized void subscribe(String address, final EventBusListener kapuaEventListener)
             throws EventBusException {
         try {
+            address = String.format("events.%s", address);
             if (kapuaListeners.get(address) == null) {
                 Queue jmsQueue = jmsSession.createQueue(address);
                 MessageConsumer jmsConsumer = jmsSession.createConsumer(jmsQueue);

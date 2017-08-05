@@ -209,6 +209,35 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
         XmlUtil.setContextProvider(new BrokerJAXBContextProvider());
         super.start();
         logger.info(">>> Security broker filter: calling start... DONE");
+        
+        //WARNING DEMO CODE JUST TO TRIGGER AN EVENT.... PLEASE REMOVE IT AFTER TEST
+        Thread t = new Thread(new EventTestTrigger());
+        t.start();
+    }
+    
+    //WARNING DEMO CODE JUST TO TRIGGER AN EVENT.... PLEASE REMOVE IT AFTER TEST
+    private class EventTestTrigger implements Runnable {
+        
+        public EventTestTrigger() {
+            
+        }
+        
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    Thread.sleep(30000);
+                    KapuaSecurityUtils.doPrivileged(() -> {
+                        Account account = accountService.find(KapuaId.ONE);
+                        accountService.update(account);
+                    });
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            
+        }
     }
 
     @Override

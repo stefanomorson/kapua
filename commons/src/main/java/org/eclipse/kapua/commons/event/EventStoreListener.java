@@ -15,14 +15,19 @@ import org.eclipse.kapua.commons.event.bus.EventBusException;
 import org.eclipse.kapua.service.event.EventBusListener;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.ListenKapuaEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EventStoreListener implements EventBusListener {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventStoreListener.class);
     
     public EventStoreListener() throws EventBusException {
     }
     
     @ListenKapuaEvent
-    public void onKapuaEvent(KapuaEvent event) {
+    public void onKapuaEvent(KapuaEvent kapuaEvent) {
+        LOGGER.info("Received event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
         // Mark the Event entry in the EventStore table
         // as 'processed' successfully.
     }
