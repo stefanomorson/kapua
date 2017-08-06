@@ -27,10 +27,15 @@ import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnection;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionCreator;
+import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionFactory;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionListResult;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionPredicates;
+import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionQuery;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionService;
 import org.eclipse.kapua.service.device.registry.internal.DeviceEntityManagerFactory;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DeviceConnectionService exposes APIs to retrieve Device connections under a scope.
@@ -40,6 +45,8 @@ import org.eclipse.kapua.service.device.registry.internal.DeviceEntityManagerFac
  */
 @KapuaProvider
 public class DeviceConnectionServiceImpl extends AbstractKapuaService implements DeviceConnectionService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceConnectionServiceImpl.class);
 
     private static final Domain DEVICE_CONNECTION_DOMAIN = new DeviceConnectionDomain();
 
@@ -205,6 +212,30 @@ public class DeviceConnectionServiceImpl extends AbstractKapuaService implements
             throws KapuaException {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+        if (kapuaEvent == null) {
+            //service bus error. Throw some exception?
+        }
+        LOGGER.info("DeviceConnectionService: received kapua event from {}, operation {}", kapuaEvent.getService(), kapuaEvent.getOperation());
+        if ("account".equals(kapuaEvent.getService()) && "delete".equals(kapuaEvent.getOperation())) {
+            deleteConnectionByAccountId(kapuaEvent.getScopeId(), kapuaEvent.getEntityId());
+        }
+    }
+
+    private void deleteConnectionByAccountId(KapuaId scopeId, KapuaId accountId) throws KapuaException {
+        KapuaLocator locator = KapuaLocator.getInstance();
+        DeviceConnectionFactory deviceConnectionFactory = locator.getFactory(DeviceConnectionFactory.class);
+
+        DeviceConnectionQuery query = deviceConnectionFactory.newQuery(accountId);
+
+        DeviceConnectionListResult deviceConnectionsToDelete = query(query);
+
+        for (DeviceConnection dc : deviceConnectionsToDelete.getItems()) {
+            delete(dc.getScopeId(), dc.getId());
+        }
     }
 
 }

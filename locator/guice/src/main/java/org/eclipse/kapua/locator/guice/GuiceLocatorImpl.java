@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.kapua.KapuaRuntimeException;
+import org.eclipse.kapua.commons.core.ServiceModuleLocator;
+import org.eclipse.kapua.commons.core.ServiceModuleProvider;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.locator.KapuaLocatorErrorCodes;
 import org.eclipse.kapua.model.KapuaObjectFactory;
@@ -37,10 +39,12 @@ public class GuiceLocatorImpl extends KapuaLocator {
 
     public GuiceLocatorImpl() {
         injector = Guice.createInjector(new KapuaModule());
+        ServiceModuleLocator.setModuleProvider(injector.getInstance(ServiceModuleProvider.class));
     }
 
     public GuiceLocatorImpl(String resourceName) {
         injector = Guice.createInjector(new KapuaModule(resourceName));
+        ServiceModuleLocator.setModuleProvider(injector.getInstance(ServiceModuleProvider.class));
     }
 
     @Override
@@ -58,6 +62,14 @@ public class GuiceLocatorImpl extends KapuaLocator {
             return injector.getInstance(factoryClass);
         } catch (ConfigurationException e) {
             throw new KapuaRuntimeException(KapuaLocatorErrorCodes.FACTORY_UNAVAILABLE, factoryClass);
+        }
+    }
+
+    public <T> T getComponent(Class<T> componentClass) {
+        try {
+            return injector.getInstance(componentClass);
+        } catch (ConfigurationException e) {
+            throw new KapuaRuntimeException(KapuaLocatorErrorCodes.COMPONENT_UNAVAILABLE, componentClass);
         }
     }
 
