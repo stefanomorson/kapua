@@ -54,8 +54,6 @@ public class JMSEventbus implements KapuaEventbus {
     }
 
     public void start() throws KapuaEventbusException {
-        LOGGER.info("Start ...");
-
         try {
 
             String eventbusUrl = SystemSetting.getInstance().getString(SystemSettingKey.EVENT_BUS_URL);
@@ -71,7 +69,6 @@ public class JMSEventbus implements KapuaEventbus {
         } catch (JMSException e) {
             throw new KapuaEventbusException(e);
         }
-        LOGGER.info("Start ... DONE");
     }
 
     @Override
@@ -93,6 +90,8 @@ public class JMSEventbus implements KapuaEventbus {
 
         } catch (JMSException e) {
             LOGGER.error("Message publish interrupted: {}", e.getMessage());
+        } catch (Throwable t) {
+            throw t;
         }
     }
 
@@ -143,15 +142,15 @@ public class JMSEventbus implements KapuaEventbus {
     }
 
     public void stop() throws KapuaEventbusException {
-        LOGGER.info("Stopping...");
-
         try {
-            jmsSession.close();
-            jmsConnection.close();
+            if (jmsSession != null) {
+                jmsSession.close();
+            }
+            if (jmsConnection != null) {
+                jmsConnection.close();
+            }
         } catch (JMSException e) {
             throw new KapuaEventbusException(e);
         }
-
-        LOGGER.info("Stopping...DONE");
     }
 }

@@ -14,7 +14,10 @@ package org.eclipse.kapua.app.console.server.util;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.KapuaRuntimeException;
 import org.eclipse.kapua.app.console.ConsoleJAXBContextProvider;
+import org.eclipse.kapua.commons.core.KapuaApplication;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.slf4j.Logger;
@@ -24,15 +27,31 @@ public class ConsoleListener implements ServletContextListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleListener.class);
 
+    KapuaApplication kapuaApplication;
+
     @Override
     public void contextInitialized(final ServletContextEvent event) {
         logger.info("Initialize Console JABContext Provider");
         JAXBContextProvider consoleProvider = new ConsoleJAXBContextProvider();
         XmlUtil.setContextProvider(consoleProvider);
+
+        try {
+            kapuaApplication = new KapuaApplication();
+            kapuaApplication.startup();
+        } catch (KapuaException e) {
+            throw KapuaRuntimeException.internalError(e);
+        }
     }
 
     @Override
     public void contextDestroyed(final ServletContextEvent event) {
+        if (kapuaApplication != null) {
+            try {
+                kapuaApplication.shutdown();
+            } catch (KapuaException e) {
+                throw KapuaRuntimeException.internalError(e);
+            }
+        }
     }
 
 }

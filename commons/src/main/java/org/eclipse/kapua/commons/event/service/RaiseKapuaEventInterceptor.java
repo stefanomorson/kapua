@@ -74,7 +74,7 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
             event.setService(serviceName.substring(0, serviceName.length()-"Service".length()).toLowerCase());
 
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
-            // event.setInputs(inputs);
+            event.setInputs(" ");
             // event.setProperties(properties);
 
                //execute the business logic

@@ -14,7 +14,7 @@
 
 -- changeset service_events:1
 
-CREATE TABLE IF NOT EXISTS sys_service_events (
+CREATE TABLE IF NOT EXISTS sys_service_event (
   scope_id          		 BIGINT(21) 	  UNSIGNED,
   id                         BIGINT(21) 	  UNSIGNED NOT NULL,
   created_on                 TIMESTAMP(3) 	  DEFAULT 0,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS sys_service_events (
   modified_on                TIMESTAMP(3) 	  NOT NULL,
   modified_by                BIGINT(21) 	  UNSIGNED NOT NULL,
   
-  context_id                 BIGINT(21) 	  UNSIGNED NOT NULL,
+  context_id                 TEXT,
   event_on	                 TIMESTAMP(3) 	  NOT NULL,
   user_id                    BIGINT(21) 	  UNSIGNED NOT NULL,
   service					VARCHAR(255) NOT NULL,

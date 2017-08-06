@@ -35,7 +35,7 @@ public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements Kapu
     private static final long serialVersionUID = -2416000835110726619L;
 
     @Basic
-    @Column(name = "contextId", nullable = false, updatable = false)
+    @Column(name = "context_id", nullable = false, updatable = false)
     private String contextId;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -58,7 +58,7 @@ public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements Kapu
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "eid", column = @Column(name = "user_id"))
+            @AttributeOverride(name = "eid", column = @Column(name = "entity_id"))
     })
     private KapuaEid entityId;
 

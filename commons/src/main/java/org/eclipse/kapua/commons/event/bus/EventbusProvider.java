@@ -24,17 +24,17 @@ public class EventbusProvider implements KapuaEventbus {
     private final static Logger LOGGER = LoggerFactory.getLogger(EventbusProvider.class);
 
     private static EventbusProvider instance;
-    private static KapuaEventbusException initException;
+    private static Throwable initFailureCause;
 
     private JMSEventbus jmsEventbus;
 
     static {
         try {
             instance = new EventbusProvider();
-        } catch (KapuaEventbusException e) {
+        } catch (Throwable e) {
             LOGGER.error("Error while initializing EventbusProvider", e);
             instance = null;
-            initException = e;
+            initFailureCause = e;
         }
     }
 
@@ -43,8 +43,8 @@ public class EventbusProvider implements KapuaEventbus {
     }
 
     public static EventbusProvider getInstance() throws KapuaEventbusException {
-        if (initException != null) {
-            throw initException;
+        if (initFailureCause != null) {
+            throw new KapuaEventbusException(initFailureCause);
         }
         return instance;
     }

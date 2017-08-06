@@ -83,7 +83,9 @@ public class EntityManagerSession {
             transactionManager.beginTransaction(manager);
             entityManagerActionCallback.onAction(manager);
 
-            KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+            if (manager.isTransactionActive()) {
+                KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+            }
 
             transactionManager.commit(manager);
         } catch (Exception e) {
@@ -134,7 +136,9 @@ public class EntityManagerSession {
             transactionManager.beginTransaction(manager);
             T result = entityManagerResultCallback.onResult(manager);
 
-            KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+            if (manager.isTransactionActive()) {
+                KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+            }
 
             transactionManager.commit(manager);
             return result;
