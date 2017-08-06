@@ -16,6 +16,8 @@ import static org.eclipse.kapua.commons.util.ArgumentValidator.notEmptyOrNull;
 
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalArgumentException;
@@ -28,6 +30,9 @@ import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.domain.Domain;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.ListenKapuaEvent;
+import org.eclipse.kapua.service.event.RaiseKapuaEvent;
 import org.eclipse.kapua.service.user.User;
 import org.eclipse.kapua.service.user.UserCreator;
 import org.eclipse.kapua.service.user.UserFactory;
@@ -38,15 +43,13 @@ import org.eclipse.kapua.service.user.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-
 /**
  * User service implementation.
  */
 @KapuaProvider
 public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedService<User, UserCreator, UserService, UserListResult, UserQuery, UserFactory> implements UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static final Domain USER_DOMAIN = new UserDomain();
 
@@ -64,6 +67,7 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
     }
 
     @Override
+    @RaiseKapuaEvent
     public User create(UserCreator userCreator)
             throws KapuaException {
         //
@@ -84,7 +88,7 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
 
         final int remainingChildEntities = allowedChildEntities(userCreator.getScopeId());
         if (remainingChildEntities <= 0) {
-            logger.info("Exceeded child limit - remaining: {}", remainingChildEntities);
+            LOGGER.info("Exceeded child limit - remaining: {}", remainingChildEntities);
             throw new KapuaIllegalArgumentException("scopeId", "max users reached");
         }
 
@@ -96,6 +100,7 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
     }
 
     @Override
+    @RaiseKapuaEvent
     public User update(User user)
             throws KapuaException {
         // Validation of the fields
@@ -134,6 +139,7 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
     }
 
     @Override
+    @RaiseKapuaEvent
     public void delete(KapuaId scopeId, KapuaId userId) throws KapuaException {
         // Validation of the fields
         ArgumentValidator.notNull(userId.getId(), "id");
@@ -247,6 +253,12 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
         if ("kapua-sys".equals(name)) {
             throw new KapuaIllegalArgumentException("name", "kapua-sys");
         }
+    }
+
+    @Override
+    @ListenKapuaEvent
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+        LOGGER.info("UserService: received kapua event from {}, operation {}", kapuaEvent.getService(), kapuaEvent.getOperation());
     }
 
 }

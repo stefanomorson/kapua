@@ -15,9 +15,12 @@ import javax.persistence.PersistenceException;
 
 import org.eclipse.kapua.KapuaEntityExistsException;
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.event.service.EventScope;
+import org.eclipse.kapua.commons.event.service.internal.ServiceEventDAO;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.KapuaExceptionUtils;
+import org.eclipse.kapua.service.event.KapuaEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +82,9 @@ public class EntityManagerSession {
             manager = entityManagerFactory.createEntityManager();
             transactionManager.beginTransaction(manager);
             entityManagerActionCallback.onAction(manager);
+
+            KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+
             transactionManager.commit(manager);
         } catch (Exception e) {
             if (manager != null) {
@@ -127,6 +133,9 @@ public class EntityManagerSession {
             manager = entityManagerFactory.createEntityManager();
             transactionManager.beginTransaction(manager);
             T result = entityManagerResultCallback.onResult(manager);
+
+            KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+
             transactionManager.commit(manager);
             return result;
         } catch (Exception e) {
@@ -184,6 +193,9 @@ public class EntityManagerSession {
                 try {
                     transactionManager.beginTransaction(manager);
                     instance = entityManagerInsertCallback.onInsert(manager);
+
+                    KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+
                     transactionManager.commit(manager);
                     succeeded = true;
                 } catch (KapuaEntityExistsException e) {
@@ -214,6 +226,18 @@ public class EntityManagerSession {
             }
         }
         return instance;
+    }
+
+    private <T> KapuaEvent appendKapuaEvent(EntityManager manager) throws KapuaException {
+        KapuaEvent persistedKapuaEvent = null;
+
+        // If a kapua event is in scope then persist it along with the entity
+        KapuaEvent kapuaEvent = EventScope.get();
+        if (kapuaEvent != null) {
+            persistedKapuaEvent = ServiceEventDAO.create(manager, kapuaEvent);
+        }
+
+        return persistedKapuaEvent;
     }
 
 }

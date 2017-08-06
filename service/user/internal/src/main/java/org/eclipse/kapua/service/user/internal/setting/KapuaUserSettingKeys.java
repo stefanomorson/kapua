@@ -24,7 +24,9 @@ public enum KapuaUserSettingKeys implements SettingKey {
     /**
      * The key value in the configuration resources.
      */
-    USER_KEY("user.key");
+    USER_KEY("user.key"),
+    USER_INTERNAL_EVENT_ADDRESS("user.internalEventAddress"),
+    USER_UPSTREAM_EVENT_ADDRESS("user.upstreamEventAddress");
 
     private String key;
 
