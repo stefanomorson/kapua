@@ -14,14 +14,14 @@ package org.eclipse.kapua.commons.event.service.internal;
 import org.eclipse.kapua.commons.model.query.predicate.AbstractKapuaQuery;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaEventQuery;
+import org.eclipse.kapua.service.event.KapuaEventStoreQuery;
 
-public class KapuaEventQueryImpl extends AbstractKapuaQuery<KapuaEvent> implements KapuaEventQuery {
+public class KapuaEventStoreQueryImpl extends AbstractKapuaQuery<KapuaEvent> implements KapuaEventStoreQuery {
 
     /**
      * Constructor
      */
-    public KapuaEventQueryImpl() {
+    public KapuaEventStoreQueryImpl() {
         super();
     }
 
@@ -30,7 +30,7 @@ public class KapuaEventQueryImpl extends AbstractKapuaQuery<KapuaEvent> implemen
      *
      * @param scopeId
      */
-    public KapuaEventQueryImpl(KapuaId scopeId) {
+    public KapuaEventStoreQueryImpl(KapuaId scopeId) {
         this();
         setScopeId(scopeId);
     }

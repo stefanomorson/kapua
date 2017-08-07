@@ -40,7 +40,7 @@ import org.eclipse.kapua.model.xml.DateXmlAdapter;
         "status",
         "note",
 }, //
-        factoryClass = KapuaEventXmlRegistry.class, //
+        factoryClass = KapuaEventStoreXmlRegistry.class, //
         factoryMethod = "newKapuaEvent")
 public interface KapuaEvent extends KapuaUpdatableEntity {
 

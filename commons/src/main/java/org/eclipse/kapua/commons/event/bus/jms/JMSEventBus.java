@@ -34,9 +34,9 @@ import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaEventbus;
-import org.eclipse.kapua.service.event.KapuaEventbusException;
-import org.eclipse.kapua.service.event.KapuaServiceEventListener;
+import org.eclipse.kapua.service.event.KapuaEventBus;
+import org.eclipse.kapua.service.event.KapuaEventBusException;
+import org.eclipse.kapua.service.event.KapuaEventBusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -44,21 +44,21 @@ import org.xml.sax.SAXException;
 /**
  * @since 0.3.0
  */
-public class JMSEventbus implements KapuaEventbus {
+public class JMSEventBus implements KapuaEventBus {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(JMSEventbus.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JMSEventBus.class);
 
     private Connection jmsConnection;
     private Session jmsSession;
     private Map<String, MessageProducer> jmsProducers;
-    private Map<String, KapuaServiceEventListener> kapuaListeners;
+    private Map<String, KapuaEventBusListener> kapuaListeners;
 
-    public JMSEventbus() throws KapuaEventbusException {
+    public JMSEventBus() throws KapuaEventBusException {
         jmsProducers = new HashMap<>();
         kapuaListeners = new HashMap<>();
     }
 
-    public void start() throws KapuaEventbusException {
+    public void start() throws KapuaEventBusException {
         try {
 
             String eventbusUrl = SystemSetting.getInstance().getString(SystemSettingKey.EVENT_BUS_URL);
@@ -72,7 +72,7 @@ public class JMSEventbus implements KapuaEventbus {
 
             jmsSession = jmsConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
         } catch (JMSException e) {
-            throw new KapuaEventbusException(e);
+            throw new KapuaEventBusException(e);
         }
     }
 
@@ -99,8 +99,8 @@ public class JMSEventbus implements KapuaEventbus {
     }
 
     @Override
-    public synchronized void subscribe(String address, final KapuaServiceEventListener kapuaEventListener)
-            throws KapuaEventbusException {
+    public synchronized void subscribe(String address, final KapuaEventBusListener kapuaEventListener)
+            throws KapuaEventBusException {
         try {
             address = String.format("events.%s", address);
             if (kapuaListeners.get(address) == null) {
@@ -138,11 +138,11 @@ public class JMSEventbus implements KapuaEventbus {
                 // TODO check that this is ok
             }
         } catch (JMSException e) {
-            throw new KapuaEventbusException(e);
+            throw new KapuaEventBusException(e);
         }
     }
 
-    public void stop() throws KapuaEventbusException {
+    public void stop() throws KapuaEventBusException {
         try {
             if (jmsSession != null) {
                 jmsSession.close();
@@ -151,7 +151,7 @@ public class JMSEventbus implements KapuaEventbus {
                 jmsConnection.close();
             }
         } catch (JMSException e) {
-            throw new KapuaEventbusException(e);
+            throw new KapuaEventBusException(e);
         }
     }
 }

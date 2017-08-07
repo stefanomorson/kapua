@@ -13,6 +13,6 @@ package org.eclipse.kapua.service.event;
 
 import org.eclipse.kapua.model.KapuaUpdatableEntityPredicates;
 
-public interface KapuaEventPredicates extends KapuaUpdatableEntityPredicates {
+public interface KapuaEventStorePredicates extends KapuaUpdatableEntityPredicates {
 
 }

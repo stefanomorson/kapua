@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.jpa.AbstractEntityManagerFactory;
+import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.service.internal.AbstractKapuaService;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -28,15 +29,19 @@ import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventCreator;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
-import org.eclipse.kapua.service.event.KapuaEventService;
+import org.eclipse.kapua.service.event.KapuaEventStoreService;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * {@link KapuaEventService} implementation.
+ * {@link KapuaEventStoreService} implementation.
  *
  * @since 1.0.0
  */
-public class KapuaEventServiceImpl extends AbstractKapuaService implements KapuaEventService {
+public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements KapuaEventStoreService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KapuaEventStoreServiceImpl.class);
 
     private static final Domain KAPUA_EVENT_DOMAIN = new KapuaEventDomain();
     private static final KapuaLocator LOCATOR = KapuaLocator.getInstance();
@@ -49,7 +54,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
      * @since 1.0.0
      */
     @Inject
-    public KapuaEventServiceImpl(AbstractEntityManagerFactory entityManagerFactory) {
+    public KapuaEventStoreServiceImpl(AbstractEntityManagerFactory entityManagerFactory) {
         super(entityManagerFactory);
     }
 
@@ -76,13 +81,13 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
         //
         // Do update
         return entityManagerSession.onTransactedResult(em -> {
-            KapuaEvent oldKapuaEvent = ServiceEventDAO.find(em, kapuaEvent.getId());
+            KapuaEvent oldKapuaEvent = KapuaEventStoreDAO.find(em, kapuaEvent.getId());
             if (oldKapuaEvent == null) {
                 throw new KapuaEntityNotFoundException(KapuaEvent.TYPE, kapuaEvent.getId());
             }
 
             // Update
-            return ServiceEventDAO.update(em, kapuaEvent);
+            return KapuaEventStoreDAO.update(em, kapuaEvent);
         });
     }
 
@@ -104,7 +109,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
         //
         // Do delete
         entityManagerSession.onTransactedAction(em -> {
-            ServiceEventDAO.delete(em, kapuaEventId);
+            KapuaEventStoreDAO.delete(em, kapuaEventId);
         });
     }
 
@@ -151,7 +156,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
         // Check Access
         AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(KAPUA_EVENT_DOMAIN, Actions.read, query.getScopeId()));
 
-        return entityManagerSession.onResult(em -> ServiceEventDAO.query(em, query));
+        return entityManagerSession.onResult(em -> KapuaEventStoreDAO.query(em, query));
     }
 
     @Override
@@ -164,7 +169,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
         // Check Access
         AUTHORIZATION_SERVICE.checkPermission(PERMISSION_FACTORY.newPermission(KAPUA_EVENT_DOMAIN, Actions.read, query.getScopeId()));
 
-        return entityManagerSession.onResult(em -> ServiceEventDAO.count(em, query));
+        return entityManagerSession.onResult(em -> KapuaEventStoreDAO.count(em, query));
     }
 
     /**
@@ -182,6 +187,22 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
         // Argument Validation
         ArgumentValidator.notNull(kapuaEventId, "kapuaEventId");
 
-        return entityManagerSession.onResult(em -> ServiceEventDAO.find(em, kapuaEventId));
+        return entityManagerSession.onResult(em -> KapuaEventStoreDAO.find(em, kapuaEventId));
+    }
+
+    @Override
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+
+        ArgumentValidator.notNull(kapuaEvent, "kapuaEvent");
+
+        LOGGER.info("Received event from service {} - entity type {} - entity id {} - context id {}",
+                new Object[] { kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId() });
+
+        KapuaSecurityUtils.doPrivileged(()->{            
+            KapuaEvent persistedKapuaEvent = find(kapuaEvent.getScopeId(), kapuaEvent.getId());
+            // TODO replace literal with status enum
+            persistedKapuaEvent.setStatus("sent");
+            update(persistedKapuaEvent);
+        });
     }
 }

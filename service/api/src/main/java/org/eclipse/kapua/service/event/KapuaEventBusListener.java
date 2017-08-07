@@ -11,19 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import org.eclipse.kapua.KapuaErrorCodes;
 import org.eclipse.kapua.KapuaException;
 
-public class KapuaEventbusException extends KapuaException {
+/**
+ * @since 0.3.0
+ */
+public interface KapuaEventBusListener {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -7004520562049645299L;
-
-    public KapuaEventbusException(Throwable cause) {
-        // TODO Add error code for event bus
-        super(KapuaErrorCodes.INTERNAL_ERROR, cause, (Object[])null);
-     }
-
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException;
 }

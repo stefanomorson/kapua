@@ -16,9 +16,9 @@ import org.eclipse.kapua.service.event.KapuaEvent;
 /**
  * @since 0.3.0
  */
-public interface KapuaEventbus {
+public interface KapuaEventBus {
 
-    public void publish(String address, KapuaEvent event) throws KapuaEventbusException;
+    public void publish(String address, KapuaEvent event) throws KapuaEventBusException;
 
-    public void subscribe(String address, KapuaServiceEventListener eventListener) throws KapuaEventbusException;
+    public void subscribe(String address, KapuaEventBusListener eventListener) throws KapuaEventBusException;
 }

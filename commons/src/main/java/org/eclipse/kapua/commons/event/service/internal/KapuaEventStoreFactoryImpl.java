@@ -15,12 +15,12 @@ import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventCreator;
-import org.eclipse.kapua.service.event.KapuaEventFactory;
+import org.eclipse.kapua.service.event.KapuaEventStoreFactory;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
-import org.eclipse.kapua.service.event.KapuaEventQuery;
+import org.eclipse.kapua.service.event.KapuaEventStoreQuery;
 
 @KapuaProvider
-public class KapuaEventFactoryImpl implements KapuaEventFactory {
+public class KapuaEventStoreFactoryImpl implements KapuaEventStoreFactory {
 
     @Override
     public KapuaEvent newEntity(KapuaId scopeId) {
@@ -33,8 +33,8 @@ public class KapuaEventFactoryImpl implements KapuaEventFactory {
     }
 
     @Override
-    public KapuaEventQuery newQuery(KapuaId scopeId) {
-        return new KapuaEventQueryImpl(scopeId);
+    public KapuaEventStoreQuery newQuery(KapuaId scopeId) {
+        return new KapuaEventStoreQueryImpl(scopeId);
     }
 
     @Override
