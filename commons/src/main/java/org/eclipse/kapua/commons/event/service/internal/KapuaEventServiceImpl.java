@@ -15,10 +15,10 @@ import javax.inject.Inject;
 
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.jpa.AbstractEntityManagerFactory;
 import org.eclipse.kapua.commons.service.internal.AbstractKapuaService;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.locator.KapuaLocator;
-import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
@@ -36,7 +36,6 @@ import org.eclipse.kapua.service.event.RaiseKapuaEvent;
  *
  * @since 1.0.0
  */
-@KapuaProvider
 public class KapuaEventServiceImpl extends AbstractKapuaService implements KapuaEventService {
 
     private static final Domain KAPUA_EVENT_DOMAIN = new KapuaEventDomain();
@@ -50,7 +49,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
      * @since 1.0.0
      */
     @Inject
-    public KapuaEventServiceImpl(KapuaEventEntityManagerFactory entityManagerFactory) {
+    public KapuaEventServiceImpl(AbstractEntityManagerFactory entityManagerFactory) {
         super(entityManagerFactory);
     }
 

@@ -38,6 +38,11 @@ import org.eclipse.kapua.service.device.management.configuration.DeviceComponent
 import org.eclipse.kapua.service.device.management.configuration.DeviceConfiguration;
 import org.eclipse.kapua.service.device.management.packages.model.DevicePackages;
 import org.eclipse.kapua.service.device.management.snapshot.DeviceSnapshots;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventCreator;
+import org.eclipse.kapua.service.event.KapuaEventListResult;
+import org.eclipse.kapua.service.event.KapuaEventQuery;
+import org.eclipse.kapua.service.event.KapuaEventXmlRegistry;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 
 public class ConsoleJAXBContextProvider implements JAXBContextProvider {
@@ -74,6 +79,14 @@ public class ConsoleJAXBContextProvider implements JAXBContextProvider {
                         // Device Management Assets
                         DeviceAssets.class,
                         DeviceAssetXmlRegistry.class,
+
+                        // KapuaEvent
+                        KapuaEvent.class,
+                        KapuaEventCreator.class,
+                        KapuaEventListResult.class,
+                        KapuaEventQuery.class,
+                        KapuaEventXmlRegistry.class
+
                 }, null);
             }
             return context;

@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS sys_service_event (
   operation					VARCHAR(64) NOT NULL,
   inputs						TEXT NOT NULL,
   outputs					TEXT,
+  status						TEXT DEFAULT 'created',
+  note						TEXT,
   
   optlock                   	INT UNSIGNED,
   attributes				    TEXT,

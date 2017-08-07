@@ -14,8 +14,6 @@
 <!DOCTYPE xml>
 <locator-config>
     <provided>
-        <api>org.eclipse.kapua.service.event.KapuaEventFactory</api>
-
         <api>org.eclipse.kapua.service.account.AccountFactory</api>
         <api>org.eclipse.kapua.service.account.AccountService</api>
 
@@ -74,6 +72,8 @@
         <api>org.eclipse.kapua.message.KapuaMessageFactory</api>
 
         <api>org.eclipse.kapua.model.id.KapuaIdFactory</api>
+        
+        <api>org.eclipse.kapua.service.event.KapuaEventFactory</api>
 
         <provide>
             <interceptor>annotation</interceptor>

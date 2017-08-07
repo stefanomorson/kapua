@@ -75,6 +75,7 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
 
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
             event.setInputs(" ");
+
             // event.setProperties(properties);
 
                //execute the business logic

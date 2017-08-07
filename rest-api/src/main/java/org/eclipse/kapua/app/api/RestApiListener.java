@@ -15,13 +15,14 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.KapuaRuntimeException;
 import org.eclipse.kapua.commons.core.KapuaApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RestApiListener implements ServletContextListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestApiListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestApiListener.class);
 
     private KapuaApplication kapuaApplication;
 
@@ -30,22 +31,23 @@ public class RestApiListener implements ServletContextListener {
         if (kapuaApplication != null) {
             try {
                 kapuaApplication.shutdown();
+                kapuaApplication = null;
             } catch (KapuaException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
+                throw KapuaRuntimeException.internalError(e);
             }
         }
     }
 
     @Override
     public void contextInitialized(ServletContextEvent arg0) {
-        if (kapuaApplication == null) {
-            kapuaApplication = new KapuaApplication() {};
-        }
 
         try {
+            kapuaApplication = new KapuaApplication() {};
             kapuaApplication.startup();
         } catch (KapuaException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
+            throw KapuaRuntimeException.internalError(e);
         }
     }
 }

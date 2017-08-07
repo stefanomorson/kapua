@@ -25,6 +25,11 @@ import org.eclipse.kapua.model.config.metatype.KapuaTobject;
 import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.model.config.metatype.KapuaToption;
 import org.eclipse.kapua.model.config.metatype.MetatypeXmlRegistry;
+import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventCreator;
+import org.eclipse.kapua.service.event.KapuaEventListResult;
+import org.eclipse.kapua.service.event.KapuaEventQuery;
+import org.eclipse.kapua.service.event.KapuaEventXmlRegistry;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +52,15 @@ public class BrokerJAXBContextProvider implements JAXBContextProvider {
                     KapuaToption.class,
                     KapuaTdesignate.class,
                     KapuaTobject.class,
-                    MetatypeXmlRegistry.class
+                    MetatypeXmlRegistry.class,
+
+                    // KapuaEvent
+                    KapuaEvent.class,
+                    KapuaEventCreator.class,
+                    KapuaEventListResult.class,
+                    KapuaEventQuery.class,
+                    KapuaEventXmlRegistry.class
+
             };
             try {
                 context = JAXBContextFactory.createContext(classes, null);

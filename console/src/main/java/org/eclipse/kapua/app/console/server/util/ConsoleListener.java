@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 
 public class ConsoleListener implements ServletContextListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConsoleListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleListener.class);
 
     KapuaApplication kapuaApplication;
 
     @Override
     public void contextInitialized(final ServletContextEvent event) {
-        logger.info("Initialize Console JABContext Provider");
+        LOGGER.info("Initialize Console JABContext Provider");
         JAXBContextProvider consoleProvider = new ConsoleJAXBContextProvider();
         XmlUtil.setContextProvider(consoleProvider);
 
@@ -39,6 +39,7 @@ public class ConsoleListener implements ServletContextListener {
             kapuaApplication = new KapuaApplication();
             kapuaApplication.startup();
         } catch (KapuaException e) {
+            LOGGER.error(e.getMessage(), e);
             throw KapuaRuntimeException.internalError(e);
         }
     }
@@ -48,7 +49,9 @@ public class ConsoleListener implements ServletContextListener {
         if (kapuaApplication != null) {
             try {
                 kapuaApplication.shutdown();
+                kapuaApplication = null;
             } catch (KapuaException e) {
+                LOGGER.error(e.getMessage(), e);
                 throw KapuaRuntimeException.internalError(e);
             }
         }

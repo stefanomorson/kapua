@@ -13,8 +13,6 @@
 <!DOCTYPE xml>
 <locator-config>
     <provided>
-        <api>org.eclipse.kapua.service.event.KapuaEventFactory</api>
-
         <api>org.eclipse.kapua.service.account.AccountFactory</api>
         <api>org.eclipse.kapua.service.account.AccountService</api>
 
@@ -100,6 +98,8 @@
         <api>org.eclipse.kapua.transport.TransportClientFactory</api>
 
         <api>org.eclipse.kapua.model.config.metatype.KapuaMetatypeFactory</api>
+        
+        <api>org.eclipse.kapua.service.event.KapuaEventFactory</api>
     </provided>
     <packages>
         <package>org.eclipse.kapua.commons</package>

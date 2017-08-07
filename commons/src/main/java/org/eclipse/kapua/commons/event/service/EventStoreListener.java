@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event.service;
 
+import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.service.event.KapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEventService;
 import org.eclipse.kapua.service.event.KapuaEventbusException;
 import org.eclipse.kapua.service.event.KapuaServiceEventListener;
 import org.eclipse.kapua.service.event.ListenKapuaEvent;
@@ -22,12 +25,29 @@ public class EventStoreListener implements KapuaServiceEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventStoreListener.class);
 
-    public EventStoreListener() throws KapuaEventbusException {
+    private KapuaEventService kapuaEventService;
+
+    public EventStoreListener(KapuaEventService kapuaEventService) throws KapuaEventbusException {
+        this.kapuaEventService = kapuaEventService;
     }
 
+    @Override
     @ListenKapuaEvent
-    public void onKapuaEvent(KapuaEvent kapuaEvent) {
-        LOGGER.info("Received event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
-        // TODO Mark the Event entry in the EventStore table as 'processed' successfully.
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+
+        if (kapuaEvent == null) {
+            LOGGER.error("Received null event");
+            return;
+        }
+
+        LOGGER.info("Received event from service {} - entity type {} - entity id {} - context id {}",
+                new Object[] { kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId() });
+
+        KapuaSecurityUtils.doPrivileged(()->{            
+            KapuaEvent persistedKapuaEvent = kapuaEventService.find(kapuaEvent.getScopeId(), kapuaEvent.getId());
+            // TODO replace literal with status enum
+            persistedKapuaEvent.setStatus("sent");
+            kapuaEventService.update(persistedKapuaEvent);
+        });
     }
 }

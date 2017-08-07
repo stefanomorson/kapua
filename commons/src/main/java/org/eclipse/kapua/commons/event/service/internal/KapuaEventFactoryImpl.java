@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event.service.internal;
 
+import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventCreator;
@@ -18,6 +19,7 @@ import org.eclipse.kapua.service.event.KapuaEventFactory;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
 import org.eclipse.kapua.service.event.KapuaEventQuery;
 
+@KapuaProvider
 public class KapuaEventFactoryImpl implements KapuaEventFactory {
 
     @Override

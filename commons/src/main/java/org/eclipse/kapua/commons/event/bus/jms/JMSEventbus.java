@@ -21,20 +21,25 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.xml.bind.JAXBException;
+import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
+import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventbus;
 import org.eclipse.kapua.service.event.KapuaEventbusException;
 import org.eclipse.kapua.service.event.KapuaServiceEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 /**
  * @since 0.3.0
@@ -83,15 +88,13 @@ public class JMSEventbus implements KapuaEventbus {
             }
 
             // TODO Serialize outgoing kapua event ? Binary/JSON ?
-            ObjectMessage message = jmsSession.createObjectMessage();
-            message.setObject(kapuaEvent);
+            TextMessage message = jmsSession.createTextMessage();
+            message.setText(XmlUtil.marshal(kapuaEvent));
             jmsProducer.send(message);
             message.acknowledge();
 
-        } catch (JMSException e) {
+        } catch (JMSException | JAXBException e) {
             LOGGER.error("Message publish interrupted: {}", e.getMessage());
-        } catch (Throwable t) {
-            throw t;
         }
     }
 
@@ -109,18 +112,16 @@ public class JMSEventbus implements KapuaEventbus {
                     public void onMessage(Message message) {
                         try {
                             KapuaEvent kapuaEvent = null;
-                            if (message instanceof ObjectMessage) {
-                                ObjectMessage objectMessage = (ObjectMessage) message;
-                                if (objectMessage.getObject() instanceof KapuaEvent) {
-                                    kapuaEvent = (KapuaEvent) objectMessage.getObject();
-                                }
+                            if (message instanceof TextMessage) {
+                                TextMessage textMessage = (TextMessage) message;
+                                kapuaEvent = XmlUtil.unmarshal(textMessage.getText(), KapuaEvent.class);
                             }
                             if (kapuaEvent != null) {
                                 kapuaEventListener.onKapuaEvent(kapuaEvent);
                             } else {
                                 // TODO Manage error
                             }
-                        } catch (KapuaException | JMSException e) {
+                        } catch (KapuaException | JMSException | JAXBException | XMLStreamException | FactoryConfigurationError | SAXException e) {
                             LOGGER.error(e.getMessage(), e);
                         } finally {
                             try {

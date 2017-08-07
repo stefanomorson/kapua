@@ -37,8 +37,8 @@ import org.eclipse.kapua.model.xml.DateXmlAdapter;
         "operation",
         "inputs",
         "outputs",
-        "properties",
-        "note"
+        "status",
+        "note",
 }, //
         factoryClass = KapuaEventXmlRegistry.class, //
         factoryMethod = "newKapuaEvent")
@@ -103,4 +103,14 @@ public interface KapuaEvent extends KapuaUpdatableEntity {
     public String getOutputs();
 
     public void setOutputs(String outputs);
+
+    @XmlElement(name = "status")
+    public String getStatus();
+
+    public void setStatus(String status);
+
+    @XmlElement(name = "note")
+    public String getNote();
+
+    public void setNote(String note);
 }

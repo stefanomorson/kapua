@@ -74,6 +74,14 @@ public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements Kapu
     @Column(name = "outputs", nullable = true, updatable = true)
     private String outputs;
 
+    @Basic
+    @Column(name = "status", nullable = true, updatable = true)
+    private String status;
+
+    @Basic
+    @Column(name = "note", nullable = true, updatable = true)
+    private String note;
+
     public KapuaEventImpl() {
     }
 
@@ -177,5 +185,24 @@ public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements Kapu
 
     public void setOutputs(String outputs) {
         this.outputs = outputs;
+    }
+
+    @Override
+    public String getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

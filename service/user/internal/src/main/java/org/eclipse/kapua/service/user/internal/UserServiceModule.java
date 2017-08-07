@@ -23,6 +23,7 @@ import org.eclipse.kapua.commons.core.ServiceModule;
 import org.eclipse.kapua.commons.event.bus.EventbusProvider;
 import org.eclipse.kapua.commons.event.service.EventStoreListener;
 import org.eclipse.kapua.commons.event.service.HouseKeeperJob;
+import org.eclipse.kapua.commons.event.service.internal.KapuaEventServiceImpl;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.service.event.KapuaEventbus;
 import org.eclipse.kapua.service.user.UserService;
@@ -51,9 +52,11 @@ public class UserServiceModule implements ServiceModule {
 
         // Event store listener
 
+        KapuaEventServiceImpl kapuaEventService = new KapuaEventServiceImpl(UserEntityManagerFactory.getInstance());
+        eventStoreListener = new EventStoreListener(kapuaEventService);
+
         //the event bus implicitly will add event. as prefix for each publish/subscribe
         String intrnalEventsAddressSubscribe = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_INTERNAL_EVENT_ADDRESS); 
-        eventStoreListener = new EventStoreListener();
         eventbus.subscribe(intrnalEventsAddressSubscribe, eventStoreListener);
 
         // Start the House keeper
