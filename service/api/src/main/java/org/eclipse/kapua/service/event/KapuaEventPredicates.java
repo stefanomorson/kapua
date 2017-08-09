@@ -15,4 +15,7 @@ import org.eclipse.kapua.model.KapuaUpdatableEntityPredicates;
 
 public interface KapuaEventPredicates extends KapuaUpdatableEntityPredicates {
 
+    public static final String EVENT_STATUS = "status";
+    public static final String SERVICE_NAME = "service";
+
 }

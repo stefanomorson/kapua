@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,7 +9,7 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.user.internal.setting;
+package org.eclipse.kapua.service.device.registry;
 
 import org.eclipse.kapua.commons.setting.SettingKey;
 
@@ -19,15 +19,17 @@ import org.eclipse.kapua.commons.setting.SettingKey;
  * @since 1.0
  *
  */
-public enum KapuaUserSettingKeys implements SettingKey {
+public enum KapuaDeviceRegistrySettingKeys implements SettingKey {
 
     /**
      * The key value in the configuration resources.
      */
-    USER_KEY("user.key"),
-    USER_PUBLISH_INTERNAL_EVENT_ADDRESS("user.publishInternalEventAddress"),
-    USER_INTERNAL_EVENT_ADDRESS("user.internalEventAddress"),
-    ACCOUNT_USER_EVENT_ADDRESS("user.accountUserEventAddress");
+    DEVICE_REGISTRY_KEY("device_registry.key"),
+    DEVICE_PUBLISH_INTERNAL_EVENT_ADDRESS("device.publishInternalEventAddress"),
+    DEVICE_INTERNAL_EVENT_ADDRESS("device.internalEventAddress"),
+    ACCOUNT_DEVICE_REGISTRY_UPSTREAM_EVENT_ADDRESS("account.device_registry.upstreamEventAddress"),
+    ACCOUNT_DEVICE_CONNECTION_UPSTREAM_EVENT_ADDRESS("account.device_connection.upstreamEventAddress"),
+    AUTHORIZATION_DEVICE_REGISTRY_UPSTREAM_EVENT_ADDRESS("authorization.device_registry.upstreamEventAddress");
 
     private String key;
 
@@ -39,12 +41,12 @@ public enum KapuaUserSettingKeys implements SettingKey {
      * 
      * @since 1.0
      */
-    private KapuaUserSettingKeys(String key) {
+    private KapuaDeviceRegistrySettingKeys(String key) {
         this.key = key;
     }
 
     /**
-     * Gets the key for this {@link KapuaUserSettingKeys}
+     * Gets the key for this {@link KapuaDeviceRegistrySettingKeys}
      * 
      * @since 1.0.0
      * 

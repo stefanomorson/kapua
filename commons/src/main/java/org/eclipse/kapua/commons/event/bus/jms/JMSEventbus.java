@@ -30,6 +30,8 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
@@ -111,14 +113,20 @@ public class JMSEventbus implements KapuaEventbus {
                     @Override
                     public void onMessage(Message message) {
                         try {
-                            KapuaEvent kapuaEvent = null;
                             if (message instanceof TextMessage) {
                                 TextMessage textMessage = (TextMessage) message;
-                                kapuaEvent = XmlUtil.unmarshal(textMessage.getText(), KapuaEvent.class);
+                                final KapuaEvent kapuaEvent = XmlUtil.unmarshal(textMessage.getText(), KapuaEvent.class);
+                                if (kapuaEvent == null) {
+                                    // TODO Manage error
+                                }
+                                setSession(kapuaEvent);
+                                if (kapuaEvent != null) {
+                                    KapuaSecurityUtils.doPrivileged(() -> {
+                                        kapuaEventListener.onKapuaEvent(kapuaEvent);
+                                    });
+                                }
                             }
-                            if (kapuaEvent != null) {
-                                kapuaEventListener.onKapuaEvent(kapuaEvent);
-                            } else {
+                            else {
                                 // TODO Manage error
                             }
                         } catch (KapuaException | JMSException | JAXBException | XMLStreamException | FactoryConfigurationError | SAXException e) {
@@ -140,6 +148,10 @@ public class JMSEventbus implements KapuaEventbus {
         } catch (JMSException e) {
             throw new KapuaEventbusException(e);
         }
+    }
+
+    private final void setSession(KapuaEvent kapuaEvent) {
+        KapuaSession.createFrom(kapuaEvent.getScopeId(), kapuaEvent.getUserId());
     }
 
     public void stop() throws KapuaEventbusException {

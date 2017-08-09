@@ -55,6 +55,40 @@
                         <forwardTo>
                             <queue physicalName="events.account.account" />
                             <queue physicalName="events.account.user" />
+                            <!-- device registry us -->
+                            <queue physicalName="events.account.deviceregistry" />
+                            <queue physicalName="events.account.deviceconnection" />
+                            <!-- authorization us -->
+                            <queue physicalName="events.account.accessinfo" />
+                            <queue physicalName="events.account.role" />
+                            <queue physicalName="events.account.domain" />
+                            <queue physicalName="events.account.group" />
+                            <!-- authentication us -->
+                            <queue physicalName="events.account.credential" />
+                            <queue physicalName="events.account.accesstoken" />
+
+                        </forwardTo>
+                    </compositeQueue>
+                </virtualDestinations>
+            </virtualDestinationInterceptor>
+            <virtualDestinationInterceptor>
+                <virtualDestinations>
+                    <compositeQueue name="events.authorization">
+                        <forwardTo>
+                            <queue physicalName="events.authorization.authorization" />
+                            <queue physicalName="events.authorization.deviceregistry" />
+                        </forwardTo>
+                    </compositeQueue>
+                </virtualDestinations>
+            </virtualDestinationInterceptor>
+            <virtualDestinationInterceptor>
+                <virtualDestinations>
+                    <compositeQueue name="events.user">
+                        <forwardTo>
+                            <queue physicalName="events.user.user" />
+                            <queue physicalName="events.user.credential" />
+                            <queue physicalName="events.user.accesstoken" />
+                            <queue physicalName="events.user.accessinfo" />
                         </forwardTo>
                     </compositeQueue>
                 </virtualDestinations>

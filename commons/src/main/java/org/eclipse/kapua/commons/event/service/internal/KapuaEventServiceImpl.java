@@ -30,6 +30,7 @@ import org.eclipse.kapua.service.event.KapuaEventCreator;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
 import org.eclipse.kapua.service.event.KapuaEventService;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
+import org.eclipse.kapua.service.event.KapuaEvent.EVENT_STATUS;
 
 /**
  * {@link KapuaEventService} implementation.
@@ -81,6 +82,7 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
                 throw new KapuaEntityNotFoundException(KapuaEvent.TYPE, kapuaEvent.getId());
             }
 
+            kapuaEvent.setStatus(EVENT_STATUS.CONFIRMED.name());
             // Update
             return ServiceEventDAO.update(em, kapuaEvent);
         });
@@ -184,4 +186,5 @@ public class KapuaEventServiceImpl extends AbstractKapuaService implements Kapua
 
         return entityManagerSession.onResult(em -> ServiceEventDAO.find(em, kapuaEventId));
     }
+
 }

@@ -23,6 +23,7 @@ import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.configuration.AbstractKapuaConfigurableResourceLimitedService;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
@@ -258,7 +259,23 @@ public class UserServiceImpl extends AbstractKapuaConfigurableResourceLimitedSer
     @Override
     @ListenKapuaEvent
     public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
+        if (kapuaEvent == null) {
+            //service bus error. Throw some exception?
+        }
         LOGGER.info("UserService: received kapua event from {}, operation {}", kapuaEvent.getService(), kapuaEvent.getOperation());
+        if ("account".equals(kapuaEvent.getService()) && "delete".equals(kapuaEvent.getOperation())) {
+            deleteUserByAccountId(kapuaEvent.getScopeId(), kapuaEvent.getEntityId());
+        }
+    }
+
+    private void deleteUserByAccountId(KapuaId scopeId, KapuaId accountId) throws KapuaException {
+        KapuaLocator locator = KapuaLocator.getInstance();
+        UserFactory userFactory = locator.getFactory(UserFactory.class);
+        UserQuery query = userFactory.newQuery(accountId);
+        UserListResult usersToDelete = query(query);
+        for (User u : usersToDelete.getItems()) {
+            delete(u.getScopeId(), u.getId());
+        }
     }
 
 }

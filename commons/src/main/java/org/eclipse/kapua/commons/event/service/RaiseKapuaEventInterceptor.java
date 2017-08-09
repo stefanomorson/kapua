@@ -20,6 +20,7 @@ import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.model.KapuaEntity;
+import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventbus;
@@ -45,44 +46,27 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
 
         try {
             // if(!create) then the entity id can be set here
-            KapuaEvent event = EventScope.begin();
+            KapuaEvent kapuaEvent = EventScope.begin();
 
             KapuaSession session = KapuaSecurityUtils.getSession();
             // Context ID is initialized/managed by the EventScope object
-            event.setTimestamp(new Date());
-            event.setUserId(session.getUserId());
-            event.setScopeId(session.getScopeId());
-            Object[] arguments = invocation.getArguments();
-            if (arguments!=null) {
-                for (Object obj : arguments) {
-                    if (obj instanceof KapuaEntity) {
-                        event.setEntityType(obj.getClass().getName());
-                        event.setEntityId(((KapuaEntity) obj).getId());
-                        break;
-                    }
-                }
-            }
-            event.setOperation(invocation.getMethod().getName());
-            //get the service name
-            //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
-            //then keep the interface from this object
-            Class<?> wrappedClass = invocation.getThis().getClass().getSuperclass(); //this object should be not null
-            Class<?>[] impementedClass = wrappedClass.getInterfaces();
-            String interfaceName = impementedClass[0].getName();
-            String tmp[] = interfaceName.split("\\.");
-            String serviceName = tmp[tmp.length-1];
-            event.setService(serviceName.substring(0, serviceName.length()-"Service".length()).toLowerCase());
+            kapuaEvent.setTimestamp(new Date());
+            kapuaEvent.setUserId(session.getUserId());
+            kapuaEvent.setScopeId(session.getScopeId());
+            kapuaEvent.setOperation(invocation.getMethod().getName());
+            fillEntityFields(invocation, kapuaEvent);
+            fillServiceName(invocation, kapuaEvent);
 
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
-            event.setInputs(" ");
+            kapuaEvent.setInputs(" ");
 
             // event.setProperties(properties);
 
-               //execute the business logic
+            //execute the business logic
             returnObject = invocation.proceed();
 
             // Raise service event if the execution is successful
-            sendEvent(event, returnObject, invocation);
+            sendEvent(invocation, kapuaEvent, returnObject);
 
             return returnObject;
 
@@ -91,8 +75,79 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         }
     }
 
-    private void sendEvent(KapuaEvent kapuaEvent, Object returnedValue, MethodInvocation invocation) throws KapuaEventbusException {
+    private void fillEntityFields(MethodInvocation invocation, KapuaEvent kapuaEvent) {
+        Object[] arguments = invocation.getArguments();
+        if (arguments!=null) {
+            for (Object tmp : arguments) {
+                LOGGER.info("Scan for entity. Object: {}", tmp!=null ? tmp.getClass() : "NULL");
+                if (tmp instanceof KapuaEntity) {
+                    kapuaEvent.setEntityType(tmp.getClass().getName());
+                    kapuaEvent.setEntityId(((KapuaEntity) tmp).getId());
+                    LOGGER.info("Entity '{}' with id '{}' found!", new Object[]{tmp.getClass().getName(), ((KapuaEntity) tmp).getId()});
+                    return;
+                }
+            }
+            //otherwise assume that the second identifier is the entity id (if there are more than one) or take the first one (if there is one)
+            int kapuaIdPosition = 0;
+            int kapuaIdFound = 0;
+            for (int i=0; i<arguments.length; i++) {
+                Object tmp = arguments[i];
+                if (tmp instanceof KapuaId) {
+                    kapuaIdPosition = i;
+                    if (++kapuaIdFound > 1) {
+                        break;
+                    }
+                }
+            }
+            if (kapuaIdFound>0) {
+                kapuaEvent.setEntityId(((KapuaId) arguments[kapuaIdPosition]));
+                kapuaEvent.setEntityType(extractEntityType(invocation));
+                return;
+            }
+            //send some error???
+        }
+        else {
+            //send some error???
+        }
+    }
 
+    private void fillServiceName(MethodInvocation invocation, KapuaEvent kapuaEvent) {
+        //get the service name
+        //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
+        //then keep the interface from this object
+        Class<?> wrappedClass = invocation.getThis().getClass().getSuperclass(); //this object should be not null
+        Class<?>[] impementedClass = wrappedClass.getInterfaces();
+        //assuming that the KapuaService implemented is specified by the first implementing interface
+        String serviceInterfaceName = impementedClass[0].getName();
+        String tmp[] = serviceInterfaceName.split("\\.");
+        String serviceName = tmp[tmp.length-1];
+        String cleanedServiceName = serviceName.substring(0, serviceName.length()-"Service".length()).toLowerCase();
+        LOGGER.info("Service name '{}' ", cleanedServiceName);
+        kapuaEvent.setService(cleanedServiceName);
+    }
+
+    private String extractEntityType(MethodInvocation invocation) {
+        //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
+        //then keep the interface from this object
+        Class<?> wrappedClass = invocation.getThis().getClass().getSuperclass(); //this object should be not null
+        Class<?>[] impementedClass = wrappedClass.getInterfaces();
+        String serviceInterface = impementedClass[0].getAnnotatedInterfaces()[0].getType().getTypeName();
+        String genericsList = serviceInterface.substring(serviceInterface.indexOf('<')+1, serviceInterface.indexOf('>'));
+        String[] entityClassesToScan = genericsList.replaceAll("\\,", "").split(" ");
+        for (String str : entityClassesToScan) {
+            try {
+                if (KapuaEntity.class.isAssignableFrom(Class.forName(str))) {
+                    return str;
+                }
+            } catch (ClassNotFoundException e) {
+                //do nothing
+                LOGGER.warn("Cannon find class {}", str, e);
+            }
+        }
+        return null;
+    }
+
+    private void sendEvent(MethodInvocation invocation, KapuaEvent kapuaEvent, Object returnedValue) throws KapuaEventbusException {
         KapuaEventbus eventbus = EventbusProvider.getInstance();
 
         String address = String.format("%s", kapuaEvent.getService());

@@ -45,6 +45,10 @@ import org.eclipse.kapua.model.xml.DateXmlAdapter;
 public interface KapuaEvent extends KapuaUpdatableEntity {
 
     public static final String TYPE = "kapuaEvent";
+    public enum EVENT_STATUS {
+        FIRED,
+        CONFIRMED
+    }
 
     public default String getType() {
         return TYPE;

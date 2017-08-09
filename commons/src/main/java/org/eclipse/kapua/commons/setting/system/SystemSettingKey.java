@@ -184,7 +184,12 @@ public enum SystemSettingKey implements SettingKey {
     /**
      * Password to connect to the event bus
      */
-    EVENT_BUS_PASSWORD("commons.eventbus.password");
+    EVENT_BUS_PASSWORD("commons.eventbus.password"),
+
+    /**
+     * Wait time between housekeeper executions
+     */
+    HOUSEKEEPER_EXECUTION_WAIT_TIME("commons.eventbus.houskeeper.waitTime");
 
     private String key;
 

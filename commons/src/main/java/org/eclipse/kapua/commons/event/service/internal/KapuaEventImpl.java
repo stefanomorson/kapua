@@ -83,6 +83,7 @@ public class KapuaEventImpl extends AbstractKapuaUpdatableEntity implements Kapu
     private String note;
 
     public KapuaEventImpl() {
+        status = EVENT_STATUS.FIRED.name();
     }
 
     public KapuaEventImpl(KapuaId scopeId) {

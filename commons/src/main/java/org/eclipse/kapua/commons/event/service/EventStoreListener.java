@@ -45,8 +45,7 @@ public class EventStoreListener implements KapuaServiceEventListener {
 
         KapuaSecurityUtils.doPrivileged(()->{            
             KapuaEvent persistedKapuaEvent = kapuaEventService.find(kapuaEvent.getScopeId(), kapuaEvent.getId());
-            // TODO replace literal with status enum
-            persistedKapuaEvent.setStatus("sent");
+            persistedKapuaEvent.setStatus(KapuaEvent.EVENT_STATUS.CONFIRMED.name());
             kapuaEventService.update(persistedKapuaEvent);
         });
     }

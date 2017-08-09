@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,7 +9,7 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.user.internal;
+package org.eclipse.kapua.service.device.registry;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,16 +25,17 @@ import org.eclipse.kapua.commons.event.service.EventStoreListener;
 import org.eclipse.kapua.commons.event.service.HouseKeeperJob;
 import org.eclipse.kapua.commons.event.service.internal.KapuaEventServiceImpl;
 import org.eclipse.kapua.locator.KapuaProvider;
+import org.eclipse.kapua.service.authorization.shiro.AuthorizationEntityManagerFactory;
+import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionService;
 import org.eclipse.kapua.service.event.KapuaEventbus;
-import org.eclipse.kapua.service.user.UserService;
-import org.eclipse.kapua.service.user.internal.setting.KapuaUserSetting;
-import org.eclipse.kapua.service.user.internal.setting.KapuaUserSettingKeys;
 
 @KapuaProvider
-public class UserServiceModule implements ServiceModule {
+public class DeviceServiceModule implements ServiceModule {
 
     @Inject
-    private UserService userService;
+    private DeviceConnectionService deviceConnectionService;
+    @Inject
+    private DeviceRegistryService deviceRegistryService;
 
     private EventStoreListener eventStoreListener;
     private ScheduledExecutorService houseKeeperScheduler;
@@ -46,21 +47,29 @@ public class UserServiceModule implements ServiceModule {
 
         // Listen to upstream service events
 
-        String upEvAccountUserAddressSub = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.ACCOUNT_USER_EVENT_ADDRESS);
+        String upEvAccountDeviceRegistryAddress = KapuaDeviceRegistrySettings.getInstance().getString(KapuaDeviceRegistrySettingKeys.ACCOUNT_DEVICE_REGISTRY_UPSTREAM_EVENT_ADDRESS);
         //the event bus implicitly will add event. as prefix for each publish/subscribe
-        eventbus.subscribe(upEvAccountUserAddressSub, userService); 
+        eventbus.subscribe(upEvAccountDeviceRegistryAddress, deviceRegistryService); 
+
+        String upEvAccountDeviceConnectionAddress = KapuaDeviceRegistrySettings.getInstance().getString(KapuaDeviceRegistrySettingKeys.ACCOUNT_DEVICE_CONNECTION_UPSTREAM_EVENT_ADDRESS);
+        //the event bus implicitly will add event. as prefix for each publish/subscribe
+        eventbus.subscribe(upEvAccountDeviceConnectionAddress, deviceConnectionService); 
+
+        String upEvAuthorizationDeviceRegistryAddress = KapuaDeviceRegistrySettings.getInstance().getString(KapuaDeviceRegistrySettingKeys.AUTHORIZATION_DEVICE_REGISTRY_UPSTREAM_EVENT_ADDRESS);
+        //the event bus implicitly will add event. as prefix for each publish/subscribe
+        eventbus.subscribe(upEvAuthorizationDeviceRegistryAddress, deviceRegistryService); 
 
         // Event store listener
-        KapuaEventServiceImpl kapuaEventService = new KapuaEventServiceImpl(UserEntityManagerFactory.getInstance());
+        KapuaEventServiceImpl kapuaEventService = new KapuaEventServiceImpl(AuthorizationEntityManagerFactory.getInstance());
         eventStoreListener = new EventStoreListener(kapuaEventService);
 
         //the event bus implicitly will add event. as prefix for each publish/subscribe
-        String internalEventsAddressSub = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_INTERNAL_EVENT_ADDRESS); 
+        String internalEventsAddressSub = KapuaDeviceRegistrySettings.getInstance().getString(KapuaDeviceRegistrySettingKeys.DEVICE_INTERNAL_EVENT_ADDRESS); 
         eventbus.subscribe(internalEventsAddressSub, eventStoreListener);
 
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
-        String publishInternalEventsAddress = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_PUBLISH_INTERNAL_EVENT_ADDRESS); //the event bus implicitly will add event. as prefix for each publish/subscribe
+        String publishInternalEventsAddress = KapuaDeviceRegistrySettings.getInstance().getString(KapuaDeviceRegistrySettingKeys.DEVICE_PUBLISH_INTERNAL_EVENT_ADDRESS); //the event bus implicitly will add event. as prefix for each publish/subscribe
         Runnable houseKeeperJob = new HouseKeeperJob(eventbus, publishInternalEventsAddress);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> houseKeeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);

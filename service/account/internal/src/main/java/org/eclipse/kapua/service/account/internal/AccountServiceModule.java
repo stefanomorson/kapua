@@ -46,15 +46,13 @@ public class AccountServiceModule implements ServiceModule {
         eventStoreListener = new EventStoreListener(kapuaEventService);
 
         // the event bus implicitly will add event. as prefix for each publish/subscribe
-        String intrnalEventsAddressSubscribe = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_INTERNAL_EVENT_ADDRESS);
-        eventbus.subscribe(intrnalEventsAddressSubscribe, eventStoreListener);
+        String internalEventsAddressSub = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_INTERNAL_EVENT_ADDRESS); 
+        eventbus.subscribe(internalEventsAddressSub, eventStoreListener);
 
         // Start the House keeper
-
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
-
-        String userEventsAddressPublish = "user"; // the event bus implicitly will add event. as prefix for each publish/subscribe
-        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, userEventsAddressPublish);
+        String publishInternalEventsAddress = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_PUBLISH_INTERNAL_EVENT_ADDRESS); //the event bus implicitly will add event. as prefix for each publish/subscribe
+        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, publishInternalEventsAddress);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> houseKeeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
     }

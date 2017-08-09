@@ -20,6 +20,7 @@ import org.eclipse.kapua.commons.event.service.internal.ServiceEventDAO;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.KapuaExceptionUtils;
+import org.eclipse.kapua.model.KapuaEntity;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class EntityManagerSession {
             entityManagerActionCallback.onAction(manager);
 
             if (manager.isTransactionActive()) {
-                KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+                KapuaEvent kapuaEvent = appendKapuaEvent(null, manager);
             }
 
             transactionManager.commit(manager);
@@ -137,7 +138,7 @@ public class EntityManagerSession {
             T result = entityManagerResultCallback.onResult(manager);
 
             if (manager.isTransactionActive()) {
-                KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+                KapuaEvent kapuaEvent = appendKapuaEvent(result, manager);
             }
 
             transactionManager.commit(manager);
@@ -198,7 +199,7 @@ public class EntityManagerSession {
                     transactionManager.beginTransaction(manager);
                     instance = entityManagerInsertCallback.onInsert(manager);
 
-                    KapuaEvent kapuaEvent = appendKapuaEvent(manager);
+                    KapuaEvent kapuaEvent = appendKapuaEvent(instance, manager);
 
                     transactionManager.commit(manager);
                     succeeded = true;
@@ -232,11 +233,28 @@ public class EntityManagerSession {
         return instance;
     }
 
-    private <T> KapuaEvent appendKapuaEvent(EntityManager manager) throws KapuaException {
+    private <T> KapuaEvent appendKapuaEvent(Object instance, EntityManager manager) throws KapuaException {
         KapuaEvent persistedKapuaEvent = null;
 
         // If a kapua event is in scope then persist it along with the entity
         KapuaEvent kapuaEvent = EventScope.get();
+
+        if (kapuaEvent!=null && instance instanceof KapuaEntity) {
+            //TODO make sense to override the entity id and type without checking for previous empty values?
+            //override only if parameters are not evaluated
+            if (kapuaEvent.getEntityType() == null || kapuaEvent.getEntityType().trim().length()<=0) {
+                //TODO remove log after test
+                logger.debug("Kapua event - update entity type to '{}'", instance.getClass().getName());
+                kapuaEvent.setEntityType(instance.getClass().getName());
+            }
+            if (kapuaEvent.getEntityId()==null) {
+                //TODO remove log after test  
+                logger.debug("Kapua event - update entity id to '{}'", ((KapuaEntity) instance).getId());
+                kapuaEvent.setEntityId(((KapuaEntity) instance).getId());
+            }
+            logger.info("Entity '{}' with id '{}' found!", new Object[]{instance.getClass().getName(), ((KapuaEntity) instance).getId()});
+        }
+
         if (kapuaEvent != null) {
             persistedKapuaEvent = ServiceEventDAO.create(manager, kapuaEvent);
         }
