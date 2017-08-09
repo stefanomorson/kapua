@@ -18,5 +18,6 @@
                       
     <include relativeToChangelogFile="true" file="./atht_credential_expiration.sql" />
     <include relativeToChangelogFile="true" file="./atht_credential_lockout_policy.sql" />
+    <include relativeToChangelogFile="true" file="./atht_sys-service-event-housekeeping-seed.sql" />
 
 </databaseChangeLog>

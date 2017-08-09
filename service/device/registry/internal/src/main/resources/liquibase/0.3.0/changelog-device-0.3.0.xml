@@ -18,4 +18,6 @@
 
     <include relativeToChangelogFile="true" file="./device-network-interface.sql" />
     <include relativeToChangelogFile="true" file="./device-tag.sql" />
+    <include relativeToChangelogFile="true" file="./sys-service-event-housekeeping-device-seed.sql" />
+
 </databaseChangeLog>
