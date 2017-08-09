@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.kapua.broker.core.plugin;
 
-import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +50,6 @@ import org.eclipse.kapua.broker.core.BrokerDomain;
 import org.eclipse.kapua.broker.core.message.MessageConstants;
 import org.eclipse.kapua.commons.metric.MetricServiceFactory;
 import org.eclipse.kapua.commons.metric.MetricsService;
-import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
@@ -60,9 +58,7 @@ import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.account.Account;
-import org.eclipse.kapua.service.account.AccountCreator;
 import org.eclipse.kapua.service.account.AccountService;
-import org.eclipse.kapua.service.account.internal.AccountCreatorImpl;
 import org.eclipse.kapua.service.authentication.AuthenticationService;
 import org.eclipse.kapua.service.authentication.CredentialsFactory;
 import org.eclipse.kapua.service.authentication.KapuaPrincipal;
@@ -194,31 +190,6 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
         metricPublishMessageSizeNotAllowed = metricsService.getHistogram("security", "publish", "messages", "not_allowed", "size", "bytes");
 
         XmlUtil.setContextProvider(new BrokerJAXBContextProvider());
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        Thread.sleep(30000);
-                        KapuaSecurityUtils.doPrivileged(() -> {
-                            String accName = "test" + ((int)(Math.random()*10000));
-                            AccountCreator creator = new AccountCreatorImpl(new KapuaEid(new BigInteger("1")), accName);
-                            creator.setOrganizationName(accName);
-                            creator.setOrganizationEmail("a@a.it");
-                            Account newAccount = accountService.create(creator);
-                            Account account = accountService.find(newAccount.getId());
-                            accountService.update(account);
-                            accountService.delete(newAccount.getScopeId(), newAccount.getId());
-                        });
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        t.start();
     }
 
     @Override
