@@ -50,3 +50,6 @@ CREATE TABLE IF NOT EXISTS sys_service_event_housekeeping (
   PRIMARY KEY  (id)
   
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+-- TODO move to proper seeding script 
+INSERT INTO sys_service_event_housekeeping (id, last_run_on, last_run_by) VALUES (1, CURRENT_TIMESTAMP(), 'none');
