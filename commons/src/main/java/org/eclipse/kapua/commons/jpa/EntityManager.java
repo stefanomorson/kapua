@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.jpa;
 
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -137,6 +138,18 @@ public class EntityManager {
     public <E extends KapuaEntity> E find(Class<E> clazz, KapuaId id) {
         KapuaEid eid = KapuaEid.parseKapuaId(id);
         return javaxPersitenceEntityManager.find(clazz, eid);
+    }
+
+    /**
+     * Find the entity by the given id and type (with pessimistic write locking)
+     * 
+     * @param clazz
+     * @param id
+     * @return
+     */
+    public <E extends KapuaEntity> E findLock(Class<E> clazz, KapuaId id) {
+        KapuaEid eid = KapuaEid.parseKapuaId(id);
+        return javaxPersitenceEntityManager.find(clazz, eid, LockModeType.PESSIMISTIC_WRITE);
     }
 
     /**

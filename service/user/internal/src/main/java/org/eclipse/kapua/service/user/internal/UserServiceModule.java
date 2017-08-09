@@ -54,12 +54,12 @@ public class UserServiceModule implements ServiceModule {
 
         //the event bus implicitly will add event. as prefix for each publish/subscribe
         String internalEventsAddressSub = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_INTERNAL_EVENT_ADDRESS); 
-        eventbus.subscribe(internalEventsAddressSub, eventStoreListener);
+        eventbus.subscribe(internalEventsAddressSub, kapuaEventService);
 
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
         String publishInternalEventsAddress = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_PUBLISH_INTERNAL_EVENT_ADDRESS); //the event bus implicitly will add event. as prefix for each publish/subscribe
-        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, publishInternalEventsAddress);
+        Runnable houseKeeperJob = new EventStoreHouseKeeperJob(eventbus, publishInternalEventsAddress);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> houseKeeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
     }

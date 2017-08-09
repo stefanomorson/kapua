@@ -41,3 +41,12 @@ CREATE TABLE IF NOT EXISTS sys_service_event (
   PRIMARY KEY  (id)
   
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS sys_service_event_housekeeping (
+  id                         BIGINT(21) 	  UNSIGNED NOT NULL,
+  last_run_on                TIMESTAMP(3) 	  DEFAULT 0,
+  last_run_by                VARCHAR(64),
+  
+  PRIMARY KEY  (id)
+  
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;

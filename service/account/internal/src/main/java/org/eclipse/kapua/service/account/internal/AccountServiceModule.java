@@ -25,11 +25,12 @@ import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.service.account.internal.setting.KapuaAccountSetting;
 import org.eclipse.kapua.service.account.internal.setting.KapuaAccountSettingKeys;
 import org.eclipse.kapua.service.event.KapuaEventBus;
+import org.eclipse.kapua.service.event.KapuaEventStoreService;
 
 @KapuaProvider
 public class AccountServiceModule implements ServiceModule {
 
-    private KapuaEventStoreServiceImpl kapuaEventService;
+    private KapuaEventStoreService kapuaEventService;
     private ScheduledExecutorService houseKeeperScheduler;
 
     @Override
@@ -46,12 +47,12 @@ public class AccountServiceModule implements ServiceModule {
 
         // the event bus implicitly will add event. as prefix for each publish/subscribe
         String internalEventsAddressSub = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_INTERNAL_EVENT_ADDRESS); 
-        eventbus.subscribe(internalEventsAddressSub, eventStoreListener);
+        eventbus.subscribe(internalEventsAddressSub, kapuaEventService);
 
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
         String publishInternalEventsAddress = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_PUBLISH_INTERNAL_EVENT_ADDRESS); //the event bus implicitly will add event. as prefix for each publish/subscribe
-        Runnable houseKeeperJob = new HouseKeeperJob(eventbus, publishInternalEventsAddress);
+        Runnable houseKeeperJob = new EventStoreHouseKeeperJob(eventbus, publishInternalEventsAddress);
         // Start time can be made random from 0 to 30 seconds
         final ScheduledFuture<?> houseKeeperHandle = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
     }

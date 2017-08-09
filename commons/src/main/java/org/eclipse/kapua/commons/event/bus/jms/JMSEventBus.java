@@ -154,7 +154,7 @@ public class JMSEventBus implements KapuaEventBus {
         KapuaSession.createFrom(kapuaEvent.getScopeId(), kapuaEvent.getUserId());
     }
 
-    public void stop() throws KapuaEventbusException {
+    public void stop() throws KapuaEventBusException {
         try {
             if (jmsSession != null) {
                 jmsSession.close();

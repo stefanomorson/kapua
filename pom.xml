@@ -1096,7 +1096,7 @@
         <profile>
             <id>console</id>
              <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
                 <module>console</module>

@@ -147,8 +147,8 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         return null;
     }
 
-    private void sendEvent(MethodInvocation invocation, KapuaEvent kapuaEvent, Object returnedValue) throws KapuaEventbusException {
-        KapuaEventbus eventbus = EventbusProvider.getInstance();
+    private void sendEvent(MethodInvocation invocation, KapuaEvent kapuaEvent, Object returnedValue) throws KapuaEventBusException {
+        KapuaEventBus eventbus = EventBusManager.getInstance();
 
         String address = String.format("%s", kapuaEvent.getService());
         eventbus.publish(address, kapuaEvent);
