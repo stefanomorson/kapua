@@ -18,32 +18,31 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.core.ServiceModule;
-import org.eclipse.kapua.commons.event.bus.EventbusProvider;
-import org.eclipse.kapua.commons.event.service.EventStoreListener;
-import org.eclipse.kapua.commons.event.service.HouseKeeperJob;
-import org.eclipse.kapua.commons.event.service.internal.KapuaEventServiceImpl;
+import org.eclipse.kapua.commons.event.bus.EventBusManager;
+import org.eclipse.kapua.commons.event.service.EventStoreHouseKeeperJob;
+import org.eclipse.kapua.commons.event.service.internal.KapuaEventStoreServiceImpl;
 import org.eclipse.kapua.locator.KapuaProvider;
-import org.eclipse.kapua.service.event.KapuaEventbus;
 import org.eclipse.kapua.service.account.internal.setting.KapuaAccountSetting;
 import org.eclipse.kapua.service.account.internal.setting.KapuaAccountSettingKeys;
+import org.eclipse.kapua.service.event.KapuaEventBus;
 
 @KapuaProvider
 public class AccountServiceModule implements ServiceModule {
 
-    private EventStoreListener eventStoreListener;
+    private KapuaEventStoreServiceImpl kapuaEventService;
     private ScheduledExecutorService houseKeeperScheduler;
 
     @Override
     public void start() throws KapuaException {
 
-        KapuaEventbus eventbus = EventbusProvider.getInstance();
+        KapuaEventBus eventbus = EventBusManager.getInstance();
 
         // No upstream service events to listen to
 
         // Event store listener
 
-        KapuaEventServiceImpl kapuaEventService = new KapuaEventServiceImpl(AccountEntityManagerFactory.getInstance());
-        eventStoreListener = new EventStoreListener(kapuaEventService);
+        kapuaEventService = new KapuaEventStoreServiceImpl(AccountEntityManagerFactory.getInstance());
+        //eventStoreListener = new EventStoreListener(kapuaEventService);
 
         // the event bus implicitly will add event. as prefix for each publish/subscribe
         String internalEventsAddressSub = KapuaAccountSetting.getInstance().getString(KapuaAccountSettingKeys.ACCOUNT_INTERNAL_EVENT_ADDRESS); 

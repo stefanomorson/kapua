@@ -20,12 +20,11 @@ import javax.inject.Inject;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.core.ServiceModule;
-import org.eclipse.kapua.commons.event.bus.EventbusProvider;
-import org.eclipse.kapua.commons.event.service.EventStoreListener;
-import org.eclipse.kapua.commons.event.service.HouseKeeperJob;
-import org.eclipse.kapua.commons.event.service.internal.KapuaEventServiceImpl;
+import org.eclipse.kapua.commons.event.bus.EventBusManager;
+import org.eclipse.kapua.commons.event.service.EventStoreHouseKeeperJob;
+import org.eclipse.kapua.commons.event.service.internal.KapuaEventStoreServiceImpl;
 import org.eclipse.kapua.locator.KapuaProvider;
-import org.eclipse.kapua.service.event.KapuaEventbus;
+import org.eclipse.kapua.service.event.KapuaEventBus;
 import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.kapua.service.user.internal.setting.KapuaUserSetting;
 import org.eclipse.kapua.service.user.internal.setting.KapuaUserSettingKeys;
@@ -36,13 +35,13 @@ public class UserServiceModule implements ServiceModule {
     @Inject
     private UserService userService;
 
-    private EventStoreListener eventStoreListener;
+    private KapuaEventStoreServiceImpl kapuaEventService;
     private ScheduledExecutorService houseKeeperScheduler;
 
     @Override
     public void start() throws KapuaException {
 
-        KapuaEventbus eventbus = EventbusProvider.getInstance();
+        KapuaEventBus eventbus = EventBusManager.getInstance();
 
         // Listen to upstream service events
 
@@ -51,8 +50,7 @@ public class UserServiceModule implements ServiceModule {
         eventbus.subscribe(upEvAccountUserAddressSub, userService); 
 
         // Event store listener
-        KapuaEventServiceImpl kapuaEventService = new KapuaEventServiceImpl(UserEntityManagerFactory.getInstance());
-        eventStoreListener = new EventStoreListener(kapuaEventService);
+        kapuaEventService = new KapuaEventStoreServiceImpl(UserEntityManagerFactory.getInstance());
 
         //the event bus implicitly will add event. as prefix for each publish/subscribe
         String internalEventsAddressSub = KapuaUserSetting.getInstance().getString(KapuaUserSettingKeys.USER_INTERNAL_EVENT_ADDRESS); 

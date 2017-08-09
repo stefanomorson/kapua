@@ -11,14 +11,14 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event.service;
 
-import org.eclipse.kapua.service.event.KapuaEventbus;
+import org.eclipse.kapua.service.event.KapuaEventBus;
 
-public class HouseKeeperJob implements Runnable {
+public class EventStoreHouseKeeperJob implements Runnable {
 
-    private KapuaEventbus eventbus;
+    private KapuaEventBus eventbus;
     private String sendToAddress;
 
-    public HouseKeeperJob(KapuaEventbus eventbus, String sendToAddress) {
+    public EventStoreHouseKeeperJob(KapuaEventBus eventbus, String sendToAddress) {
         this.eventbus = eventbus;
         this.sendToAddress = sendToAddress;
     }

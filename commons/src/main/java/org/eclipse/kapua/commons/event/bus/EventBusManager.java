@@ -11,26 +11,26 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.event.bus;
 
-import org.eclipse.kapua.commons.event.bus.jms.JMSEventbus;
+import org.eclipse.kapua.commons.event.bus.jms.JMSEventBus;
 import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaEventbus;
-import org.eclipse.kapua.service.event.KapuaEventbusException;
-import org.eclipse.kapua.service.event.KapuaServiceEventListener;
+import org.eclipse.kapua.service.event.KapuaEventBus;
+import org.eclipse.kapua.service.event.KapuaEventBusException;
+import org.eclipse.kapua.service.event.KapuaEventBusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventbusProvider implements KapuaEventbus {
+public class EventBusManager implements KapuaEventBus {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(EventbusProvider.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventBusManager.class);
 
-    private static EventbusProvider instance;
+    private static EventBusManager instance;
     private static Throwable initFailureCause;
 
-    private JMSEventbus jmsEventbus;
+    private JMSEventBus jmsEventbus;
 
     static {
         try {
-            instance = new EventbusProvider();
+            instance = new EventBusManager();
         } catch (Throwable e) {
             LOGGER.error("Error while initializing EventbusProvider", e);
             instance = null;
@@ -38,32 +38,32 @@ public class EventbusProvider implements KapuaEventbus {
         }
     }
 
-    private EventbusProvider() throws KapuaEventbusException {
-        jmsEventbus = new JMSEventbus();
+    private EventBusManager() throws KapuaEventBusException {
+        jmsEventbus = new JMSEventBus();
     }
 
-    public static EventbusProvider getInstance() throws KapuaEventbusException {
+    public static EventBusManager getInstance() throws KapuaEventBusException {
         if (initFailureCause != null) {
-            throw new KapuaEventbusException(initFailureCause);
+            throw new KapuaEventBusException(initFailureCause);
         }
         return instance;
     }
 
     @Override
-    public void publish(String address, KapuaEvent event) throws KapuaEventbusException {
+    public void publish(String address, KapuaEvent event) throws KapuaEventBusException {
         jmsEventbus.publish(address, event);
     }
 
     @Override
-    public void subscribe(String address, KapuaServiceEventListener eventListener) throws KapuaEventbusException {
+    public void subscribe(String address, KapuaEventBusListener eventListener) throws KapuaEventBusException {
         jmsEventbus.subscribe(address, eventListener);
     }
 
-    public void start() throws KapuaEventbusException {
+    public void start() throws KapuaEventBusException {
         jmsEventbus.start();
     }
 
-    public void stop() throws KapuaEventbusException {
+    public void stop() throws KapuaEventBusException {
         jmsEventbus.stop();
     }
 }

@@ -40,7 +40,7 @@ import org.eclipse.kapua.service.authorization.domain.Domain;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaServiceEventListener;
+import org.eclipse.kapua.service.event.KapuaEventBusListener;
 import org.eclipse.kapua.service.event.ListenKapuaEvent;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
 
@@ -51,7 +51,7 @@ import org.eclipse.kapua.service.event.RaiseKapuaEvent;
  */
 @KapuaProvider
 public class AccountServiceImpl extends AbstractKapuaConfigurableResourceLimitedService<Account, AccountCreator, AccountService, AccountListResult, AccountQuery, AccountFactory>
-        implements AccountService, KapuaServiceEventListener {
+        implements AccountService, KapuaEventBusListener {
 
     private static final Domain ACCOUNT_DOMAIN = new AccountDomain();
 

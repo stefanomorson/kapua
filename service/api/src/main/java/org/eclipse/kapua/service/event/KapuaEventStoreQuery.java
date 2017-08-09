@@ -11,14 +11,21 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import org.eclipse.kapua.model.KapuaEntityFactory;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+import org.eclipse.kapua.model.query.KapuaQuery;
 
 /**
- * KapuaEvent factory service definition.
+ * KapuaEvent query definition.
  * 
  * @since 1.0
  * 
  */
-public interface KapuaEventFactory extends KapuaEntityFactory<KapuaEvent, KapuaEventCreator, KapuaEventQuery, KapuaEventListResult> {
-
+@XmlRootElement(name = "query")
+@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlType(factoryClass = KapuaEventStoreXmlRegistry.class, factoryMethod = "newQuery")
+public interface KapuaEventStoreQuery extends KapuaQuery<KapuaEvent> {
 }

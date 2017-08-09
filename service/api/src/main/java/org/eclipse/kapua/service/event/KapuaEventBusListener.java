@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2016 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,11 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.event;
 
-import org.eclipse.kapua.model.KapuaUpdatableEntityPredicates;
+import org.eclipse.kapua.KapuaException;
 
-public interface KapuaEventPredicates extends KapuaUpdatableEntityPredicates {
+/**
+ * @since 0.3.0
+ */
+public interface KapuaEventBusListener {
 
-    public static final String EVENT_STATUS = "status";
-    public static final String SERVICE_NAME = "service";
-
+    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException;
 }

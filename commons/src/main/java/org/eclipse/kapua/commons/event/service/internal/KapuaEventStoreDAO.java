@@ -20,9 +20,9 @@ import org.eclipse.kapua.model.query.KapuaQuery;
 import org.eclipse.kapua.service.event.KapuaEvent;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
 
-public class ServiceEventDAO {
+public class KapuaEventStoreDAO {
 
-    private ServiceEventDAO() {
+    private KapuaEventStoreDAO() {
     }
 
     /**

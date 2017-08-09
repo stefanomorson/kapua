@@ -26,7 +26,7 @@ import org.eclipse.kapua.model.query.KapuaListResult;
  */
 @XmlRootElement(name = "kapuaEventListResult")
 @XmlAccessorType(XmlAccessType.PROPERTY)
-@XmlType(factoryClass = KapuaEventXmlRegistry.class,factoryMethod = "newKapuaEventListResult")
+@XmlType(factoryClass = KapuaEventStoreXmlRegistry.class,factoryMethod = "newKapuaEventListResult")
 public interface KapuaEventListResult extends KapuaListResult<KapuaEvent> {
 
 }
