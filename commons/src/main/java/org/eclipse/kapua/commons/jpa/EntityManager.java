@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.jpa;
 
+import java.io.Serializable;
+
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -42,6 +44,26 @@ public class EntityManager {
      */
     public EntityManager(javax.persistence.EntityManager javaxPersitenceEntityManager) {
         this.javaxPersitenceEntityManager = javaxPersitenceEntityManager;
+    }
+
+    /**
+     * Find the entity by the given id and type
+     * 
+     * @param clazz
+     * @param id
+     * @return
+     */
+    public <E extends Serializable> E findWithLock(Class<E> clazz, Object id) {
+        return javaxPersitenceEntityManager.find(clazz, id, LockModeType.PESSIMISTIC_WRITE);
+    }
+
+    /**
+     * Persist the entity
+     * 
+     * @param entity
+     */
+    public <E extends Serializable> void persist(E entity) {
+        javaxPersitenceEntityManager.persist(entity);
     }
 
     /**
@@ -138,18 +160,6 @@ public class EntityManager {
     public <E extends KapuaEntity> E find(Class<E> clazz, KapuaId id) {
         KapuaEid eid = KapuaEid.parseKapuaId(id);
         return javaxPersitenceEntityManager.find(clazz, eid);
-    }
-
-    /**
-     * Find the entity by the given id and type (with pessimistic write locking)
-     * 
-     * @param clazz
-     * @param id
-     * @return
-     */
-    public <E extends KapuaEntity> E findLock(Class<E> clazz, KapuaId id) {
-        KapuaEid eid = KapuaEid.parseKapuaId(id);
-        return javaxPersitenceEntityManager.find(clazz, eid, LockModeType.PESSIMISTIC_WRITE);
     }
 
     /**

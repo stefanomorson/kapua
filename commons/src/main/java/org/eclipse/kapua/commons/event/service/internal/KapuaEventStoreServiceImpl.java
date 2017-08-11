@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.commons.jpa.AbstractEntityManagerFactory;
+import org.eclipse.kapua.commons.jpa.EntityManagerFactory;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.service.internal.AbstractKapuaService;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
@@ -55,7 +55,7 @@ public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements 
      * @since 1.0.0
      */
     @Inject
-    public KapuaEventStoreServiceImpl(AbstractEntityManagerFactory entityManagerFactory) {
+    public KapuaEventStoreServiceImpl(EntityManagerFactory entityManagerFactory) {
         super(entityManagerFactory);
     }
 
@@ -152,7 +152,6 @@ public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements 
     public KapuaEventListResult query(KapuaQuery<KapuaEvent> query)
             throws KapuaException {
         ArgumentValidator.notNull(query, "query");
-        ArgumentValidator.notNull(query.getScopeId(), "query.scopeId");
 
         //
         // Check Access
@@ -202,8 +201,7 @@ public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements 
 
         KapuaSecurityUtils.doPrivileged(()->{            
             KapuaEvent persistedKapuaEvent = find(kapuaEvent.getScopeId(), kapuaEvent.getId());
-            // TODO replace literal with status enum
-            persistedKapuaEvent.setStatus("sent");
+            persistedKapuaEvent.setStatus(KapuaEvent.EVENT_STATUS.CONFIRMED.name());
             update(persistedKapuaEvent);
         });
     }

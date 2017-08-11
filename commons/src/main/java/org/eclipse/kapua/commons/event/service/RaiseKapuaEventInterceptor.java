@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,7 @@ import java.util.Date;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.eclipse.kapua.commons.event.bus.EventBusManager;
+import org.eclipse.kapua.commons.event.service.internal.ServiceMap;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.locator.KapuaProvider;
@@ -23,7 +24,6 @@ import org.eclipse.kapua.model.KapuaEntity;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.event.KapuaEvent;
-import org.eclipse.kapua.service.event.KapuaEventBus;
 import org.eclipse.kapua.service.event.KapuaEventBusException;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
 import org.slf4j.Logger;
@@ -54,8 +54,8 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
             kapuaEvent.setUserId(session.getUserId());
             kapuaEvent.setScopeId(session.getScopeId());
             kapuaEvent.setOperation(invocation.getMethod().getName());
-            fillEntityFields(invocation, kapuaEvent);
             fillServiceName(invocation, kapuaEvent);
+            fillEntityFields(invocation, kapuaEvent);
 
             // TODO Extract from MethodInvocation and RaiseKapuaEvent annotation attributes
             kapuaEvent.setInputs(" ");
@@ -111,6 +111,8 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         }
     }
 
+    //TODO checks the invoked method belongs to a class that implements a KapuaEntityService
+    //TODO add attribute to RaiseKapuaEvents for other use cases
     private void fillServiceName(MethodInvocation invocation, KapuaEvent kapuaEvent) {
         //get the service name
         //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
@@ -126,6 +128,8 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
         kapuaEvent.setService(cleanedServiceName);
     }
 
+    //TODO checks the invoked method belongs to a class that implements a KapuaEntityService
+    //TODO add attribute to RaiseKapuaEvents for other use cases
     private String extractEntityType(MethodInvocation invocation) {
         //the service is wrapped by guice so getThis --> getSuperclass() should provide the intercepted class
         //then keep the interface from this object
@@ -148,11 +152,15 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
     }
 
     private void sendEvent(MethodInvocation invocation, KapuaEvent kapuaEvent, Object returnedValue) throws KapuaEventBusException {
-        KapuaEventBus eventbus = EventBusManager.getInstance();
-
-        String address = String.format("%s", kapuaEvent.getService());
-        eventbus.publish(address, kapuaEvent);
-        LOGGER.info("SENT event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
+        String address = ServiceMap.getQueueAddress(kapuaEvent.getService());
+        if (address!=null && address.trim().length()>0) {
+            EventBusManager.getInstance().publish(address, kapuaEvent);
+            LOGGER.info("SENT event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
+        }
+        else {
+            LOGGER.warn("Cannot send event for service '{}' since the queue address is empty!");
+            //TODO which is the correct action to be taken? (throw exception? send alert message? ..)
+        }
     }
 
 }
