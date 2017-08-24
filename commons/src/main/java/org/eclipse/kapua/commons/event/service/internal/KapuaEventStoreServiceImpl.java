@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.jpa.EntityManagerFactory;
-import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.service.internal.AbstractKapuaService;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -31,9 +30,7 @@ import org.eclipse.kapua.service.event.KapuaEventCreator;
 import org.eclipse.kapua.service.event.KapuaEventListResult;
 import org.eclipse.kapua.service.event.KapuaEventStoreService;
 import org.eclipse.kapua.service.event.RaiseKapuaEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.eclipse.kapua.service.event.KapuaEvent.EVENT_STATUS;
+import org.eclipse.kapua.service.event.KapuaEvent.EventStatus;
 
 /**
  * {@link KapuaEventStoreService} implementation.
@@ -41,8 +38,6 @@ import org.eclipse.kapua.service.event.KapuaEvent.EVENT_STATUS;
  * @since 1.0.0
  */
 public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements KapuaEventStoreService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KapuaEventStoreServiceImpl.class);
 
     private static final Domain KAPUA_EVENT_DOMAIN = new KapuaEventDomain();
     private static final KapuaLocator LOCATOR = KapuaLocator.getInstance();
@@ -87,7 +82,7 @@ public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements 
                 throw new KapuaEntityNotFoundException(KapuaEvent.TYPE, kapuaEvent.getId());
             }
 
-            kapuaEvent.setStatus(EVENT_STATUS.CONFIRMED.name());
+            kapuaEvent.setStatus(EventStatus.CONFIRMED);
             // Update
             return KapuaEventStoreDAO.update(em, kapuaEvent);
         });
@@ -191,18 +186,4 @@ public class KapuaEventStoreServiceImpl extends AbstractKapuaService implements 
         return entityManagerSession.onResult(em -> KapuaEventStoreDAO.find(em, kapuaEventId));
     }
 
-    @Override
-    public void onKapuaEvent(KapuaEvent kapuaEvent) throws KapuaException {
-
-        ArgumentValidator.notNull(kapuaEvent, "kapuaEvent");
-
-        LOGGER.info("Received event from service {} - entity type {} - entity id {} - context id {}",
-                new Object[] { kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId() });
-
-        KapuaSecurityUtils.doPrivileged(()->{            
-            KapuaEvent persistedKapuaEvent = find(kapuaEvent.getScopeId(), kapuaEvent.getId());
-            persistedKapuaEvent.setStatus(KapuaEvent.EVENT_STATUS.CONFIRMED.name());
-            update(persistedKapuaEvent);
-        });
-    }
 }

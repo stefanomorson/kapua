@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,18 +32,19 @@ public class ServiceMap {
 
     public static synchronized void registerServices(String serviceQueueAddress, List<String> servicesNames) {
         for (String serviceName : servicesNames) {
-            String tmp = AVAILABLE_SERVICES.get(serviceName);
-            if (tmp==null) {
+            //register service name
+            String tmpServiceName = AVAILABLE_SERVICES.get(serviceName);
+            if (tmpServiceName==null) {
                 AVAILABLE_SERVICES.put(serviceName, serviceQueueAddress);
                 LOGGER.info("Bound service '{}' to queue address '{}'",
                         new Object[]{serviceName, serviceQueueAddress});
             }
-            else if (!serviceQueueAddress.equals(tmp)) {
+            else if (!serviceQueueAddress.equals(tmpServiceName)) {
                 LOGGER.warn("The service '{}' is already registered with a different queue address (old '{}' - new '{}'). No change will be made",
-                        new Object[]{serviceName, tmp, serviceQueueAddress});
+                        new Object[]{serviceName, tmpServiceName, serviceQueueAddress});
             }
             else {
-                LOGGER.info("The service '{}' is already registered queue address '{}'",
+                LOGGER.info("The service '{}' is already registered with queue address '{}'",
                         new Object[]{serviceName, serviceQueueAddress});
             }
         }
@@ -51,13 +52,13 @@ public class ServiceMap {
 
     public static synchronized void unregisterServices(List<String> servicesNames) {
         for (String serviceName : servicesNames) {
-            String tmp = AVAILABLE_SERVICES.remove(serviceName);
-            if (tmp==null) {
+            String tmpServiceName = AVAILABLE_SERVICES.remove(serviceName);
+            if (tmpServiceName==null) {
                 LOGGER.warn("Cannot deregister service '{}'. The service wasn't registered!", serviceName);
             }
             else {
                 LOGGER.info("Deregistered service '{}' from queue address '{}'",
-                        new Object[]{serviceName, tmp});
+                        new Object[]{serviceName, tmpServiceName});
             }
         }
     }

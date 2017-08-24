@@ -45,7 +45,8 @@ import org.eclipse.kapua.model.xml.DateXmlAdapter;
 public interface KapuaEvent extends KapuaUpdatableEntity {
 
     public static final String TYPE = "kapuaEvent";
-    public enum EVENT_STATUS {
+
+    public enum EventStatus {
         FIRED,
         CONFIRMED
     }
@@ -74,7 +75,7 @@ public interface KapuaEvent extends KapuaUpdatableEntity {
     @XmlElement(name = "service")
     public String getService();
 
-    public void setService(String servie);
+    public void setService(String service);
 
     @XmlElement(name = "entityType")
     public String getEntityType();
@@ -109,9 +110,9 @@ public interface KapuaEvent extends KapuaUpdatableEntity {
     public void setOutputs(String outputs);
 
     @XmlElement(name = "status")
-    public String getStatus();
+    public EventStatus getStatus();
 
-    public void setStatus(String status);
+    public void setStatus(EventStatus status);
 
     @XmlElement(name = "note")
     public String getNote();

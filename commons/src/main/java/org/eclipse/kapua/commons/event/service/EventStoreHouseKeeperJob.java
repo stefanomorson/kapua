@@ -36,7 +36,7 @@ import org.eclipse.kapua.service.event.KapuaEventListResult;
 import org.eclipse.kapua.service.event.KapuaEventStorePredicates;
 import org.eclipse.kapua.service.event.KapuaEventStoreQuery;
 import org.eclipse.kapua.service.event.KapuaEventStoreService;
-import org.eclipse.kapua.service.event.KapuaEvent.EVENT_STATUS;
+import org.eclipse.kapua.service.event.KapuaEvent.EventStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,9 @@ public class EventStoreHouseKeeperJob implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventStoreHouseKeeperJob.class);
 
-    final long waitTime = SystemSetting.getInstance().getLong(SystemSettingKey.HOUSEKEEPER_EXECUTION_WAIT_TIME);
+    private final static long WAIT_TIME = SystemSetting.getInstance().getLong(SystemSettingKey.HOUSEKEEPER_EXECUTION_WAIT_TIME);
+    private final static int EVENT_SCAN_WINDOW = SystemSetting.getInstance().getInt(SystemSettingKey.HOUSEKEEPER_EVENT_SCAN_WINDOW);
+
     private final Object monitor = new Object();
 
     private KapuaEventStoreService kapuaEventService;
@@ -101,12 +103,13 @@ public class EventStoreHouseKeeperJob implements Runnable {
             KapuaEventHousekeeper kapuaEventHousekeeper = getLock(serviceName);
             //scan unprocessed events
             KapuaEventStoreQuery query = new KapuaEventStoreFactoryImpl().newQuery(null);
-            AttributePredicate<String> eventStatusPredicate = new AttributePredicate<>(KapuaEventStorePredicates.EVENT_STATUS, EVENT_STATUS.FIRED.name());
+            AttributePredicate<EventStatus> eventStatusPredicate = new AttributePredicate<>(KapuaEventStorePredicates.EVENT_STATUS, EventStatus.FIRED);
             AttributePredicate<String> serviceNamePredicate = new AttributePredicate<>(KapuaEventStorePredicates.SERVICE_NAME, serviceName);
             AndPredicate andPredicate = new AndPredicate();
             andPredicate.and(eventStatusPredicate);
             andPredicate.and(serviceNamePredicate);
             query.setPredicate(andPredicate);
+            query.setLimit(EVENT_SCAN_WINDOW);
             KapuaEventListResult unsentMessagesList = kapuaEventService.query(query);
             //send unprocessed events
             if (!unsentMessagesList.isEmpty()) {
@@ -114,7 +117,12 @@ public class EventStoreHouseKeeperJob implements Runnable {
                     try {
                         LOGGER.info("publish event: service '{}' - operation '{}' - id '{}'", new Object[]{kapuaEvent.getService(), kapuaEvent.getOperation(), kapuaEvent.getContextId()});
                         eventbus.publish(serviceInternalEventAddress, kapuaEvent);
+                        //if message was sent successfully then confirm the event in the event table
+                        //if something goes wrong during this update the event message may be raised twice (but this condition should happens rarely and it is compliant to the contract of the service events)
+                        //this is done in a different transaction
+                        kapuaEventService.update(kapuaEvent);
                     } catch (KapuaEventBusException e) {
+                        //this may be a valid condition if the HouseKeeper is doing the update concurrently with this task
                         LOGGER.warn("Exception publishing event: {}", e.getMessage(), e);
                     }
                 }
@@ -122,7 +130,7 @@ public class EventStoreHouseKeeperJob implements Runnable {
             //release lock
             updateLock(kapuaEventHousekeeper, serviceName, startRun);
         }
-        catch (LockException e) {
+        catch (LockException | NoExecutionNeededException e) {
             LOGGER.trace("The lock is handled by someone else or the last execution was to close");
         }
         finally {
@@ -136,7 +144,7 @@ public class EventStoreHouseKeeperJob implements Runnable {
     private void waitStep() {
         try {
             synchronized (monitor) {
-                monitor.wait(waitTime);
+                monitor.wait(WAIT_TIME);
             }
         } catch (InterruptedException e) {
             LOGGER.warn("Exception waiting for next scheduled execution: {}", e.getMessage(), e);
@@ -150,7 +158,7 @@ public class EventStoreHouseKeeperJob implements Runnable {
         }
     }
 
-    private KapuaEventHousekeeper getLock(String serviceName) throws LockException {
+    private KapuaEventHousekeeper getLock(String serviceName) throws LockException, NoExecutionNeededException {
         KapuaEventHousekeeper kapuaEventHousekeeper = null;
         try {
             manager.beginTransaction();
@@ -160,14 +168,14 @@ public class EventStoreHouseKeeperJob implements Runnable {
             throw new LockException(String.format("Cannot acquire lock: %s", e.getMessage()), e);
         }
         // Check last housekeeper run
-        if (KapuaDateUtils.getKapuaSysDate().isBefore(kapuaEventHousekeeper.getLastRunOn().toInstant().plus(Duration.of(waitTime, ChronoUnit.MILLIS)))) {
-            throw new LockException("Not enough time since the last execution");
+        if (KapuaDateUtils.getKapuaSysDate().isBefore(kapuaEventHousekeeper.getLastRunOn().toInstant().plus(Duration.of(WAIT_TIME, ChronoUnit.MILLIS)))) {
+            throw new NoExecutionNeededException("Not enough time since the last execution");
         }
         return kapuaEventHousekeeper;
     }
 
     private void updateLock(KapuaEventHousekeeper kapuaEventHousekeeper, String serviceName, Date startRun) throws KapuaException {
-        kapuaEventHousekeeper.setLastRunBy(serviceName);//TODO to be filled by a proper instance identifier
+        kapuaEventHousekeeper.setLastRunBy(serviceName);
         kapuaEventHousekeeper.setLastRunOn(startRun);
         manager.persist(kapuaEventHousekeeper);
         manager.commit();
@@ -177,12 +185,19 @@ public class EventStoreHouseKeeperJob implements Runnable {
 
         private static final long serialVersionUID = 3099804470559976126L;
 
-        public LockException(String msg) {
-            super(msg);
-        }
-
         public LockException(String msg, Throwable t) {
             super(msg, t);
         }
     }
+
+    private class NoExecutionNeededException extends Exception {
+
+        private static final long serialVersionUID = 7292333466656851052L;
+
+        public NoExecutionNeededException(String msg) {
+            super(msg);
+        }
+
+    }
+
 }

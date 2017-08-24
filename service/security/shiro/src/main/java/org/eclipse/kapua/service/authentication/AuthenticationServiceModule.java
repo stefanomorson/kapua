@@ -23,9 +23,7 @@ import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.core.ServiceModule;
 import org.eclipse.kapua.commons.event.bus.EventBusManager;
 import org.eclipse.kapua.commons.event.service.EventStoreHouseKeeperJob;
-import org.eclipse.kapua.commons.event.service.internal.KapuaEventStoreServiceImpl;
 import org.eclipse.kapua.commons.event.service.internal.ServiceMap;
-import org.eclipse.kapua.commons.jpa.EntityManagerFactory;
 import org.eclipse.kapua.locator.KapuaProvider;
 import org.eclipse.kapua.service.authentication.credential.CredentialService;
 import org.eclipse.kapua.service.authentication.shiro.AuthenticationEntityManagerFactory;
@@ -33,17 +31,16 @@ import org.eclipse.kapua.service.authentication.shiro.setting.KapuaAuthenticatio
 import org.eclipse.kapua.service.authentication.shiro.setting.KapuaAuthenticationSettingKeys;
 import org.eclipse.kapua.service.authentication.token.AccessTokenService;
 import org.eclipse.kapua.service.event.KapuaEventBus;
-import org.eclipse.kapua.service.event.KapuaEventStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @KapuaProvider
 public class AuthenticationServiceModule implements ServiceModule {
-    //TODO make sense to create an abstract module to handle the housekeeper executor start and stop?
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceModule.class);
 
     private final static int MAX_WAIT_LOOP_ON_SHUTDOWN = 30;
+    private final static int SCHEDULED_EXECUTION_TIME_WINDOW = 30;
     private final static long WAIT_TIME = 1000;
 
     @Inject
@@ -52,8 +49,7 @@ public class AuthenticationServiceModule implements ServiceModule {
     @Inject
     private AccessTokenService accessTokenService;
 
-    private KapuaEventStoreService kapuaEventStoreService;
-
+    private List<String> servicesNames;
     private ScheduledExecutorService houseKeeperScheduler;
     private ScheduledFuture<?> houseKeeperHandler;
     private EventStoreHouseKeeperJob houseKeeperJob;
@@ -81,24 +77,16 @@ public class AuthenticationServiceModule implements ServiceModule {
         //the event bus implicitly will add event. as prefix for each publish/subscribe
         eventbus.subscribe(upEvAccountAccessTokenSubscribe, accessTokenService);
 
-        // Event store listener
-        EntityManagerFactory entityManagerFactory = AuthenticationEntityManagerFactory.getInstance();
-        kapuaEventStoreService = new KapuaEventStoreServiceImpl(entityManagerFactory);
-
-        //the event bus implicitly will add event. as prefix for each publish/subscribe
-        List<String> servicesNames = KapuaAuthenticationSetting.getInstance().getList(String.class, KapuaAuthenticationSettingKeys.AUTHENTICATION_SERVICES_NAMES);
-
+        //register events to the service map
         String serviceInternalEventAddress = KapuaAuthenticationSetting.getInstance().getString(KapuaAuthenticationSettingKeys.AUTHENTICATION_INTERNAL_EVENT_ADDRESS);
-        eventbus.subscribe(String.format("%s.%s", serviceInternalEventAddress, serviceInternalEventAddress), kapuaEventStoreService);
-
-        //register events to the RaiseKapuaEventInterceptor
+        servicesNames = KapuaAuthenticationSetting.getInstance().getList(String.class, KapuaAuthenticationSettingKeys.AUTHENTICATION_SERVICES_NAMES);
         ServiceMap.registerServices(serviceInternalEventAddress, servicesNames);
 
         // Start the House keeper
         houseKeeperScheduler = Executors.newScheduledThreadPool(1);
-        houseKeeperJob = new EventStoreHouseKeeperJob(entityManagerFactory, eventbus, serviceInternalEventAddress, servicesNames);
+        houseKeeperJob = new EventStoreHouseKeeperJob(AuthenticationEntityManagerFactory.getInstance(), eventbus, serviceInternalEventAddress, servicesNames);
         // Start time can be made random from 0 to 30 seconds
-        houseKeeperHandler = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, 30, 30, TimeUnit.SECONDS);
+        houseKeeperHandler = houseKeeperScheduler.scheduleAtFixedRate(houseKeeperJob, SCHEDULED_EXECUTION_TIME_WINDOW, SCHEDULED_EXECUTION_TIME_WINDOW, TimeUnit.SECONDS);
     }
 
     @Override
@@ -121,5 +109,6 @@ public class AuthenticationServiceModule implements ServiceModule {
         if (houseKeeperScheduler != null) {
             houseKeeperScheduler.shutdown();
         }
+        ServiceMap.unregisterServices(servicesNames);
     }
 }
