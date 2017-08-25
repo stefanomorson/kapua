@@ -122,8 +122,10 @@ public class EventStoreHouseKeeperJob implements Runnable {
                         //this is done in a different transaction
                         kapuaEventService.update(kapuaEvent);
                     } catch (KapuaEventBusException e) {
-                        //this may be a valid condition if the HouseKeeper is doing the update concurrently with this task
                         LOGGER.warn("Exception publishing event: {}", e.getMessage(), e);
+                    } catch (KapuaException e) {
+                      //this may be a valid condition if the HouseKeeper is doing the update concurrently with this task
+                        LOGGER.warn("Exception acknowledging event: {}", e.getMessage(), e);
                     }
                 }
             }

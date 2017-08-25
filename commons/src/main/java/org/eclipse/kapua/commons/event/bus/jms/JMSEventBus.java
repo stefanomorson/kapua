@@ -24,7 +24,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.xml.stream.FactoryConfigurationError;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.pool2.BasePooledObjectFactory;
@@ -33,6 +32,7 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.KapuaRuntimeException;
 import org.eclipse.kapua.commons.event.bus.EventBusMarshaler;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
@@ -136,7 +136,7 @@ public class JMSEventBus implements KapuaEventBus {
             if (kapuaListeners.get(address) == null) {
                 //create a bunch of sessions to allow parallel event processing
                 for (int i=0; i<CONSUMER_POOL_SIZE; i++) {
-                    final Session jmsSession = jmsConnection.createSession(true, Session.SESSION_TRANSACTED);
+                    final Session jmsSession = jmsConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                     Queue jmsQueue = jmsSession.createQueue(address);
                     MessageConsumer jmsConsumer = jmsSession.createConsumer(jmsQueue);
                     jmsConsumer.setMessageListener(new MessageListener() {
@@ -155,14 +155,10 @@ public class JMSEventBus implements KapuaEventBus {
                                 else {
                                     LOGGER.error("Discarding wrong event message type '{}'", message != null ? message.getClass() : "null");
                                 }
-                                jmsSession.commit();
-                            } catch (KapuaException | JMSException | FactoryConfigurationError e) {
-                                try {
-                                    jmsSession.rollback();
-                                } catch (JMSException e1) {
-                                    LOGGER.error("Cannot rollback transaction! Event message may be lost!", e);
-                                }
-                                LOGGER.error(e.getMessage(), e);
+                            } catch (Throwable t) {
+                                LOGGER.error(t.getMessage(), t);
+                                //throwing the exception to prevent the message acknowledging (https://docs.oracle.com/javaee/7/api/javax/jms/Session.html#AUTO_ACKNOWLEDGE) 
+                                throw KapuaRuntimeException.internalError(t);
                             }
                         }
                     });
