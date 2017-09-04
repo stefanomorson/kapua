@@ -16,7 +16,6 @@ import java.util.Date;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.event.bus.EventBusManager;
 import org.eclipse.kapua.commons.event.service.internal.KapuaEventStoreDAO;
 import org.eclipse.kapua.commons.event.service.internal.ServiceMap;
@@ -161,17 +160,27 @@ public class RaiseKapuaEventInterceptor implements MethodInterceptor {
 
     private void sendEvent(MethodInvocation invocation, KapuaEvent kapuaEvent, Object returnedValue) throws KapuaEventBusException {
         String address = ServiceMap.getQueueAddress(kapuaEvent.getService());
-        EventBusManager.getInstance().publish(address, kapuaEvent);
-        LOGGER.info("SENT event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
-        //if message was sent successfully then confirm the event in the event table
+        try {
+            EventBusManager.getInstance().publish(address, kapuaEvent);
+            LOGGER.info("SENT event from service {} - entity type {} - entity id {} - context id {}", new Object[]{kapuaEvent.getService(), kapuaEvent.getEntityType(), kapuaEvent.getEntityId(), kapuaEvent.getContextId()});
+            //if message was sent successfully then confirm the event in the event table
+            updateEventStatus(invocation, kapuaEvent, EventStatus.SENT);
+        }
+        catch (KapuaEventBusException e) {
+            //mark event status as SEND_ERROR
+            updateEventStatus(invocation, kapuaEvent, EventStatus.SEND_ERROR);
+        }
+    }
+
+    private void updateEventStatus(MethodInvocation invocation, KapuaEvent kapuaEvent, EventStatus newEventStatus) {
         if (invocation.getThis() instanceof AbstractKapuaService) {
             try {
-                kapuaEvent.setStatus(EventStatus.CONFIRMED);
+                kapuaEvent.setStatus(newEventStatus);
                 ((AbstractKapuaService) invocation.getThis()).getEntityManagerSession().onTransactedAction(em -> KapuaEventStoreDAO.update(em, kapuaEvent));
             }
-            catch (KapuaException e) {
+            catch (Throwable t) {
                 //this may be a valid condition if the HouseKeeper is doing the update concurrently with this task
-                LOGGER.warn("Error updating event status: {}", e.getMessage(), e);
+                LOGGER.warn("Error updating event status: {}", t.getMessage(), t);
             }
         }
     }

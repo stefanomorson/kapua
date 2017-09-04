@@ -217,13 +217,17 @@ public enum SystemSettingKey implements SettingKey {
     EVENT_BUS_MESSAGE_SERIALIZER("commons.eventbus.messageSerializer"),
 
     /**
-     * Wait time between housekeeper executions
+     * Wait time between housekeeper executions (in milliseconds)
      */
     HOUSEKEEPER_EXECUTION_WAIT_TIME("commons.eventbus.houskeeper.waitTime"),
     /**
      * Housekeeper event scan window
      */
-    HOUSEKEEPER_EVENT_SCAN_WINDOW("commons.eventbus.houskeeper.eventScanWindow");
+    HOUSEKEEPER_EVENT_SCAN_WINDOW("commons.eventbus.houskeeper.eventScanWindow"),
+    /**
+     * Time window to consider FIRED messages as "old" messages so ready to be processed by the housekeeper (in milliseconds)
+     */
+    HOUSEKEEPER_OLD_MESSAGES_TIME_WINDOW("commons.eventbus.houskeeper.oldMessagesTimeWindow");
 
     private String key;
 
