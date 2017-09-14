@@ -187,7 +187,7 @@ public class JMSEventBus implements KapuaEventBus {
             jmsProducer = jmsSession.createProducer(jmsTopic);
         }
 
-        public void sendMessage(KapuaEvent kapuaEvent) {
+        public void sendMessage(KapuaEvent kapuaEvent) throws Exception {
             try {
                 TextMessage message = jmsSession.createTextMessage();
                 //Serialize outgoing kapua event based on platform configuration
@@ -195,6 +195,7 @@ public class JMSEventBus implements KapuaEventBus {
                 jmsProducer.send(message);
             } catch (JMSException | KapuaException e) {
                 LOGGER.error("Message publish interrupted: {}", e.getMessage());
+                throw e;
             }
         }
 
