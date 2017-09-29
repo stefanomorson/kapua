@@ -281,6 +281,7 @@ objects:
             value:
               -Dcommons.db.connection.host=$SQL_SERVICE_HOST
               -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT
+              -Dcommons.db.schema.update=true
               -Dmetrics.enable.jmx=true
               -Ddatastore.elasticsearch.nodes=$ELASTICSEARCH_PORT_9200_TCP_ADDR
               -Dcommons.eventbus.url=failover:\(amqp://\${EVENTS_BROKER_PORT_5672_TCP_ADDR}:\${EVENTS_BROKER_PORT_5672_TCP_PORT}\)
@@ -341,6 +342,7 @@ objects:
               -Xmx1G
               -Dcommons.db.connection.host=$SQL_SERVICE_HOST
               -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT
+              -Dcommons.db.schema.update=true
               -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
               -Ddatastore.elasticsearch.nodes=$ELASTICSEARCH_PORT_9200_TCP_ADDR
               -Dcommons.eventbus.url=failover:\(amqp://\${EVENTS_BROKER_PORT_5672_TCP_ADDR}:\${EVENTS_BROKER_PORT_5672_TCP_PORT}\)
@@ -396,6 +398,7 @@ objects:
               -Xmx1G
               -Dcommons.db.connection.host=$SQL_SERVICE_HOST
               -Dcommons.db.connection.port=$SQL_PORT_3306_TCP_PORT
+              -Dcommons.db.schema.update=true
               -Dbroker.host=$KAPUA_BROKER_SERVICE_HOST
               -Ddatastore.elasticsearch.nodes=$ELASTICSEARCH_PORT_9200_TCP_ADDR
               -Dcommons.eventbus.url=failover:\(amqp://\${EVENTS_BROKER_PORT_5672_TCP_ADDR}:\${EVENTS_BROKER_PORT_5672_TCP_PORT}\)

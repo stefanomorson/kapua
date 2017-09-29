@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.KapuaConfigurableServiceSchemaUtils;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
+import org.eclipse.kapua.commons.model.id.IdGenerator;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
@@ -30,6 +31,7 @@ import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.permission.Actions;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
+import org.eclipse.kapua.service.device.registry.ConnectionUserCouplingMode;
 import org.eclipse.kapua.service.device.registry.Device;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnection;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionCreator;
@@ -176,14 +178,14 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
     @Given("^A regular connection creator$")
     public void createRegularCreator() {
         connectionCreator = prepareRegularConnectionCreator(rootScopeId,
-                new KapuaEid(BigInteger.valueOf(random.nextLong())));
+                new KapuaEid(IdGenerator.generate()));
     }
 
     @Given("^A connection for scope (d+)$")
     public void createConnectionInScope(int scope)
             throws KapuaException {
         DeviceConnectionCreator tmpCreator = prepareRegularConnectionCreator(new KapuaEid(BigInteger.valueOf(scope)),
-                new KapuaEid(BigInteger.valueOf(random.nextLong())));
+                new KapuaEid(IdGenerator.generate()));
         connection = deviceConnectionService.create(tmpCreator);
     }
 
@@ -209,10 +211,12 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
             for (DeviceConnection connItem : connections) {
                 connectionCreator = new DeviceConnectionCreatorImpl(scopeId);
                 connectionCreator.setUserId(userId);
+                connectionCreator.setUserCouplingMode(ConnectionUserCouplingMode.LOOSE);
                 connectionCreator.setClientId(connItem.getClientId());
                 connectionCreator.setClientIp(connItem.getClientIp());
                 connectionCreator.setServerIp(connItem.getServerIp());
                 connectionCreator.setProtocol(connItem.getProtocol());
+                connectionCreator.setAllowUserChange(false);
                 connection = deviceConnectionService.create(connectionCreator);
                 connectionId = connection.getId();
             }
@@ -268,7 +272,7 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
     public void changeConnectionIdRandomly()
             throws KapuaException {
         // Try to update the connection ID
-        KapuaId newId = new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        KapuaId newId = new KapuaEid(IdGenerator.generate());
         connection.setId(newId);
         try {
             exceptionCaught = false;
@@ -299,6 +303,9 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
         assertEquals(connectionCreator.getScopeId(), connection.getScopeId());
         assertEquals(connectionCreator.getClientId(), connection.getClientId());
         assertEquals(connectionCreator.getUserId(), connection.getUserId());
+        assertEquals(connectionCreator.getUserCouplingMode(), connection.getUserCouplingMode());
+        assertEquals(connectionCreator.getReservedUserId(), connection.getReservedUserId());
+        assertEquals(connectionCreator.getAllowUserChange(), connection.getAllowUserChange());
         assertEquals(connectionCreator.getClientIp(), connection.getClientIp());
         assertEquals(connectionCreator.getServerIp(), connection.getServerIp());
         assertEquals(connectionCreator.getProtocol(), connection.getProtocol());
@@ -337,7 +344,7 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
     @When("^I search for a random connection ID$")
     public void searchForARandomConnectionId()
             throws KapuaException {
-        KapuaId tmpConnId = new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        KapuaId tmpConnId = new KapuaEid(IdGenerator.generate());
         connection = deviceConnectionService.find(scopeId, tmpConnId);
     }
 
@@ -356,7 +363,7 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
 
     @When("^I try to delete a random connection ID$")
     public void deleteRandomConnection() {
-        KapuaId tmpId = new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        KapuaId tmpId = new KapuaEid(IdGenerator.generate());
         try {
             exceptionCaught = false;
             deviceConnectionService.delete(scopeId, tmpId);
@@ -474,10 +481,13 @@ public class DeviceRegistryConnectionTestSteps extends AbstractKapuaSteps {
         DeviceConnectionCreatorImpl tmpCreator = new DeviceConnectionCreatorImpl(scopeId);
 
         tmpCreator.setUserId(userId);
+        tmpCreator.setUserCouplingMode(ConnectionUserCouplingMode.LOOSE);
+        tmpCreator.setReservedUserId(userId);
         tmpCreator.setClientId(CLIENT_NAME);
         tmpCreator.setClientIp(CLIENT_IP);
         tmpCreator.setServerIp(SERVER_IP);
         tmpCreator.setProtocol("tcp");
+        tmpCreator.setAllowUserChange(false);
 
         return tmpCreator;
     }

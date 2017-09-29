@@ -13,8 +13,6 @@ package org.eclipse.kapua.service.device.registry.internal;
 
 import static org.eclipse.kapua.commons.model.query.predicate.AttributePredicate.attributeIsEqualTo;
 import static org.eclipse.kapua.commons.model.query.predicate.AttributePredicate.attributeIsNotEqualTo;
-import static org.eclipse.kapua.service.device.registry.DeviceCredentialsMode.LOOSE;
-import static org.eclipse.kapua.service.device.registry.DeviceCredentialsMode.STRICT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
@@ -28,6 +26,7 @@ import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.KapuaConfigurableServiceSchemaUtils;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
+import org.eclipse.kapua.commons.model.id.IdGenerator;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
@@ -285,7 +284,7 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
     @When("^I search for a device with a random ID$")
     public void findDeviceWithRandomId()
             throws KapuaException {
-        KapuaId tmpId = new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        KapuaId tmpId = new KapuaEid(IdGenerator.generate());
         device = deviceRegistryService.find(rootScopeId, tmpId);
     }
 
@@ -361,7 +360,6 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
             throws KapuaException {
         device.setBiosVersion(device.getBiosVersion() + "_upd");
         device.setCustomAttribute1(device.getCustomAttribute1() + "_upd");
-        device.setCredentialsMode(STRICT);
         deviceRegistryService.update(device);
     }
 
@@ -376,7 +374,7 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
     @When("^I update a device with an invalid ID$")
     public void updateDeviceWithInvalidId()
             throws KapuaException {
-        device.setId(new KapuaEid(BigInteger.valueOf(random.nextLong())));
+        device.setId(new KapuaEid(IdGenerator.generate()));
         try {
             exceptionCaught = false;
             deviceRegistryService.update(device);
@@ -396,8 +394,8 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
     @When("^I delete a device with random IDs$")
     public void deleteDeviceWithRandomIds()
             throws KapuaException {
-        KapuaId rndScope = new KapuaEid(BigInteger.valueOf(random.nextLong()));
-        KapuaId rndDev = new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        KapuaId rndScope = new KapuaEid(IdGenerator.generate());
+        KapuaId rndDev = new KapuaEid(IdGenerator.generate());
 
         try {
             exceptionCaught = false;
@@ -468,8 +466,6 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
         assertEquals(deviceCreator.getCustomAttribute3(), device.getCustomAttribute3());
         assertEquals(deviceCreator.getCustomAttribute4(), device.getCustomAttribute4());
         assertEquals(deviceCreator.getCustomAttribute5(), device.getCustomAttribute5());
-        assertEquals(deviceCreator.getCredentialsMode(), device.getCredentialsMode());
-        assertEquals(deviceCreator.getPreferredUserId(), device.getPreferredUserId());
         assertEquals(deviceCreator.getStatus(), device.getStatus());
     }
 
@@ -504,8 +500,6 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
         assertEquals(tmpDevice.getCustomAttribute3(), device.getCustomAttribute3());
         assertEquals(tmpDevice.getCustomAttribute4(), device.getCustomAttribute4());
         assertEquals(tmpDevice.getCustomAttribute5(), device.getCustomAttribute5());
-        assertEquals(tmpDevice.getCredentialsMode(), device.getCredentialsMode());
-        assertEquals(tmpDevice.getPreferredUserId(), device.getPreferredUserId());
         assertEquals(tmpDevice.getStatus(), device.getStatus());
     }
 
@@ -578,7 +572,7 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
         DeviceCreatorImpl tmpDeviceCreator = new DeviceCreatorImpl(accountId);
 
         tmpDeviceCreator.setClientId(client);
-        tmpDeviceCreator.setConnectionId(new KapuaEid(BigInteger.valueOf(random.nextLong())));
+        tmpDeviceCreator.setConnectionId(new KapuaEid(IdGenerator.generate()));
         tmpDeviceCreator.setDisplayName(TEST_DEVICE_NAME);
         tmpDeviceCreator.setSerialNumber("serialNumber");
         tmpDeviceCreator.setModelId("modelId");
@@ -600,8 +594,6 @@ public class DeviceRegistryServiceTestSteps extends AbstractKapuaSteps {
         tmpDeviceCreator.setCustomAttribute3("customAttribute3");
         tmpDeviceCreator.setCustomAttribute4("customAttribute4");
         tmpDeviceCreator.setCustomAttribute5("customAttribute5");
-        tmpDeviceCreator.setCredentialsMode(LOOSE);
-        tmpDeviceCreator.setPreferredUserId(new KapuaEid(BigInteger.valueOf(random.nextLong())));
         tmpDeviceCreator.setStatus(DeviceStatus.ENABLED);
 
         return tmpDeviceCreator;

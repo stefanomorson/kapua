@@ -16,7 +16,6 @@ import org.eclipse.kapua.message.KapuaMessage;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.KapuaService;
 import org.eclipse.kapua.service.config.KapuaConfigurableService;
-import org.eclipse.kapua.service.datastore.client.model.InsertResponse;
 import org.eclipse.kapua.service.datastore.model.DatastoreMessage;
 import org.eclipse.kapua.service.datastore.model.MessageListResult;
 import org.eclipse.kapua.service.datastore.model.StorableId;
@@ -39,7 +38,18 @@ public interface MessageStoreService extends KapuaService, KapuaConfigurableServ
      * 
      * @since 1.0.0
      */
-    InsertResponse store(KapuaMessage<?, ?> message)
+    StorableId store(KapuaMessage<?, ?> message)
+            throws KapuaException;
+
+    /**
+     * Store the message setting the provided datastoreId
+     * 
+     * @param message
+     * @param datastoreId
+     * @return
+     * @throws KapuaException
+     */
+    StorableId store(KapuaMessage<?, ?> message, String datastoreId)
             throws KapuaException;
 
     /**

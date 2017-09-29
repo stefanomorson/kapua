@@ -26,8 +26,8 @@ import java.util.Vector;
 
 import javax.inject.Inject;
 
-import cucumber.api.java.en.And;
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.model.id.IdGenerator;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.model.query.FieldSortCriteria;
 import org.eclipse.kapua.commons.model.query.predicate.AttributePredicate;
@@ -70,7 +70,6 @@ import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.device.registry.Device;
 import org.eclipse.kapua.service.device.registry.DeviceCreator;
-import org.eclipse.kapua.service.device.registry.DeviceCredentialsMode;
 import org.eclipse.kapua.service.device.registry.DeviceFactory;
 import org.eclipse.kapua.service.device.registry.DeviceListResult;
 import org.eclipse.kapua.service.device.registry.DevicePredicates;
@@ -96,6 +95,7 @@ import org.eclipse.kapua.test.KapuaTest;
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -106,13 +106,13 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 public class DeviceServiceSteps extends KapuaTest {
 
     private static final KapuaEid DEFAULT_SCOPE_ID = new KapuaEid(BigInteger.valueOf(1L));
+    private static final KapuaEid DEFAULT_SCOPE_ID2 = new KapuaEid(BigInteger.valueOf(123));
 
     // Device registry services
     private DeviceRegistryService deviceRegistryService;
     private DeviceEventService deviceEventsService;
     private DeviceLifeCycleService deviceLifeCycleService;
     private TagService tagService;
-
     // Scenario scoped Device Registry test data
     StepData stepData;
 
@@ -342,19 +342,21 @@ public class DeviceServiceSteps extends KapuaTest {
         }
     }
 
-    @Given("^A device such as$")
-    public void createADeviceAsSpecified(List<CucDevice> devLst)
+    @Given("^(?:A d|D)evices? such as$")
+    public void createADevicesAsSpecified(List<CucDevice> devLst)
             throws KapuaException {
 
-        assertNotNull(devLst);
-        assertEquals(1, devLst.size());
+        KapuaSecurityUtils.doPrivileged(() -> {
+            assertNotNull(devLst);
 
-        CucDevice tmpCDev = devLst.get(0);
-        tmpCDev.parse();
-        DeviceCreator devCr = prepareDeviceCreatorFromCucDevice(tmpCDev);
-        Device tmpDevice = deviceRegistryService.create(devCr);
-
-        stepData.put("LastDevice", tmpDevice);
+            Device tmpDevice = null;
+            for (CucDevice tmpCDev : devLst) {
+                tmpCDev.parse();
+                DeviceCreator devCr = prepareDeviceCreatorFromCucDevice(tmpCDev);
+                tmpDevice = deviceRegistryService.create(devCr);
+            }
+            stepData.put("LastDevice", tmpDevice);
+        });
     }
 
     @When("^I search for the device \"(.+)\" in account \"(.+)\"$")
@@ -371,7 +373,7 @@ public class DeviceServiceSteps extends KapuaTest {
 
         tmpDev = deviceRegistryService.findByClientId(tmpAcc.getId(), clientId);
         if (tmpDev != null) {
-            Vector<Device> dv = new Vector<Device>();
+            Vector<Device> dv = new Vector<>();
             dv.add(tmpDev);
             tmpList.addItems(dv);
             stepData.put("Device", tmpDev);
@@ -383,15 +385,22 @@ public class DeviceServiceSteps extends KapuaTest {
     public void iTagDeviceWithTag(String deviceTagName) throws Throwable {
 
         Device device = (Device) stepData.get("Device");
+        // stepData.clear();
         TagCreator tagCreator = new TagFactoryImpl().newCreator(DEFAULT_SCOPE_ID);
         tagCreator.setName(deviceTagName);
         Tag tag = tagService.create(tagCreator);
         Set<KapuaId> tags = new HashSet<>();
-        tags.add(tag.getId());
-        device.setTagIds(tags);
-        deviceRegistryService.update(device);
+        try {
+            stepData.put("ExceptionCaught", false);
+            tags.add(tag.getId());
+            device.setTagIds(tags);
+            deviceRegistryService.update(device);
+            stepData.put("tag", tag);
+            stepData.put("tags", tags);
+        } catch (KapuaException ex) {
+            stepData.put("ExceptionCaught", true);
+        }
     }
-
 
     @When("^I search for device with tag \"([^\"]*)\"$")
     public void iSearchForDeviceWithTag(String deviceTagName) throws Throwable {
@@ -418,6 +427,27 @@ public class DeviceServiceSteps extends KapuaTest {
         assertEquals(deviceName, device.getClientId());
     }
 
+    @And("^I untag device with \"([^\"]*)\" tag$")
+    public void iDeleteTag(String deviceTagName) throws Throwable {
+
+        Tag foundTag = (Tag) stepData.get("tag");
+        assertEquals(deviceTagName, foundTag.getName());
+        Device device = (Device) stepData.get("Device");
+        stepData.remove("tag");
+        stepData.remove("tags");
+        Set<KapuaId> tags = new HashSet<>();
+        device.setTagIds(tags);
+        deviceRegistryService.update(device);
+        assertEquals(device.getTagIds().isEmpty(), true);
+    }
+
+    @And("^I verify that tag \"([^\"]*)\" is deleted$")
+    public void iVerifyTagIsDeleted(String deviceTagName) throws Throwable {
+
+        Tag foundTag = (Tag) stepData.get("tag");
+        assertEquals(null, foundTag);
+    }
+
     @When("^I search for events from device \"(.+)\" in account \"(.+)\"$")
     public void searchForEventsFromDeviceWithClientID(String clientId, String account)
             throws KapuaException {
@@ -438,7 +468,7 @@ public class DeviceServiceSteps extends KapuaTest {
         tmpQuery = new DeviceEventQueryImpl(tmpAcc.getId());
         tmpQuery.setPredicate(attributeIsEqualTo("deviceId", tmpDev.getId()));
         tmpQuery.setSortCriteria(new FieldSortCriteria("receivedOn", FieldSortCriteria.SortOrder.ASCENDING));
-        tmpList = (DeviceEventListResult) deviceEventsService.query(tmpQuery);
+        tmpList = deviceEventsService.query(tmpQuery);
 
         assertNotNull(tmpList);
         stepData.put("DeviceEventList", tmpList);
@@ -597,9 +627,6 @@ public class DeviceServiceSteps extends KapuaTest {
         if (dev.connectionId != null) {
             tmpCr.setConnectionId(dev.getConnectionId());
         }
-        if (dev.preferredUserId != null) {
-            tmpCr.setPreferredUserId(dev.getPreferredUserId());
-        }
         if (dev.displayName != null) {
             tmpCr.setDisplayName(dev.displayName);
         }
@@ -645,9 +672,6 @@ public class DeviceServiceSteps extends KapuaTest {
         if (dev.acceptEncoding != null) {
             tmpCr.setAcceptEncoding(dev.acceptEncoding);
         }
-        if (dev.credentialsMode != null) {
-            tmpCr.setCredentialsMode(dev.getCredentialsMode());
-        }
 
         return tmpCr;
     }
@@ -679,14 +703,12 @@ public class DeviceServiceSteps extends KapuaTest {
         tmpCr.setCustomAttribute3("customAttribute3");
         tmpCr.setCustomAttribute4("customAttribute4");
         tmpCr.setCustomAttribute5("customAttribute5");
-        tmpCr.setCredentialsMode(DeviceCredentialsMode.LOOSE);
-        tmpCr.setPreferredUserId(generateRandomId());
         tmpCr.setStatus(DeviceStatus.ENABLED);
 
         return tmpCr;
     }
 
     private KapuaId generateRandomId() {
-        return new KapuaEid(BigInteger.valueOf(random.nextLong()));
+        return new KapuaEid(IdGenerator.generate());
     }
 }

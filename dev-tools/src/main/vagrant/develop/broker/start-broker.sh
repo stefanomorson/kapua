@@ -15,4 +15,5 @@ cd ../../activemq-service
 ./start-broker-service.sh
 cd ../activemq/apache-activemq-ACTIVEMQ_VERSION
 ./update-kapua-jars-cfg.sh
-bin/activemq start -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=* xbean:conf/activemq.xml
+export ACTIVEMQ_OPTS="${ACTIVEMQ_OPTS} -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=*"
+bin/activemq start xbean:conf/activemq.xml
