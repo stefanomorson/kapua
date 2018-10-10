@@ -11,18 +11,25 @@
  *******************************************************************************/
 package org.eclipse.kapua.processor.lifecycle.broker;
 
+import javax.inject.Named;
+
+import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectContextConfig;
-import org.eclipse.kapua.commons.core.ObjectFactory;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
-import org.eclipse.kapua.message.transport.TransportMessage;
+import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
+import org.eclipse.kapua.processor.commons.HttpServiceImplConfig;
 import org.eclipse.kapua.processor.commons.HttpServiceVerticle;
 import org.eclipse.kapua.processor.commons.JAXBContextProviderImpl;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 import org.eclipse.kapua.processor.commons.MessageProcessorVerticle;
 
-import com.google.inject.TypeLiteral;
+import com.google.inject.Provides;
 
 public class ProcessorContextConfig extends ObjectContextConfig {
+
+    private static final String CONFIG_PROP_PROCESSOR = "kapua.lifecycleProcessor";
+    private static final String CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP = "kapua.lifecycleProcessor.messageSource.amqp";
+    private static final String CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP = "kapua.lifecycleProcessor.errorTarget.amqp";
+    private static final String CONFIG_PROP_REST = "kapua.restService";
 
     public ProcessorContextConfig() {
     }
@@ -34,7 +41,30 @@ public class ProcessorContextConfig extends ObjectContextConfig {
         bind(HttpServiceVerticle.class);
         bind(JAXBContextProvider.class).to(JAXBContextProviderImpl.class);
         bind(MessageProcessorVerticle.class).to(AmqpLifecycleProcessorVerticle.class);
-        bind(new TypeLiteral<ObjectFactory<MessageProcessorConfig<byte[],TransportMessage>>>() {}).to(AmqpLifecycleProcessorConfigFactory.class);
+        bind(AmqpLifecycleProcessorConfigFactory.class);
     }
 
+    @Provides
+    @Named(CONFIG_PROP_REST)
+    HttpServiceImplConfig provideHttpServiceImplConfig(Configuration config) {
+        return HttpServiceImplConfig.create(CONFIG_PROP_REST, config);
+    }
+
+    @Provides
+    @Named(CONFIG_PROP_PROCESSOR)
+    AmqpLifecycleProcessorConfig provideDatastoreProcessorConfig(Configuration config) {
+        return AmqpLifecycleProcessorConfig.create(CONFIG_PROP_PROCESSOR, config);
+    }
+
+    @Provides
+    @Named(CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
+    AmqpConsumerConfig provideMessageSourceAmqpConfig(Configuration config) {
+        return AmqpConsumerConfig.create(CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP, config);
+    }
+
+    @Provides
+    @Named(CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP)
+    AmqpConsumerConfig provideErrorTargetAmqpConfig(Configuration config) {
+        return AmqpConsumerConfig.create(CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP, config);
+    }
 }

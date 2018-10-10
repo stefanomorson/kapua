@@ -19,11 +19,11 @@ import io.vertx.core.Vertx;
 
 public class AmqpErrorProcessor extends MessageProcessor<Message, Message> {
 
-    public static AmqpErrorProcessor create(Vertx aVertx, MessageProcessorConfig<Message, Message> aConfig) {
-        return new AmqpErrorProcessor(aVertx, aConfig);
-    }
-
     protected AmqpErrorProcessor(Vertx aVertx, MessageProcessorConfig<Message, Message> aConfig) {
         super(aVertx, aConfig);
+    }
+
+    public static AmqpErrorProcessor create(Vertx aVertx, MessageProcessorConfig<Message, Message> aConfig) {
+        return new AmqpErrorProcessor(aVertx, aConfig);
     }
 }

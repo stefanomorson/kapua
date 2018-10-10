@@ -33,15 +33,11 @@ public class MessageProcessorConfig<M,P> {
 
     private List<HealthCheckAdapter> healthCheckAdapters = new ArrayList<>();
 
-    private MessageProcessorConfig(String aPrefix, Configuration aConfig) {
+    protected MessageProcessorConfig(String aPrefix, Configuration aConfig) {
         Objects.requireNonNull(aPrefix, "Invalid null prefix");
         Objects.requireNonNull(aConfig, "Invalid null configuration");
         ebAddress = aConfig.getString(aPrefix + ".eventBusServer.defaultAddress");
         healthCheckEBAddress = aConfig.getString(aPrefix + ".eventBusServer.healthAddress");
-    }
-
-    public static <M,P> MessageProcessorConfig<M,P> create(String aPrefix, Configuration aConfig) {
-        return new MessageProcessorConfig<M,P>(aPrefix, aConfig);
     }
 
     public MessageSource<M> getMessageSource() {

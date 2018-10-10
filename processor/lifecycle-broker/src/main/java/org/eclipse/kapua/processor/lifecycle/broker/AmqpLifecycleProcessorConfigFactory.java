@@ -12,12 +12,12 @@
 package org.eclipse.kapua.processor.lifecycle.broker;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.eclipse.kapua.broker.client.amqp.AmqpConsumer;
 import org.eclipse.kapua.broker.client.amqp.AmqpSender;
 import org.eclipse.kapua.broker.connector.amqp.AmqpTransportActiveMQSource;
 import org.eclipse.kapua.broker.connector.amqp.ErrorTarget;
-import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectFactory;
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
 import org.eclipse.kapua.connector.Properties;
@@ -34,23 +34,25 @@ import io.vertx.ext.healthchecks.Status;
 
 public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<MessageProcessorConfig<byte[], TransportMessage>> {
 
-    private static final String CONFIG_PROP_PROCESSOR = "kapua.lifecycleProcessor";
-    private static final String CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP = "kapua.lifecycleProcessor.messageSource.amqp";
-    private static final String CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP = "kapua.lifecycleProcessor.errorTarget.amqp";
-
     @Inject
     private Vertx vertx;
 
     @Inject
-    private Configuration configuration;
+    @Named("kapua.lifecycleProcessor")
+    private AmqpLifecycleProcessorConfig config;
+
+    @Inject
+    @Named("kapua.lifecycleProcessor.messageSource.amqp")
+    private AmqpConsumerConfig amqpSourceConfig;
+
+    @Inject
+    @Named("kapua.lifecycleProcessor.errorTarget.amqp")
+    private AmqpConsumerConfig amqpErrorTargetConfig;
 
     @Override
     public MessageProcessorConfig<byte[], TransportMessage> create() {
 
-        MessageProcessorConfig<byte[], TransportMessage> config = MessageProcessorConfig.<byte[], TransportMessage>create(CONFIG_PROP_PROCESSOR, configuration);
-
         // Consumer
-        AmqpConsumerConfig amqpSourceConfig = AmqpConsumerConfig.create(CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP, configuration);
         AmqpTransportActiveMQSource consumer = AmqpTransportActiveMQSource.create(vertx, new AmqpConsumer(vertx, amqpSourceConfig.createClientOptions()));
         consumer.messageFilter(message -> {
             String topic = (String) message.getProperties().get(Properties.MESSAGE_DESTINATION);
@@ -103,7 +105,6 @@ public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<Messag
         });
 
         // Error processor
-        AmqpConsumerConfig amqpErrorTargetConfig = AmqpConsumerConfig.create(CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP, configuration);
         ErrorTarget errorProcessor = ErrorTarget.getProcessor(vertx, new AmqpSender(vertx, amqpErrorTargetConfig.createClientOptions()));
         config.setErrorTarget(errorProcessor);
         config.getHealthCheckAdapters().add(new HealthCheckAdapter() {

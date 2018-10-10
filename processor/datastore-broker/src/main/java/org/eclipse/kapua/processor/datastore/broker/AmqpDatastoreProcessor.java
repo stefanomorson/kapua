@@ -19,11 +19,11 @@ import io.vertx.core.Vertx;
 
 public class AmqpDatastoreProcessor extends MessageProcessor<byte[], TransportMessage> {
 
-    public static AmqpDatastoreProcessor create(Vertx aVertx, MessageProcessorConfig<byte[], TransportMessage> aConfig) {
-        return new AmqpDatastoreProcessor(aVertx, aConfig);
-    }
-
     protected AmqpDatastoreProcessor(Vertx aVertx, MessageProcessorConfig<byte[], TransportMessage> aConfig) {
         super(aVertx, aConfig);
+    }
+
+    public static AmqpDatastoreProcessor create(Vertx aVertx, MessageProcessorConfig<byte[], TransportMessage> aConfig) {
+        return new AmqpDatastoreProcessor(aVertx, aConfig);
     }
 }

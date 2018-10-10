@@ -9,21 +9,19 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.processor.lifecycle.broker;
+package org.eclipse.kapua.processor.error.broker;
 
-import org.eclipse.kapua.message.transport.TransportMessage;
-import org.eclipse.kapua.processor.commons.MessageProcessor;
+import org.apache.qpid.proton.message.Message;
+import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 
-import io.vertx.core.Vertx;
+public class AmqpErrorProcessorConfig extends MessageProcessorConfig<Message, Message> {
 
-public class AmqpLifecycleProcessor extends MessageProcessor<byte[], TransportMessage> {
-
-    protected AmqpLifecycleProcessor(Vertx aVertx, MessageProcessorConfig<byte[], TransportMessage> aConfig) {
-        super(aVertx, aConfig);
+    protected AmqpErrorProcessorConfig(String aPrefix, Configuration aConfig) {
+        super(aPrefix, aConfig);
     }
 
-    public static AmqpLifecycleProcessor create(Vertx aVertx, MessageProcessorConfig<byte[], TransportMessage> aConfig) {
-        return new AmqpLifecycleProcessor(aVertx, aConfig);
+    public static AmqpErrorProcessorConfig create(String aPrefix, Configuration aConfig) {
+        return new AmqpErrorProcessorConfig(aPrefix, aConfig);
     }
 }

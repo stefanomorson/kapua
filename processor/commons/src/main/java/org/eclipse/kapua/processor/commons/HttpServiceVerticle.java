@@ -12,8 +12,8 @@
 package org.eclipse.kapua.processor.commons;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
-import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.vertx.EventBusHealthCheckAdapter;
 import org.eclipse.kapua.commons.core.vertx.HttpServiceConfig;
 
@@ -23,7 +23,8 @@ import io.vertx.core.Future;
 public class HttpServiceVerticle extends AbstractVerticle {
 
     @Inject
-    Configuration configuration;
+    @Named("kapua.restService")
+    HttpServiceImplConfig restServiceConfig;
 
     private HttpServiceImpl restService;
 
@@ -41,7 +42,6 @@ public class HttpServiceVerticle extends AbstractVerticle {
         })
         .compose(map -> {
             Future<Void> future = Future.future();
-            HttpServiceImplConfig restServiceConfig = HttpServiceImplConfig.create("kapua.restService", configuration);
             HttpServiceConfig config = new HttpServiceConfig();
             config.setHost(restServiceConfig.getHost());
             config.setMetricsRoot(restServiceConfig.getMetricsRoot());
