@@ -23,7 +23,7 @@ import io.vertx.core.Future;
 public class HttpServiceVerticle extends AbstractVerticle {
 
     @Inject
-    @Named("kapua.restService")
+    @Named(CommonConstants.CONFIG_PROP_REST)
     HttpServiceImplConfig restServiceConfig;
 
     private HttpServiceImpl restService;

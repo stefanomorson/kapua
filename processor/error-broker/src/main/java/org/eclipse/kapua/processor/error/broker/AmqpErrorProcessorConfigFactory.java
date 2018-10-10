@@ -33,11 +33,11 @@ public class AmqpErrorProcessorConfigFactory implements ObjectFactory<MessagePro
     private Vertx vertx;
 
     @Inject
-    @Named("kapua.errorProcessor")
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
     private AmqpErrorProcessorConfig config;
 
     @Inject
-    @Named("kapua.errorProcessor.messageSource.amqp")
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
     private AmqpConsumerConfig amqpSourceConfig;
 
     @Override

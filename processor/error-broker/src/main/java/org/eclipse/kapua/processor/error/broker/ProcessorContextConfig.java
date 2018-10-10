@@ -17,6 +17,7 @@ import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectContextConfig;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
+import org.eclipse.kapua.processor.commons.CommonConstants;
 import org.eclipse.kapua.processor.commons.HttpServiceImplConfig;
 import org.eclipse.kapua.processor.commons.HttpServiceVerticle;
 import org.eclipse.kapua.processor.commons.JAXBContextProviderImpl;
@@ -26,10 +27,6 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
 public class ProcessorContextConfig extends ObjectContextConfig {
-
-    private static final String CONFIG_PROP_PROCESSOR = "kapua.errorProcessor";
-    private static final String CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP = "kapua.errorProcessor.messageSource.amqp";
-    private static final String CONFIG_PROP_REST = "kapua.restService";
 
     public ProcessorContextConfig() {
     }
@@ -45,20 +42,20 @@ public class ProcessorContextConfig extends ObjectContextConfig {
     }
 
     @Provides
-    @Named(CONFIG_PROP_REST)
+    @Named(CommonConstants.CONFIG_PROP_REST)
     HttpServiceImplConfig provideHttpServiceImplConfig(Configuration config) {
-        return HttpServiceImplConfig.create(CONFIG_PROP_REST, config);
+        return HttpServiceImplConfig.create(CommonConstants.CONFIG_PROP_REST, config);
     }
 
     @Provides
-    @Named(CONFIG_PROP_PROCESSOR)
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
     AmqpErrorProcessorConfig provideDatastoreProcessorConfig(Configuration config) {
-        return AmqpErrorProcessorConfig.create(CONFIG_PROP_PROCESSOR, config);
+        return AmqpErrorProcessorConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR, config);
     }
 
     @Provides
-    @Named(CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
     AmqpConsumerConfig provideMessageSourceAmqpConfig(Configuration config) {
-        return AmqpConsumerConfig.create(CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP, config);
+        return AmqpConsumerConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP, config);
     }
 }

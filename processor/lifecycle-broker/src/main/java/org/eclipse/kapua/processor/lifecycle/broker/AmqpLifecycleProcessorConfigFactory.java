@@ -38,15 +38,15 @@ public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<Messag
     private Vertx vertx;
 
     @Inject
-    @Named("kapua.lifecycleProcessor")
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
     private AmqpLifecycleProcessorConfig config;
 
     @Inject
-    @Named("kapua.lifecycleProcessor.messageSource.amqp")
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
     private AmqpConsumerConfig amqpSourceConfig;
 
     @Inject
-    @Named("kapua.lifecycleProcessor.errorTarget.amqp")
+    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP)
     private AmqpConsumerConfig amqpErrorTargetConfig;
 
     @Override
