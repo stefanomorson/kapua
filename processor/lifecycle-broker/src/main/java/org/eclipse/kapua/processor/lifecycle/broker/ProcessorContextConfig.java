@@ -47,12 +47,6 @@ public class ProcessorContextConfig extends ObjectContextConfig {
     }
 
     @Provides
-    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
-    AmqpLifecycleProcessorConfig provideDatastoreProcessorConfig(Configuration config) {
-        return AmqpLifecycleProcessorConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR, config);
-    }
-
-    @Provides
     @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
     AmqpConsumerConfig provideMessageSourceAmqpConfig(Configuration config) {
         return AmqpConsumerConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP, config);
@@ -62,5 +56,10 @@ public class ProcessorContextConfig extends ObjectContextConfig {
     @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP)
     AmqpConsumerConfig provideErrorTargetAmqpConfig(Configuration config) {
         return AmqpConsumerConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR_ERR_TARGET_AMQP, config);
+    }
+
+    @Provides
+    AmqpLifecycleProcessorConfig provideLifecycleProcessorConfig(AmqpLifecycleProcessorConfigFactory factory) {
+        return factory.create();
     }
 }

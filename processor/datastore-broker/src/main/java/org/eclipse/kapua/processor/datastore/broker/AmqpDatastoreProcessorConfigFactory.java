@@ -18,28 +18,26 @@ import org.eclipse.kapua.broker.client.amqp.AmqpConsumer;
 import org.eclipse.kapua.broker.client.amqp.AmqpSender;
 import org.eclipse.kapua.broker.connector.amqp.AmqpTransportActiveMQSource;
 import org.eclipse.kapua.broker.connector.amqp.ErrorTarget;
+import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectFactory;
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
 import org.eclipse.kapua.connector.Properties;
 import org.eclipse.kapua.connector.kura.KuraPayloadProtoConverter;
 import org.eclipse.kapua.datastore.connector.DatastoreTarget;
-import org.eclipse.kapua.message.transport.TransportMessage;
 import org.eclipse.kapua.message.transport.TransportMessageType;
 import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 
-public class AmqpDatastoreProcessorConfigFactory implements ObjectFactory<MessageProcessorConfig<byte[], TransportMessage>> {
+public class AmqpDatastoreProcessorConfigFactory implements ObjectFactory<AmqpDatastoreProcessorConfig> {
 
     @Inject
     private Vertx vertx;
 
-    @Inject
-    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
-    private AmqpDatastoreProcessorConfig config;
+    @Inject 
+    private Configuration configuration;
 
     @Inject
     @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
@@ -50,7 +48,7 @@ public class AmqpDatastoreProcessorConfigFactory implements ObjectFactory<Messag
     private AmqpConsumerConfig amqpErrorTargetConfig;
 
     @Override
-    public MessageProcessorConfig<byte[], TransportMessage> create() {
+    public AmqpDatastoreProcessorConfig create() {
 
         // Amqp Source
         AmqpTransportActiveMQSource consumer = AmqpTransportActiveMQSource.create(vertx, new AmqpConsumer(vertx, amqpSourceConfig.createClientOptions()));
@@ -63,6 +61,8 @@ public class AmqpDatastoreProcessorConfigFactory implements ObjectFactory<Messag
                 return false;
             }
         });
+
+        AmqpDatastoreProcessorConfig config = AmqpDatastoreProcessorConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR, configuration);
         config.setMessageSource(consumer);
         config.getHealthCheckAdapters().add(new HealthCheckAdapter() {
 

@@ -14,9 +14,7 @@ package org.eclipse.kapua.processor.lifecycle.broker;
 import javax.inject.Inject;
 
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
-import org.eclipse.kapua.message.transport.TransportMessage;
 import org.eclipse.kapua.processor.commons.AbstractMessageProcessorVerticle;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 import org.eclipse.kapua.processor.commons.MessageProcessorVerticle;
 
 import io.vertx.core.Future;
@@ -25,13 +23,12 @@ import io.vertx.core.Future;
 public class AmqpLifecycleProcessorVerticle extends AbstractMessageProcessorVerticle implements MessageProcessorVerticle {
 
     @Inject
-    private AmqpLifecycleProcessorConfigFactory configFactory;
+    private AmqpLifecycleProcessorConfig config;
 
     private AmqpLifecycleProcessor messageProcessor;
 
     @Override
     public void internalStart(Future<Void> startFuture) throws Exception {
-        MessageProcessorConfig<byte[], TransportMessage> config = configFactory.create();
         messageProcessor = AmqpLifecycleProcessor.create(vertx, config); 
         for(HealthCheckAdapter adapter:config.getHealthCheckAdapters()) {
             messageProcessor.register(adapter);

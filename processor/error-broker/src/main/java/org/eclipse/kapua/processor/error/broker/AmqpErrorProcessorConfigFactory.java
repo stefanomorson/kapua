@@ -14,40 +14,40 @@ package org.eclipse.kapua.processor.error.broker;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.qpid.proton.message.Message;
 import org.eclipse.kapua.broker.client.amqp.AmqpConsumer;
 import org.eclipse.kapua.broker.connector.amqp.AmqpActiveMQSource;
+import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectFactory;
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
 import org.eclipse.kapua.connector.logger.LoggerTarget;
 import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 
-public class AmqpErrorProcessorConfigFactory implements ObjectFactory<MessageProcessorConfig<Message, Message>> {
+public class AmqpErrorProcessorConfigFactory implements ObjectFactory<AmqpErrorProcessorConfig> {
 
     @Inject
     private Vertx vertx;
 
     @Inject
-    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
-    private AmqpErrorProcessorConfig config;
+    private Configuration configuration;
 
     @Inject
     @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
     private AmqpConsumerConfig amqpSourceConfig;
 
     @Override
-    public MessageProcessorConfig<Message, Message> create() {
+    public AmqpErrorProcessorConfig create() {
 
         // Consumer
         AmqpActiveMQSource consumer = AmqpActiveMQSource.create(vertx, new AmqpConsumer(vertx, amqpSourceConfig.createClientOptions()));
         consumer.messageFilter(message -> {
             return true;
         });
+
+        AmqpErrorProcessorConfig config = AmqpErrorProcessorConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR, configuration);
         config.setMessageSource(consumer);
         config.getHealthCheckAdapters().add(new HealthCheckAdapter() {
 

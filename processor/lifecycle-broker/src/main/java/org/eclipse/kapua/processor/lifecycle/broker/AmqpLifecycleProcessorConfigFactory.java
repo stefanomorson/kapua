@@ -18,28 +18,26 @@ import org.eclipse.kapua.broker.client.amqp.AmqpConsumer;
 import org.eclipse.kapua.broker.client.amqp.AmqpSender;
 import org.eclipse.kapua.broker.connector.amqp.AmqpTransportActiveMQSource;
 import org.eclipse.kapua.broker.connector.amqp.ErrorTarget;
+import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectFactory;
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
 import org.eclipse.kapua.connector.Properties;
 import org.eclipse.kapua.connector.kura.KuraPayloadProtoConverter;
 import org.eclipse.kapua.device.registry.connector.LifecycleProcessor;
-import org.eclipse.kapua.message.transport.TransportMessage;
 import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 
 
-public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<MessageProcessorConfig<byte[], TransportMessage>> {
+public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<AmqpLifecycleProcessorConfig> {
 
     @Inject
     private Vertx vertx;
 
     @Inject
-    @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR)
-    private AmqpLifecycleProcessorConfig config;
+    private Configuration configuration;
 
     @Inject
     @Named(ProcessorConstants.CONFIG_PROP_PROCESSOR_MSG_SOURCE_AMQP)
@@ -50,7 +48,7 @@ public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<Messag
     private AmqpConsumerConfig amqpErrorTargetConfig;
 
     @Override
-    public MessageProcessorConfig<byte[], TransportMessage> create() {
+    public AmqpLifecycleProcessorConfig create() {
 
         // Consumer
         AmqpTransportActiveMQSource consumer = AmqpTransportActiveMQSource.create(vertx, new AmqpConsumer(vertx, amqpSourceConfig.createClientOptions()));
@@ -69,6 +67,8 @@ public class AmqpLifecycleProcessorConfigFactory implements ObjectFactory<Messag
             }
 
         });
+
+        AmqpLifecycleProcessorConfig config = AmqpLifecycleProcessorConfig.create(ProcessorConstants.CONFIG_PROP_PROCESSOR, configuration);
         config.setMessageSource(consumer);
         config.getHealthCheckAdapters().add(new HealthCheckAdapter() {
 

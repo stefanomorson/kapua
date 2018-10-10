@@ -13,10 +13,8 @@ package org.eclipse.kapua.processor.error.broker;
 
 import javax.inject.Inject;
 
-import org.apache.qpid.proton.message.Message;
 import org.eclipse.kapua.commons.core.vertx.HealthCheckAdapter;
 import org.eclipse.kapua.processor.commons.AbstractMessageProcessorVerticle;
-import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 import org.eclipse.kapua.processor.commons.MessageProcessorVerticle;
 
 import io.vertx.core.Future;
@@ -24,13 +22,12 @@ import io.vertx.core.Future;
 public class AmqpErrorProcessorVerticle extends AbstractMessageProcessorVerticle implements MessageProcessorVerticle {
 
     @Inject
-    private AmqpErrorProcessorConfigFactory configFactory;
+    private AmqpErrorProcessorConfig config;
 
     private AmqpErrorProcessor messageProcessor;
 
     @Override
     public void internalStart(Future<Void> startFuture) throws Exception {
-        MessageProcessorConfig<Message,Message> config = configFactory.create();
         messageProcessor = AmqpErrorProcessor.create(vertx, config); 
         for(HealthCheckAdapter adapter:config.getHealthCheckAdapters()) {
             messageProcessor.register(adapter);
