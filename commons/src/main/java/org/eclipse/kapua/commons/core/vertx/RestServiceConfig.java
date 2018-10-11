@@ -9,13 +9,13 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.processor.commons;
+package org.eclipse.kapua.commons.core.vertx;
 
 import java.util.Objects;
 
 import org.eclipse.kapua.commons.core.Configuration;
 
-public class HttpServiceImplConfig {
+public class RestServiceConfig {
 
     private String metricsRoot;
     private String host;
@@ -23,7 +23,7 @@ public class HttpServiceImplConfig {
     private String eventbusHealthCheckName;
     private String eventbusHealthCheckAddress;
 
-    private HttpServiceImplConfig(String aPrefix, Configuration aConfiguration) {
+    private RestServiceConfig(String aPrefix, Configuration aConfiguration) {
         metricsRoot = aConfiguration.getString("kapua.vertxApp.metricsRoot");
         host = aConfiguration.getString(aPrefix + ".httpServer.host");
         port = aConfiguration.getInteger(aPrefix + ".httpServer.port");
@@ -31,10 +31,10 @@ public class HttpServiceImplConfig {
         eventbusHealthCheckAddress = aConfiguration.getString(aPrefix + ".eventBusHealthcheckAdapter.address");
     }
 
-    public static HttpServiceImplConfig create(String aPrefix, Configuration aConfiguration) {
+    public static RestServiceConfig create(String aPrefix, Configuration aConfiguration) {
         Objects.requireNonNull(aPrefix, "Invalid null prefix");
         Objects.requireNonNull(aConfiguration, "Invalid null configuration");
-        return new HttpServiceImplConfig(aPrefix, aConfiguration);
+        return new RestServiceConfig(aPrefix, aConfiguration);
     }
 
     public String getMetricsRoot() {

@@ -9,24 +9,39 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.processor.commons;
+package org.eclipse.kapua.commons.core.vertx;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.eclipse.kapua.commons.core.vertx.EventBusHealthCheckAdapter;
-import org.eclipse.kapua.commons.core.vertx.HttpServiceConfig;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
-public class HttpServiceVerticle extends AbstractVerticle {
+public class RestServiceVerticle extends AbstractVerticle {
 
     @Inject
-    @Named(CommonConstants.CONFIG_PROP_REST)
-    HttpServiceImplConfig restServiceConfig;
+    @Named("kapua.restService")
+    RestServiceConfig restServiceConfig;
 
-    private HttpServiceImpl restService;
+    private RestService restService;
+    private List<HealthCheckAdapter> healthCheckAdapters;
+    private List<HttpServiceAdapter> httpServiceAdapters;
+
+    public RestServiceVerticle() {
+        healthCheckAdapters = new ArrayList<>();
+        httpServiceAdapters = new ArrayList<>();
+    }
+
+    public void register(HealthCheckAdapter adapter) {
+        healthCheckAdapters.add(adapter);
+    }
+
+    public void register(HttpServiceAdapter adapter) {
+        httpServiceAdapters.add(adapter);
+    }
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
@@ -46,10 +61,16 @@ public class HttpServiceVerticle extends AbstractVerticle {
             config.setHost(restServiceConfig.getHost());
             config.setMetricsRoot(restServiceConfig.getMetricsRoot());
             config.setPort(restServiceConfig.getPort());
-            restService = new HttpServiceImpl(vertx, config);
+            restService = new RestService(vertx, config);
             restService.register(EventBusHealthCheckAdapter.create(vertx.eventBus()
                     , restServiceConfig.getEventbusHealthCheckName()
                     , restServiceConfig.getEventbusHealthCheckAddress()));
+            for (HealthCheckAdapter adapter:healthCheckAdapters) {
+                restService.register(adapter);
+            }
+            for (HttpServiceAdapter adapter:httpServiceAdapters) {
+                restService.register(adapter);
+            }
             try {
                 restService.start(future);
             } catch (Exception e) {

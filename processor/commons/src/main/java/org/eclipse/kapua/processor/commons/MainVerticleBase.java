@@ -15,6 +15,7 @@ import javax.inject.Inject;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.core.vertx.AbstractMainVerticle;
+import org.eclipse.kapua.commons.core.vertx.RestServiceVerticle;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 //import org.eclipse.kapua.service.liquibase.KapuaLiquibaseClient;
@@ -35,7 +36,7 @@ public class MainVerticleBase<M,P> extends AbstractMainVerticle {
     private KapuaServiceContext kapuaServiceCtx;
 
     @Inject
-    private HttpServiceVerticle httpServiceVerticle;
+    private RestServiceVerticle restServiceVerticle;
 
     @Inject
     private MessageProcessorVerticle messageProcessorVerticle;
@@ -86,7 +87,7 @@ public class MainVerticleBase<M,P> extends AbstractMainVerticle {
         })
         .compose(map -> {
             Future<Void> future = Future.future();
-            vertx.deployVerticle(httpServiceVerticle, ar -> {
+            vertx.deployVerticle(restServiceVerticle, ar -> {
                 if (ar.succeeded()) {
                     future.complete();
                 }

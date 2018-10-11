@@ -9,20 +9,17 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.processor.commons;
-
-import org.eclipse.kapua.commons.core.vertx.AbstractHttpService;
-import org.eclipse.kapua.commons.core.vertx.HttpServiceConfig;
+package org.eclipse.kapua.commons.core.vertx;
 
 import io.vertx.core.Vertx;
 
-public class HttpServiceImpl extends AbstractHttpService {
+public class RestService extends AbstractHttpService {
 
-    protected HttpServiceImpl(Vertx aVertx, HttpServiceConfig aConfig) {
+    protected RestService(Vertx aVertx, HttpServiceConfig aConfig) {
         super(aVertx, aConfig);
     }
 
-    public static HttpServiceImpl create(Vertx aVertx, HttpServiceConfig aConfig) {
-        return new HttpServiceImpl(aVertx, aConfig);
+    public static RestService create(Vertx aVertx, HttpServiceConfig aConfig) {
+        return new RestService(aVertx, aConfig);
     }
 }

@@ -15,11 +15,11 @@ import javax.inject.Named;
 
 import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ObjectContextConfig;
+import org.eclipse.kapua.commons.core.vertx.RestServiceConfig;
+import org.eclipse.kapua.commons.core.vertx.RestServiceVerticle;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.processor.commons.AmqpConsumerConfig;
 import org.eclipse.kapua.processor.commons.CommonConstants;
-import org.eclipse.kapua.processor.commons.HttpServiceImplConfig;
-import org.eclipse.kapua.processor.commons.HttpServiceVerticle;
 import org.eclipse.kapua.processor.commons.JAXBContextProviderImpl;
 import org.eclipse.kapua.processor.commons.MessageProcessorVerticle;
 
@@ -34,7 +34,7 @@ public class ProcessorContextConfig extends ObjectContextConfig {
     protected void configure() {
         super.configure();
         bind(MainVerticle.class);
-        bind(HttpServiceVerticle.class);
+        bind(RestServiceVerticle.class);
         bind(JAXBContextProvider.class).to(JAXBContextProviderImpl.class);
         bind(MessageProcessorVerticle.class).to(AmqpDatastoreProcessorVerticle.class);
         bind(AmqpDatastoreProcessorConfigFactory.class);
@@ -42,8 +42,8 @@ public class ProcessorContextConfig extends ObjectContextConfig {
 
     @Provides
     @Named(CommonConstants.CONFIG_PROP_REST)
-    HttpServiceImplConfig provideHttpServiceImplConfig(Configuration config) {
-        return HttpServiceImplConfig.create(CommonConstants.CONFIG_PROP_REST, config);
+    RestServiceConfig provideHttpServiceImplConfig(Configuration config) {
+        return RestServiceConfig.create(CommonConstants.CONFIG_PROP_REST, config);
     }
 
     @Provides
