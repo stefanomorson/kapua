@@ -11,11 +11,10 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core.vertx;
 
-/**
- * Registers the event bus adapter within a dispatcher
- *
- */
-public interface EventBusServiceAdapter {
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
-    public void register(EventBusMessageDispatcher dispatcher);
+public interface EventBusMessageHandler {
+
+    public void handle(EventBusServerRequest request, Handler<AsyncResult<EventBusServerResponse>> handler);
 }

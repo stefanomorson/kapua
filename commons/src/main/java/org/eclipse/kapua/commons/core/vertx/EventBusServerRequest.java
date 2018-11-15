@@ -22,10 +22,9 @@ import io.vertx.core.json.JsonObject;
  * The action is a string in dotted notation (e.g. "service.method")
  *
  */
-public class EventBusServerRequest extends JsonObject {
+public class EventBusServerRequest {
 
-    public static final String ACTION = "action";
-    public static final String BODY = "body";
+    private JsonObject request;
 
     public static EventBusServerRequest create(String action, JsonObject body) {
         EventBusServerRequest req = new EventBusServerRequest();
@@ -39,31 +38,65 @@ public class EventBusServerRequest extends JsonObject {
     public static EventBusServerRequest create(JsonObject request) {
         Objects.requireNonNull(request, "Invalid null request");
         EventBusServerRequest req = new EventBusServerRequest();
-        if (!request.containsKey(ACTION) || !(request.getValue(ACTION) instanceof String)) {
+        // Action
+        if (!request.containsKey(EventBusMessageConstants.ACTION)) {
+            throw new RuntimeException("Request Action is mandatory");
+        } else if (!(request.getValue(EventBusMessageConstants.ACTION) instanceof String)){
+            throw new RuntimeException("Request Action must be a string");
+        } else {
+            req.setAction(request.getString(EventBusMessageConstants.ACTION));
+        }
+        // Authorization
+        if (request.containsKey(EventBusMessageConstants.AUTHORIZATION) 
+                && !(request.getValue(EventBusMessageConstants.AUTHORIZATION) instanceof String)) {
             throw new RuntimeException("Request Action is not a string");
         }
-        req.setAction(request.getString(ACTION));
-        if (!request.containsKey(BODY) || request.getValue(BODY) == null || !(request.getValue(BODY) instanceof JsonObject)) {
+        if (request.containsKey(EventBusMessageConstants.AUTHORIZATION)) {
+            req.setAuthorization(request.getString(EventBusMessageConstants.AUTHORIZATION));
+        }
+        // Body
+        if (!request.containsKey(EventBusMessageConstants.BODY) 
+                || request.getValue(EventBusMessageConstants.BODY) == null 
+                || !(request.getValue(EventBusMessageConstants.BODY) instanceof JsonObject)) {
             throw new RuntimeException("Request Body is not a json object");
         }
-        req.setBody((JsonObject) request.getValue(BODY));
+        req.setBody((JsonObject) request.getValue(EventBusMessageConstants.BODY));
         return req;
     }
 
-    public String getAction() {
-        return this.getString(ACTION);
+    public JsonObject asJsonObject() {
+        return request;
     }
 
-    public void setAction(String action) {
-        this.put(ACTION, action);
+    public boolean hasAuthorization() {
+        return request.containsKey(EventBusMessageConstants.AUTHORIZATION);
+    }
+
+    public String getAuthorization() {
+        return request.getString(EventBusMessageConstants.AUTHORIZATION);
+    }
+
+    public EventBusServerRequest setAuthorization(String authorization) {
+        request.put(EventBusMessageConstants.AUTHORIZATION, authorization);
+        return this;
+    }
+
+    public String getAction() {
+        return request.getString(EventBusMessageConstants.ACTION);
+    }
+
+    public EventBusServerRequest setAction(String action) {
+        request.put(EventBusMessageConstants.ACTION, action);
+        return this;
     }
 
     public JsonObject getBody() {
-        return this.getJsonObject(BODY);
+        return request.getJsonObject(EventBusMessageConstants.BODY);
     }
 
-    public void setBody(JsonObject body) {
-        this.put(BODY, body);
+    public EventBusServerRequest setBody(JsonObject body) {
+        request.put(EventBusMessageConstants.BODY, body);
+        return this;
     }
 
     public boolean hasBody() {

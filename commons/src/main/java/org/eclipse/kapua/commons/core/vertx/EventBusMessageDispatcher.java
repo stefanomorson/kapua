@@ -14,9 +14,10 @@ package org.eclipse.kapua.commons.core.vertx;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
 
 /**
  * Dispatches incoming {@link EventBusServerRequest} to registered handlers.
@@ -27,55 +28,56 @@ import io.vertx.core.eventbus.Message;
  * 
  *
  */
-public class EventBusDispatcher {
+public class EventBusMessageDispatcher {
 
-    private Map<String, Handler<Message<EventBusServerRequest>>> handlers = new HashMap<>();
+    private Map<String, EventBusMessageHandler> handlers = new HashMap<>();
     private Vertx vertx;
     private EventBusServer server;
 
-    private EventBusDispatcher(Vertx aVertx, EventBusServer aServer) {
+    private EventBusMessageDispatcher(Vertx aVertx, EventBusServer aServer) {
         vertx = aVertx;
         server = aServer;
-        server.setRequestHandler(this::handle);
+        server.setRequestHandler(this::dispatch);
     }
 
-    public static EventBusDispatcher dispatcher(Vertx aVertx, EventBusServer aServer) {
-        return new EventBusDispatcher(aVertx, aServer);
+    public static EventBusMessageDispatcher dispatcher(Vertx aVertx, EventBusServer aServer) {
+        return new EventBusMessageDispatcher(aVertx, aServer);
     }
 
-    public void registerHandler(String action, Handler<Message<EventBusServerRequest>> handler) {
+    public void registerHandler(String action, EventBusMessageHandler handler) {
         if (!handlers.containsKey(action)) {
             handlers.put(action, handler);
         } // TODO Handle the case when the handler is discarded
     }
 
-    public void registerBlockingHandler(String action, Handler<Message<EventBusServerRequest>> handler) {
+    public void registerBlockingHandler(String action, EventBusMessageHandler handler) {
         if (!handlers.containsKey(action)) {
-            handlers.put(action, message -> { 
+            handlers.put(action, (request,response) -> { 
                 vertx.executeBlocking(fut -> {
-                    handler.handle(message);
+                    handler.handle(request, response);
                     fut.complete();
                 }, 
                 ar -> {});
             });
-        } // TODO Handle the case when the handler is discarded
+        } // TODO Handle the case when the handler is discardeds
     }
 
-    private void handle(Message<EventBusServerRequest> message) {
-        if (message == null || message.body() == null) {
-            message.fail(EventBusServerResponse.BAD_REQUEST, null);
-            return;
-        }
-        EventBusServerRequest request = EventBusServerRequest.create(message.body());
+    public void dispatch(EventBusServerRequest request, Handler<AsyncResult<EventBusServerResponse>> handler) {
         String action = request.getAction();
         if (action == null || action.isEmpty()) {
-            message.fail(EventBusServerResponse.BAD_REQUEST, null);
+            handler.handle(Future.succeededFuture(EventBusServerResponse.create(EventBusMessageConstants.STATUS_BAD_REQUEST)));
             return;
         }
         if (handlers == null || handlers.size() == 0 || !handlers.containsKey(action)) {
-            message.fail(EventBusServerResponse.NOT_FOUND, null);
+            handler.handle(Future.succeededFuture(EventBusServerResponse.create(EventBusMessageConstants.STATUS_NOT_FOUND)));
             return;
         }
-        handlers.get(action).handle(message);
+        handlers.get(action).handle(request, responseEvt -> {
+            handler.handle(Future.succeededFuture(
+                    EventBusServerResponse.create(EventBusMessageConstants.STATUS_NOT_FOUND)
+                        .setResultCode(responseEvt.result().getResultCode())
+                        .setResultCodeMessage(responseEvt.result().getResultCodeMessage())
+                        .setBody(responseEvt.result().getBody())));
+        });
     }
 }

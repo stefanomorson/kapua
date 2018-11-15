@@ -11,11 +11,19 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core.vertx;
 
-/**
- * Registers the event bus adapter within a dispatcher
- *
- */
-public interface EventBusServiceAdapter {
+public class EventBusMessageConstants {
 
-    public void register(EventBusMessageDispatcher dispatcher);
+    public static final String AUTHORIZATION = "authorization";
+    public static final String ACTION = "action";
+    public static final String BODY = "body";
+
+    public static final String STATUS_CODE = "status-code";
+    public static final String STATUS_MSG = "status-mesage";
+
+    public static final int STATUS_OK = 200;
+    public static final int STATUS_BAD_REQUEST = 400;
+    public static final int STATUS_NOT_FOUND = 404;
+    public static final int STATUS_INTERNAL_ERROR = 500;
+
+    private EventBusMessageConstants() {}
 }

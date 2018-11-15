@@ -11,12 +11,10 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core.vertx;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.MessageProducer;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Implements an {@link EventBusService} client.
@@ -27,30 +25,30 @@ import io.vertx.core.eventbus.MessageProducer;
  */
 public class EventBusClient {
 
-    private MessageProducer<EventBusServerRequest> producer;
+    private MessageProducer<JsonObject> producer;
 
-    private EventBusClient(MessageProducer<EventBusServerRequest> producer, EventBusClientConfig configs) {
+    private EventBusClient(MessageProducer<JsonObject> producer) {
         this.producer = producer;
     }
 
-    public static EventBusClient create(EventBus eventBus, EventBusClientConfig configs) {
-        EventBusClient producer = new EventBusClient(eventBus.sender(configs.getAddress()), configs);
-        return producer;
+    public static EventBusClient create(EventBus eventBus, String address) {
+        EventBusClient client = new EventBusClient(eventBus.sender(address));
+        return client;
     }
 
-    public void sendRequest(EventBusServerRequest request, Handler<AsyncResult<EventBusServerResponse>> result) {
-        producer.send(request, replyEvent -> {
-            if (replyEvent.succeeded()) {
-                Object reply = replyEvent.result().body();
-                EventBusServerResponse response = EventBusServerResponse.create(reply);
-                if (response != null) {
-                    result.handle(Future.succeededFuture(response));
-                } else {
-                    result.handle(Future.failedFuture(new EventBusServerResponseException(EventBusServerResponse.INTERNAL_ERROR)));
-                }
-            } else {
-                result.handle(Future.failedFuture(replyEvent.cause()));
-            }
-        });
+    public static EventBusClientRequest create(EventBus eventBus, String address, DeliveryOptions options) {
+        EventBusClientRequest client = new EventBusClientRequest(eventBus.sender(address, options));
+        return client;
+    }
+
+    public EventBusClientRequest getRequest(String action) {
+        EventBusClientRequest request = new EventBusClientRequest(producer).action(action);
+        return request;
+    }
+
+    public void close() {
+        if (producer != null) {
+            producer.close();
+        }
     }
 }

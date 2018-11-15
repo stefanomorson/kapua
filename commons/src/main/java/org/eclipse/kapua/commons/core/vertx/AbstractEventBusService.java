@@ -40,7 +40,7 @@ public abstract class AbstractEventBusService implements EventBusService {
     private HealthChecks healthChecks;
     private HealthCheckHandler healthCheckHandler;
 
-    private EventBusDispatcher messageDispatcher;
+    private EventBusMessageDispatcher messageDispatcher;
     private List<EventBusServiceAdapter> handlerAdapters = new ArrayList<>();
     private List<HealthCheckAdapter> healthCheckAdapters = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public abstract class AbstractEventBusService implements EventBusService {
         EventBusClientConfig clientConfig = new EventBusClientConfig();
         clientConfig.setAddress(config.getAddress());
         eventBusServer = EventBusServer.server(eventBus, clientConfig);
-        messageDispatcher = EventBusDispatcher.dispatcher(vertx, eventBusServer);
+        messageDispatcher = EventBusMessageDispatcher.dispatcher(vertx, eventBusServer);
         for(EventBusServiceAdapter adapter:handlerAdapters) {
             adapter.register(messageDispatcher);
         }

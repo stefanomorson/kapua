@@ -18,15 +18,9 @@ import io.vertx.core.json.JsonObject;
  * within an event bus request/response interaction.
  *
  */
-public class EventBusServerResponse extends JsonObject {
+public class EventBusServerResponse {
 
-    public static final String STATUS_CODE = "status-code";
-    public static final String BODY = "body";
-
-    public static final int OK = 200;
-    public static final int BAD_REQUEST = 400;
-    public static final int NOT_FOUND = 404;
-    public static final int INTERNAL_ERROR = 500;
+    private JsonObject response;
 
     public static EventBusServerResponse create(int resultCode, JsonObject body) {
         EventBusServerResponse res = new EventBusServerResponse();
@@ -48,31 +42,46 @@ public class EventBusServerResponse extends JsonObject {
             return null;
         }
         JsonObject response = (JsonObject) object;
-        if (!response.containsKey(EventBusServerResponse.STATUS_CODE)) {
+        if (!response.containsKey(EventBusMessageConstants.STATUS_CODE)) {
             return null;
         }
-        int resultCode = response.getInteger(EventBusServerResponse.STATUS_CODE);
+        int resultCode = response.getInteger(EventBusMessageConstants.STATUS_CODE);
         JsonObject body = null;
-        if (response.containsKey(EventBusServerResponse.BODY)) {
-            body = response.getJsonObject(EventBusServerResponse.BODY);
+        if (response.containsKey(EventBusMessageConstants.BODY)) {
+            body = response.getJsonObject(EventBusMessageConstants.BODY);
         }
         return EventBusServerResponse.create(resultCode, body);
     }
 
-    public int getResultCode() {
-        return this.getInteger(STATUS_CODE);
+    public JsonObject asJsonObject() {
+        return response;
     }
 
-    public void setResultCode(int resultCode) {
-        this.put(STATUS_CODE, resultCode);
+    public int getResultCode() {
+        return response.getInteger(EventBusMessageConstants.STATUS_CODE);
+    }
+
+    public EventBusServerResponse setResultCode(int resultCode) {
+        response.put(EventBusMessageConstants.STATUS_CODE, resultCode);
+        return this;
+    }
+
+    public String getResultCodeMessage() {
+        return response.getString(EventBusMessageConstants.STATUS_MSG);
+    }
+
+    public EventBusServerResponse setResultCodeMessage(String resultCodeMsg) {
+        response.put(EventBusMessageConstants.STATUS_MSG, resultCodeMsg);
+        return this;
     }
 
     public JsonObject getBody() {
-        return this.getJsonObject(BODY);
+        return response.getJsonObject(EventBusMessageConstants.BODY);
     }
 
-    public void setBody(JsonObject body) {
-        this.put(BODY, body);
+    public EventBusServerResponse setBody(JsonObject body) {
+        response.put(EventBusMessageConstants.BODY, body);
+        return this;
     }
 
     public boolean hasBody() {

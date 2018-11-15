@@ -13,11 +13,11 @@ package org.eclipse.kapua.commons.core.vertx;
 
 import java.util.Objects;
 
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Implements an {@link EventBus} request server.
@@ -31,8 +31,8 @@ public class EventBusServer {
     private EventBus eventBus;
     private EventBusClientConfig config;
 
-    private MessageConsumer<EventBusServerRequest> consumer;
-    private Handler<Message<EventBusServerRequest>> requestHandler;
+    private MessageConsumer<JsonObject> consumer;
+    private EventBusMessageHandler requestHandler;
 
     protected EventBusServer(EventBus anEventBus, EventBusClientConfig aConfig) {
         eventBus = anEventBus;
@@ -44,7 +44,7 @@ public class EventBusServer {
         return server;
     }
 
-    public void setRequestHandler(Handler<Message<EventBusServerRequest>> handler) {
+    public void setRequestHandler(EventBusMessageHandler handler) {
         this.requestHandler = handler;
     }
 
@@ -58,12 +58,19 @@ public class EventBusServer {
         consumer = null;
     }
 
-    private void handle(Message<EventBusServerRequest> message) {
+    private void handle(Message<JsonObject> message) {
         Objects.requireNonNull(message, "Invalid null message");
         if (requestHandler != null) {
-            requestHandler.handle(message);
+            EventBusServerRequest request = EventBusServerRequest.create(message.body());
+            requestHandler.handle(request, res -> {
+                if (res.succeeded()) {
+                    message.reply(res.result());
+                } else {
+                    message.fail(EventBusMessageConstants.STATUS_INTERNAL_ERROR, res.cause().getMessage());
+                }
+            });
         } else {
-            message.reply(EventBusServerResponse.create(EventBusServerResponse.NOT_FOUND));
+            message.reply(EventBusServerResponse.create(EventBusMessageConstants.STATUS_NOT_FOUND));
         }
     }
 }
