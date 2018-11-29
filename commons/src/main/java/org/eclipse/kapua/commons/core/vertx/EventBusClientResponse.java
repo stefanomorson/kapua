@@ -17,7 +17,23 @@ public class EventBusClientResponse {
 
     private JsonObject response;
 
-    public EventBusClientResponse() {}
+    public EventBusClientResponse(int statusCode) {
+        this(statusCode, (String)null);
+    }
+
+    public EventBusClientResponse(int statusCode, String statusMessage) {
+        response = new JsonObject();
+        setStatusCode(statusCode);
+        if (statusMessage != null) {
+            setStatusMessage(statusMessage);
+        }
+    }
+
+    public EventBusClientResponse(int statusCode, JsonObject body) {
+        response = new JsonObject();
+        setStatusCode(statusCode);
+        setBody(body);
+    }
 
     public EventBusClientResponse(JsonObject response) {
         this.response = response;

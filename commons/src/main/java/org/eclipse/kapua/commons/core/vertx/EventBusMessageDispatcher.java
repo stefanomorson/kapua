@@ -63,7 +63,7 @@ public class EventBusMessageDispatcher {
     }
 
     public void dispatch(EventBusServerRequest request, Handler<AsyncResult<EventBusServerResponse>> handler) {
-        String action = request.getAction();
+        String action = request.getHeaders().get(EventBusMessageConstants.ACTION);
         if (action == null || action.isEmpty()) {
             handler.handle(Future.succeededFuture(EventBusServerResponse.create(EventBusMessageConstants.STATUS_BAD_REQUEST)));
             return;

@@ -29,18 +29,16 @@ import io.vertx.core.json.JsonObject;
 public class EventBusServer {
 
     private EventBus eventBus;
-    private EventBusClientConfig config;
 
     private MessageConsumer<JsonObject> consumer;
     private EventBusMessageHandler requestHandler;
 
-    protected EventBusServer(EventBus anEventBus, EventBusClientConfig aConfig) {
+    protected EventBusServer(EventBus anEventBus) {
         eventBus = anEventBus;
-        config = aConfig;
     }
 
-    public static EventBusServer server(EventBus anEventBus, EventBusClientConfig aConfig) {
-        EventBusServer server = new EventBusServer(anEventBus, aConfig);
+    public static EventBusServer server(EventBus anEventBus) {
+        EventBusServer server = new EventBusServer(anEventBus);
         return server;
     }
 
@@ -61,7 +59,7 @@ public class EventBusServer {
     private void handle(Message<JsonObject> message) {
         Objects.requireNonNull(message, "Invalid null message");
         if (requestHandler != null) {
-            EventBusServerRequest request = EventBusServerRequest.create(message.body());
+            EventBusServerRequest request = EventBusServerRequest.create(message.headers(), message.body());
             requestHandler.handle(request, res -> {
                 if (res.succeeded()) {
                     message.reply(res.result());

@@ -13,6 +13,7 @@ package org.eclipse.kapua.commons.core.vertx;
 
 import java.util.Objects;
 
+import io.vertx.core.MultiMap;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -24,36 +25,26 @@ import io.vertx.core.json.JsonObject;
  */
 public class EventBusServerRequest {
 
+    private MultiMap headers;
     private JsonObject request;
 
-    public static EventBusServerRequest create(String action, JsonObject body) {
-        EventBusServerRequest req = new EventBusServerRequest();
-        req.setAction(action);
-        if (body != null) {
-            req.setBody(body);
-        }
-        return req;
-    }
-
-    public static EventBusServerRequest create(JsonObject request) {
+    public static EventBusServerRequest create(MultiMap headers, JsonObject request) {
+        Objects.requireNonNull(headers, "Invalid null headers");
         Objects.requireNonNull(request, "Invalid null request");
         EventBusServerRequest req = new EventBusServerRequest();
-        // Action
-        if (!request.containsKey(EventBusMessageConstants.ACTION)) {
+        // Check Action
+        if (!headers.contains(EventBusMessageConstants.ACTION)) {
             throw new RuntimeException("Request Action is mandatory");
-        } else if (!(request.getValue(EventBusMessageConstants.ACTION) instanceof String)){
-            throw new RuntimeException("Request Action must be a string");
-        } else {
-            req.setAction(request.getString(EventBusMessageConstants.ACTION));
         }
-        // Authorization
-        if (request.containsKey(EventBusMessageConstants.AUTHORIZATION) 
-                && !(request.getValue(EventBusMessageConstants.AUTHORIZATION) instanceof String)) {
-            throw new RuntimeException("Request Action is not a string");
-        }
+        // Check Authorization
         if (request.containsKey(EventBusMessageConstants.AUTHORIZATION)) {
-            req.setAuthorization(request.getString(EventBusMessageConstants.AUTHORIZATION));
-        }
+            throw new RuntimeException("Request Action is not a string");
+        }   
+
+        headers.forEach(entry -> {
+            req.getHeaders().add(entry.getKey(), entry.getValue());
+        });
+
         // Body
         if (!request.containsKey(EventBusMessageConstants.BODY) 
                 || request.getValue(EventBusMessageConstants.BODY) == null 
@@ -64,42 +55,37 @@ public class EventBusServerRequest {
         return req;
     }
 
-    public JsonObject asJsonObject() {
-        return request;
+    public MultiMap getHeaders() {
+        if (headers == null) {
+            headers = MultiMap.caseInsensitiveMultiMap();
+        }
+        return headers;
     }
 
-    public boolean hasAuthorization() {
-        return request.containsKey(EventBusMessageConstants.AUTHORIZATION);
-    }
-
-    public String getAuthorization() {
-        return request.getString(EventBusMessageConstants.AUTHORIZATION);
-    }
-
-    public EventBusServerRequest setAuthorization(String authorization) {
-        request.put(EventBusMessageConstants.AUTHORIZATION, authorization);
-        return this;
-    }
-
-    public String getAction() {
-        return request.getString(EventBusMessageConstants.ACTION);
-    }
-
-    public EventBusServerRequest setAction(String action) {
-        request.put(EventBusMessageConstants.ACTION, action);
-        return this;
+    public String getProperty(String name) {
+        if (Objects.requireNonNull(name).equals(EventBusMessageConstants.BODY)) {
+            throw new IllegalArgumentException(String.format("Invalid property name %s", name));
+        }
+        return getRequest().getString(name);
     }
 
     public JsonObject getBody() {
-        return request.getJsonObject(EventBusMessageConstants.BODY);
+        return getRequest().getJsonObject(EventBusMessageConstants.BODY);
     }
 
     public EventBusServerRequest setBody(JsonObject body) {
-        request.put(EventBusMessageConstants.BODY, body);
+        getRequest().put(EventBusMessageConstants.BODY, body);
         return this;
     }
 
     public boolean hasBody() {
         return (this.getBody() == null);
+    }
+
+    private JsonObject getRequest() {
+        if (request == null) {
+            request = new JsonObject();
+        }
+        return request;
     }
 }

@@ -62,9 +62,7 @@ public abstract class AbstractEventBusService implements EventBusService {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
         EventBus eventBus = vertx.eventBus();
-        EventBusClientConfig clientConfig = new EventBusClientConfig();
-        clientConfig.setAddress(config.getAddress());
-        eventBusServer = EventBusServer.server(eventBus, clientConfig);
+        eventBusServer = EventBusServer.server(eventBus);
         messageDispatcher = EventBusMessageDispatcher.dispatcher(vertx, eventBusServer);
         for(EventBusServiceAdapter adapter:handlerAdapters) {
             adapter.register(messageDispatcher);
@@ -78,7 +76,7 @@ public abstract class AbstractEventBusService implements EventBusService {
         for(HealthCheckAdapter adapter:healthCheckAdapters) {
             adapter.register(healthCheckHandler);
         }
-        eventBusServer.listen(clientConfig.getAddress());
+        eventBusServer.listen(config.getAddress());
         startFuture.complete();
     }
 

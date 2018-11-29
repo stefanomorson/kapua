@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core.vertx;
 
-import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.MessageProducer;
-import io.vertx.core.json.JsonObject;
 
 /**
  * Implements an {@link EventBusService} client.
@@ -25,30 +23,21 @@ import io.vertx.core.json.JsonObject;
  */
 public class EventBusClient {
 
-    private MessageProducer<JsonObject> producer;
+    private EventBus eventBus;
 
-    private EventBusClient(MessageProducer<JsonObject> producer) {
-        this.producer = producer;
+    private EventBusClient(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
-    public static EventBusClient create(EventBus eventBus, String address) {
-        EventBusClient client = new EventBusClient(eventBus.sender(address));
+    public static EventBusClient create(EventBus eventBus) {
+        EventBusClient client = new EventBusClient(eventBus);
         return client;
     }
 
-    public static EventBusClientRequest create(EventBus eventBus, String address, DeliveryOptions options) {
-        EventBusClientRequest client = new EventBusClientRequest(eventBus.sender(address, options));
-        return client;
-    }
-
-    public EventBusClientRequest getRequest(String action) {
-        EventBusClientRequest request = new EventBusClientRequest(producer).action(action);
+    public EventBusClientRequest getRequest(String address, String action) {
+        EventBusClientRequest request = new EventBusClientRequest(eventBus)
+                .address(address)
+                .addHeader(EventBusMessageConstants.ACTION, action);
         return request;
-    }
-
-    public void close() {
-        if (producer != null) {
-            producer.close();
-        }
     }
 }

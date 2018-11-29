@@ -11,15 +11,15 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core.vertx;
 
+import java.util.Objects;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 /**
  * Implements an {@link EventBusService} client.
@@ -30,27 +30,31 @@ import io.vertx.core.logging.LoggerFactory;
  */
 public class EventBusClientRequest {
 
-    private static Logger logger = LoggerFactory.getLogger(EventBusClientRequest.class);
-
-    private MessageProducer<JsonObject> producer;
+    private EventBus eventBus;
+    private String address;
+    private DeliveryOptions options;
 
     private JsonObject request;
 
-    public EventBusClientRequest(MessageProducer<JsonObject> producer) {
-        this.producer = producer;
+    public EventBusClientRequest(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
-    public JsonObject asJsonObject() {
-        return request;
-    }
-
-    public EventBusClientRequest putHeader(String name, String value) {
-        getHeaders().put(name, value);
+    public EventBusClientRequest addHeader(String name, String value) {
+        getOptions().addHeader(name, value);
         return this;
     }
 
-    public EventBusClientRequest action(String anAction) {
-        getRequest().put(EventBusMessageConstants.ACTION, anAction);
+    public EventBusClientRequest property(String name, String value) {
+        if (Objects.requireNonNull(name).equals(EventBusMessageConstants.BODY)) {
+            throw new IllegalArgumentException(String.format("Invalid property name %s", name));
+        }
+        getRequest().put(name, Objects.requireNonNull(value));
+        return this;
+    }
+
+    public EventBusClientRequest address(String anAddress) {
+        this.address = anAddress;
         return this;
     }
 
@@ -60,14 +64,14 @@ public class EventBusClientRequest {
     }
 
     public void send(Handler<AsyncResult<EventBusClientResponse>> response) {
-        producer.send(request, replyEvent -> {
+        eventBus.send(address, getRequest(), getOptions(), replyEvent -> {
             if (replyEvent.succeeded()) {
                 JsonObject reply = (JsonObject) replyEvent.result().body();
                 if (reply != null) {
                     EventBusClientResponse replyResponse = new EventBusClientResponse(reply);
                     response.handle(Future.succeededFuture(replyResponse));
                 } else {
-                    response.handle(Future.failedFuture(new EventBusServerResponseException(EventBusMessageConstants.STATUS_INTERNAL_ERROR)));
+                    response.handle(Future.succeededFuture(new EventBusClientResponse(EventBusMessageConstants.STATUS_INTERNAL_ERROR)));
                 }
             } else {
                 response.handle(Future.failedFuture(replyEvent.cause()));
@@ -82,14 +86,10 @@ public class EventBusClientRequest {
         return request;
     }
 
-    private JsonObject getHeaders() {
-        JsonObject headers;
-        if (!getRequest().containsKey("headers")) {
-            headers = new JsonObject();
-            getRequest().put("headers", headers);
-        } else {
-            headers = getRequest().getJsonObject("headers");
+    private DeliveryOptions getOptions() {
+        if (options == null) {
+            options = new DeliveryOptions();
         }
-        return headers;
+        return options;
     }
 }
