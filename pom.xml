@@ -1099,7 +1099,11 @@
                 <artifactId>validation-api</artifactId>
                 <version>${validation-api.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
             <dependency>
                 <!-- Used to parse the Cron expression-->
                 <groupId>org.quartz-scheduler</groupId>
@@ -1399,7 +1403,6 @@
 
         <!-- JUnit marker interfaces -->
         <module>marker-api</module>
-        <module>microservice</module>
     </modules>
 
     <profiles>

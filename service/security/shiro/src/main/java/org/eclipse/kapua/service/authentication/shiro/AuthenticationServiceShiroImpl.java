@@ -19,11 +19,7 @@ import org.apache.shiro.authc.ExpiredCredentialsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.AbstractSessionManager;
-import org.apache.shiro.session.mgt.AbstractValidatingSessionManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.Subject;
 import org.eclipse.kapua.KapuaEntityNotFoundException;
@@ -66,8 +62,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.UUID;
 
@@ -82,38 +76,6 @@ public class AuthenticationServiceShiroImpl implements AuthenticationService {
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceShiroImpl.class);
     private UserService userService = KapuaLocator.getInstance().getService(UserService.class);
     private CredentialService credentialService = KapuaLocator.getInstance().getService(CredentialService.class);
-
-    static {
-        // Make the SecurityManager instance available to the entire application:
-        Collection<Realm> realms = new ArrayList<>();
-        try {
-            realms.add(new org.eclipse.kapua.service.authentication.shiro.realm.UserPassAuthenticatingRealm());
-            realms.add(new org.eclipse.kapua.service.authorization.shiro.KapuaAuthorizingRealm());
-        } catch (KapuaException e) {
-            LOG.error("Unable to build realms", e);
-            throw new ExceptionInInitializerError(e);
-        }
-
-        DefaultSecurityManager defaultSecurityManager = new DefaultSecurityManager();
-        defaultSecurityManager.setAuthenticator(new KapuaAuthenticator());
-        defaultSecurityManager.setRealms(realms);
-
-        SecurityUtils.setSecurityManager(defaultSecurityManager);
-
-        if (defaultSecurityManager.getSessionManager() instanceof AbstractSessionManager) {
-            ((AbstractSessionManager) defaultSecurityManager.getSessionManager()).setGlobalSessionTimeout(-1);
-            LOG.info("Shiro global session timeout set to indefinite.");
-        } else {
-            LOG.warn("Cannot set Shiro global session timeout to indefinite.");
-        }
-
-        if (defaultSecurityManager.getSessionManager() instanceof AbstractValidatingSessionManager) {
-            ((AbstractValidatingSessionManager) defaultSecurityManager.getSessionManager()).setSessionValidationSchedulerEnabled(false);
-            LOG.info("Shiro global session validator scheduler disabled.");
-        } else {
-            LOG.warn("Cannot disable Shiro session validator scheduler.");
-        }
-    }
 
     @Override
     public AccessToken login(LoginCredentials loginCredentials) throws KapuaException {
