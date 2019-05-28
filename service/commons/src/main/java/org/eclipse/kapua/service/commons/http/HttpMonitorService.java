@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.commons.http;
 
-import org.eclipse.kapua.service.commons.HealthCheckProvider;
+import java.util.Set;
+
 import org.eclipse.kapua.service.commons.HealthChecker;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
-public interface HttpMonitorService extends HealthCheckProvider {
+public interface HttpMonitorService {
 
     public static interface Builder {
 
@@ -29,6 +30,10 @@ public interface HttpMonitorService extends HealthCheckProvider {
 
         public HttpMonitorService build();
     }
+
+    public Set<HealthChecker> getLivenessCheckers();
+
+    public Set<HealthChecker> getReadynessCheckers();
 
     public void start(Future<Void> startFuture) throws Exception;
 

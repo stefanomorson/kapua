@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.commons.http;
 
+import java.util.Set;
+
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
-public interface HttpService extends HttpEndpointProvider {
+public interface HttpService {
 
     interface Builder {
 
@@ -24,6 +26,8 @@ public interface HttpService extends HttpEndpointProvider {
 
         HttpService build();
     }
+
+    public Set<HttpEndpoint> getEndpoints();
 
     void start(Future<Void> startFuture) throws Exception;
 
