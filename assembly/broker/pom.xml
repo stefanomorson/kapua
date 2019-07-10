@@ -411,6 +411,7 @@
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
