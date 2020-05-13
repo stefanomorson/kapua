@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.commons.app;
 
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceConfig;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerOptions;
 
 /**
  * This class defines the basic configuration info required by a Vertx based application. It can be extended 
@@ -33,5 +33,5 @@ public interface Configuration {
 
     public VertxConfig getVertxConfig();
 
-    public HttpMonitorServiceConfig getHttpMonitorServiceConfig();
+    public HttpMonitorContainerOptions getHttpMonitorServiceConfig();
 }

@@ -15,9 +15,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.eclipse.kapua.service.commons.ServiceVerticleBuilder;
-import org.eclipse.kapua.service.commons.ServiceVerticleBuilders;
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceVerticleBuilder;
+import org.eclipse.kapua.service.commons.ContainerBuilder;
+import org.eclipse.kapua.service.commons.ContainerBuilders;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerBuilder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -34,11 +34,11 @@ final class InitContextImpl<C extends Configuration> implements InitContext<C> {
 
     private C configuration;
 
-    private HttpMonitorServiceVerticleBuilder monitorServiceBuilder;
+    private HttpMonitorContainerBuilder monitorServiceBuilder;
 
-    private Set<ObjectFactory<ServiceVerticleBuilder<?, ?>>> serviceBuilderFactories = new HashSet<>();
+    private Set<ObjectFactory<ContainerBuilder<?, ?, ?>>> serviceBuilderFactories = new HashSet<>();
 
-    private ServiceVerticleBuilders serviceBuilders = new ServiceVerticleBuilders();
+    private ContainerBuilders serviceBuilders = new ContainerBuilders();
 
     @Override
     public Vertx getVertx() {
@@ -75,7 +75,7 @@ final class InitContextImpl<C extends Configuration> implements InitContext<C> {
     }
 
     @Override
-    public HttpMonitorServiceVerticleBuilder getMonitorServiceVerticleBuilder() {
+    public HttpMonitorContainerBuilder getMonitorContainerBuilder() {
         return monitorServiceBuilder;
     }
 
@@ -86,12 +86,12 @@ final class InitContextImpl<C extends Configuration> implements InitContext<C> {
      * @param builder
      */
     @Autowired
-    public void setMonitorServiceVerticleBuilder(HttpMonitorServiceVerticleBuilder builder) {
+    public void setMonitorServiceVerticleBuilder(HttpMonitorContainerBuilder builder) {
         monitorServiceBuilder = builder;
     }
 
     @Override
-    public Set<ObjectFactory<ServiceVerticleBuilder<?, ?>>> getServiceBuilderFactories() {
+    public Set<ObjectFactory<ContainerBuilder<?, ?, ?>>> getContainerBuilderFactories() {
         return serviceBuilderFactories;
     }
 
@@ -102,13 +102,13 @@ final class InitContextImpl<C extends Configuration> implements InitContext<C> {
      * @param aServiceBuilderFactories
      */
     @Autowired(required = false)
-    public void setServiceBuilderFactories(Set<ObjectFactory<ServiceVerticleBuilder<?, ?>>> aServiceBuilderFactories) {
+    public void setContainerBuilderFactories(Set<ObjectFactory<ContainerBuilder<?, ?, ?>>> aServiceBuilderFactories) {
         Objects.requireNonNull(serviceBuilderFactories, "param: serviceBuilderFactories");
         serviceBuilderFactories.addAll(aServiceBuilderFactories);
     }
 
     @Override
-    public ServiceVerticleBuilders getServiceVerticleBuilders() {
+    public ContainerBuilders getContainerBuilders() {
         return serviceBuilders;
     }
 }

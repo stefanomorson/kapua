@@ -27,6 +27,7 @@
     <modules>
         <module>commons</module>
         <module>job-engine</module>
+        <module>lifecycle-consumer</module>
     </modules>
 
 </project>

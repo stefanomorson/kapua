@@ -13,9 +13,9 @@ package org.eclipse.kapua.service.commons.app;
 
 import java.util.Set;
 
-import org.eclipse.kapua.service.commons.ServiceVerticleBuilder;
-import org.eclipse.kapua.service.commons.ServiceVerticleBuilders;
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceVerticleBuilder;
+import org.eclipse.kapua.service.commons.ContainerBuilder;
+import org.eclipse.kapua.service.commons.ContainerBuilders;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerBuilder;
 import org.springframework.beans.factory.ObjectFactory;
 
 import io.vertx.core.Vertx;
@@ -31,9 +31,9 @@ public interface InitContext<C extends Configuration> {
 
     public C getConfig();
 
-    public HttpMonitorServiceVerticleBuilder getMonitorServiceVerticleBuilder();
+    public HttpMonitorContainerBuilder getMonitorContainerBuilder();
 
-    public Set<ObjectFactory<ServiceVerticleBuilder<?, ?>>> getServiceBuilderFactories();
+    public Set<ObjectFactory<ContainerBuilder<?, ?, ?>>> getContainerBuilderFactories();
 
-    public ServiceVerticleBuilders getServiceVerticleBuilders();
+    public ContainerBuilders getContainerBuilders();
 }

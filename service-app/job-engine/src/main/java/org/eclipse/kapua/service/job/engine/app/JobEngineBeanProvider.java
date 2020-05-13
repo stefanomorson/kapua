@@ -15,9 +15,8 @@ import java.util.Objects;
 
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.service.commons.app.AbstractBeanProvider;
-import org.eclipse.kapua.service.commons.http.HttpServiceConfig;
-import org.eclipse.kapua.service.commons.http.HttpServiceVerticle;
-import org.eclipse.kapua.service.commons.http.HttpServiceVerticleBuilder;
+import org.eclipse.kapua.service.commons.http.HttpContainerBuilder;
+import org.eclipse.kapua.service.commons.http.HttpContainerOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean;
@@ -59,18 +58,18 @@ public class JobEngineBeanProvider extends AbstractBeanProvider<JobEngineConfigu
 
     @Bean
     @ConfigurationProperties(prefix = "services.job-engine.http")
-    public @Autowired HttpServiceConfig getHttpServiceConfig() {
-        HttpServiceConfig config = new HttpServiceConfig();
+    public @Autowired HttpContainerOptions getHttpServiceConfig() {
+        HttpContainerOptions config = new HttpContainerOptions();
         config.setName(JOB_ENGINE_HTTP_SERVICE_NAME);
         return config;
     }
 
     @Autowired
     @Bean(JOB_ENGINE_HTTP_SERVICE_BUILDER_BEAN)
-    public HttpServiceVerticleBuilder httpServiceBuilder(Vertx aVertx, HttpServiceConfig aConfig, Handler<RoutingContext> authHandler) {
+    public HttpContainerBuilder httpServiceBuilder(Vertx aVertx, HttpContainerOptions aConfig, Handler<RoutingContext> authHandler) {
         Objects.requireNonNull(aConfig, "param: aConfig");
-        HttpServiceVerticleBuilder builder = HttpServiceVerticle.builder(aConfig);
-        builder.getContext().setAuthHandler(authHandler);
+        HttpContainerBuilder builder = HttpContainerBuilder.builder(aVertx, aConfig);
+        builder.registerHandler(aConfig.getRootPath(), authHandler);
         return builder;
     }
 
@@ -96,5 +95,10 @@ public class JobEngineBeanProvider extends AbstractBeanProvider<JobEngineConfigu
     @Override
     public JobEngineConfiguration configuration() {
         return new JobEngineConfiguration();
+    }
+
+    @Override
+    public JobEngineContext context() {
+        return new JobEngineContext(null, null);
     }
 }

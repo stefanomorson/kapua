@@ -13,9 +13,8 @@ package org.eclipse.kapua.service.commons.app;
 
 import java.util.Objects;
 
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceConfig;
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceVerticle;
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceVerticleBuilder;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerBuilder;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerOptions;
 import org.eclipse.kapua.service.commons.http.HttpServiceHandlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,15 +56,15 @@ public abstract class AbstractBeanProvider<C extends Configuration> {
     @Bean
     @Qualifier("monitoring")
     @ConfigurationProperties(prefix = "monitoring")
-    public HttpMonitorServiceConfig httpMonitoringServiceConfig() {
-        return new HttpMonitorServiceConfig();
+    public HttpMonitorContainerOptions httpMonitoringServiceConfig() {
+        return new HttpMonitorContainerOptions();
     }
 
     @Autowired
     @Bean
     @Qualifier("monitoring")
-    public HttpMonitorServiceVerticleBuilder getHttpMonitoringServiceVerticleBuilder(HttpMonitorServiceConfig config) {
-        return HttpMonitorServiceVerticle.builder(config);
+    public HttpMonitorContainerBuilder getHttpMonitoringServiceVerticleBuilder(Vertx vertx, HttpMonitorContainerOptions config) {
+        return HttpMonitorContainerBuilder.builder(vertx, config);
     }
 
     @Bean(DEFAULT_AUTH_HANDLER)
@@ -94,11 +93,11 @@ public abstract class AbstractBeanProvider<C extends Configuration> {
         Vertx vertx = Vertx.vertx(opts);
         return vertx;
     }
-
-    @Bean
-    public InitContext<C> initContext() {
-        return new InitContextImpl<C>();
-    }
+//
+//    @Bean
+//    public InitContext<C> initContext() {
+//        return new InitContextImpl<C>();
+//    }
 
     private String applicationName;
     private long startupTimeout;
@@ -121,6 +120,11 @@ public abstract class AbstractBeanProvider<C extends Configuration> {
     @Bean
     public long startupTimeout() {
         return startupTimeout;
+    }
+
+    @Bean
+    public Context context() {
+        return new BaseContext(null,null);
     }
 
     @Bean

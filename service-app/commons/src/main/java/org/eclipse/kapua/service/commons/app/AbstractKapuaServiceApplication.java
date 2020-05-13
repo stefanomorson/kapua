@@ -47,7 +47,7 @@ import io.vertx.core.json.Json;
  * 
  * @param <C> the configuration class associated with your own Vertx based application
  */
-public abstract class AbstractKapuaServiceApplication<C extends Configuration> extends BaseApplication<C> {
+public abstract class AbstractKapuaServiceApplication<X extends Context, C extends Configuration> extends BaseApplication<X, C> {
 
     Logger logger = LoggerFactory.getLogger(AbstractKapuaServiceApplication.class);
 
@@ -126,7 +126,7 @@ public abstract class AbstractKapuaServiceApplication<C extends Configuration> e
      * @throws Exception
      */
     @Override
-    public final void run(Context context, C config) throws Exception {
+    public final void run(X context, C config) throws Exception {
 
     }
 
@@ -142,7 +142,7 @@ public abstract class AbstractKapuaServiceApplication<C extends Configuration> e
      * @throws Exception
      */
     @Override
-    public final void run(Context context, C config, Future<Void> runFuture) throws Exception {
+    public final void run(X context, C config, Future<Void> runFuture) throws Exception {
         Objects.requireNonNull(context, "param: context");
         Objects.requireNonNull(config, "param: config");
         Objects.requireNonNull(runFuture, "param: runFuture");
@@ -200,7 +200,7 @@ public abstract class AbstractKapuaServiceApplication<C extends Configuration> e
      * @param config
      * @throws Exception
      */
-    protected abstract void runInternal(Context context, C config) throws Exception;
+    protected abstract void runInternal(X context, C config) throws Exception;
 
     private void registerJacksonModule(Module jacksonModule) {
         Json.mapper.registerModule(jacksonModule);

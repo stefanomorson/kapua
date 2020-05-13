@@ -15,20 +15,27 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.kapua.service.commons.app.AbstractKapuaServiceApplication;
-import org.eclipse.kapua.service.commons.app.Context;
-import org.eclipse.kapua.service.commons.http.HttpServiceConfig;
-import org.eclipse.kapua.service.commons.http.HttpServiceContext;
+import org.eclipse.kapua.service.commons.http.HttpContainerBuilder;
+import org.eclipse.kapua.service.commons.http.HttpProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.liquibase.LiquibaseServiceLocatorApplicationListener;
 
 @SpringBootApplication
-public class JobEngineApplication extends AbstractKapuaServiceApplication<JobEngineConfiguration> {
+public class JobEngineApplication extends AbstractKapuaServiceApplication<JobEngineContext, JobEngineConfiguration> {
 
     Logger logger = LoggerFactory.getLogger(JobEngineApplication.class);
+
+    private JobEngineHttpController jobEngineController;
+
+    @Autowired
+    public void setJobEngineController(JobEngineHttpController jobEngineController) {
+        this.jobEngineController = jobEngineController;
+    }
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(JobEngineApplication.class);
@@ -42,12 +49,14 @@ public class JobEngineApplication extends AbstractKapuaServiceApplication<JobEng
     }
 
     @Override
-    protected void runInternal(Context context, JobEngineConfiguration config) throws Exception {
+    protected void runInternal(JobEngineContext context, JobEngineConfiguration config) throws Exception {
         Objects.requireNonNull(context, "param: context");
         Objects.requireNonNull(config, "param: config");
 
-        // Configure Services
-        HttpServiceConfig svcConfig = config.getHttpServiceConfig();
-        context.getServiceContext(svcConfig.getName(), HttpServiceContext.class).addController(config.getController());
+        // TODO Add auth handler
+        HttpProcessor processor = HttpProcessor.create(context.getVertx());
+        processor.getConfiguration().registerController(jobEngineController);
+        context.getContainerBuilder("v1", HttpContainerBuilder.class)
+                .registerHandler("v1", processor);
     }
 }

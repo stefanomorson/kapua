@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.commons.app;
 
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceConfig;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -23,7 +23,7 @@ public class BaseConfiguration implements Configuration {
     private String applicationName;
     private long startupTimeout;
     private VertxConfig vertxConfig;
-    private HttpMonitorServiceConfig monitorServiceConfig;
+    private HttpMonitorContainerOptions monitorServiceConfig;
 
     @Override
     public String getApplicationName() {
@@ -74,7 +74,7 @@ public class BaseConfiguration implements Configuration {
     }
 
     @Override
-    public HttpMonitorServiceConfig getHttpMonitorServiceConfig() {
+    public HttpMonitorContainerOptions getHttpMonitorServiceConfig() {
         return monitorServiceConfig;
     }
 
@@ -85,7 +85,7 @@ public class BaseConfiguration implements Configuration {
      * @param aConfig
      */
     @Autowired
-    public void setHttpMonitorServiceConfig(HttpMonitorServiceConfig aConfig) {
+    public void setHttpMonitorServiceConfig(HttpMonitorContainerOptions aConfig) {
         monitorServiceConfig = aConfig;
     }
 }

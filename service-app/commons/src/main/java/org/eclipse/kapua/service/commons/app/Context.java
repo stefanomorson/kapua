@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.commons.app;
 
-import org.eclipse.kapua.service.commons.http.HttpMonitorServiceContext;
+import org.eclipse.kapua.service.commons.http.HttpMonitorContainerBuilder;
 
 import io.vertx.core.Vertx;
 
@@ -23,7 +23,7 @@ public interface Context {
 
     public Vertx getVertx();
 
-    public HttpMonitorServiceContext getMonitorServiceContext();
+    public HttpMonitorContainerBuilder getMonitorConfiguration();
 
-    public <C> C getServiceContext(String name, Class<C> clazz);
+    public <C> C getContainerBuilder(String name, Class<C> clazz);
 }

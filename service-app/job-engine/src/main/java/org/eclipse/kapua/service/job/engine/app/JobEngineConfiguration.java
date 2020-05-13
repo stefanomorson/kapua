@@ -12,14 +12,14 @@
 package org.eclipse.kapua.service.job.engine.app;
 
 import org.eclipse.kapua.service.commons.app.BaseConfiguration;
-import org.eclipse.kapua.service.commons.http.HttpServiceConfig;
+import org.eclipse.kapua.service.commons.http.HttpContainerOptions;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class JobEngineConfiguration extends BaseConfiguration {
 
     private JobEngineHttpController controller;
-    private HttpServiceConfig httpServiceConfig;
+    private HttpContainerOptions httpServiceConfig;
 
     public JobEngineHttpController getController() {
         return controller;
@@ -30,12 +30,12 @@ public class JobEngineConfiguration extends BaseConfiguration {
         this.controller = controller;
     }
 
-    public HttpServiceConfig getHttpServiceConfig() {
+    public HttpContainerOptions getHttpServiceConfig() {
         return httpServiceConfig;
     }
 
     @Autowired
-    public void setHttpServiceConfig(HttpServiceConfig httpServiceConfig) {
+    public void setHttpServiceConfig(HttpContainerOptions httpServiceConfig) {
         this.httpServiceConfig = httpServiceConfig;
     }
 
