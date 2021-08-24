@@ -22,7 +22,7 @@ public class EventBusServerResponse {
 
     private JsonObject response;
 
-    public static EventBusServerResponse create(int resultCode, JsonObject body) {
+    public static EventBusServerResponse create(int resultCode, Object body) {
         EventBusServerResponse res = new EventBusServerResponse();
         res.setResultCode(resultCode);
         if (body != null) {
@@ -75,12 +75,15 @@ public class EventBusServerResponse {
         return this;
     }
 
-    public JsonObject getBody() {
+    public Object getBody() {
         return response.getJsonObject(EventBusMessageConstants.BODY);
     }
 
-    public EventBusServerResponse setBody(JsonObject body) {
-        response.put(EventBusMessageConstants.BODY, body);
+    public EventBusServerResponse setBody(Object aBody) {
+        if (aBody != null && !(aBody instanceof String || aBody instanceof JsonObject)) {
+            throw new IllegalArgumentException(String.format("Invalid body type %s", aBody.getClass().getName()));
+        }
+        response.put(EventBusMessageConstants.BODY, aBody);
         return this;
     }
 

@@ -69,12 +69,15 @@ public class EventBusServerRequest {
         return getRequest().getString(name);
     }
 
-    public JsonObject getBody() {
+    public Object getBody() {
         return getRequest().getJsonObject(EventBusMessageConstants.BODY);
     }
 
-    public EventBusServerRequest setBody(JsonObject body) {
-        getRequest().put(EventBusMessageConstants.BODY, body);
+    public EventBusServerRequest setBody(Object aBody) {
+        if (aBody != null && !(aBody instanceof String || aBody instanceof JsonObject)) {
+            throw new IllegalArgumentException(String.format("Invalid body type %s", aBody.getClass().getName()));
+        }
+        getRequest().put(EventBusMessageConstants.BODY, aBody);
         return this;
     }
 

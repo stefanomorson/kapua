@@ -58,7 +58,10 @@ public class EventBusClientRequest {
         return this;
     }
 
-    public EventBusClientRequest body(JsonObject aBody) {
+    public EventBusClientRequest body(Object aBody) {
+        if (aBody != null && !(aBody instanceof String || aBody instanceof JsonObject)) {
+            throw new IllegalArgumentException(String.format("Invalid body type %s", aBody.getClass().getName()));
+        }
         getRequest().put(EventBusMessageConstants.BODY, aBody);
         return this;
     }

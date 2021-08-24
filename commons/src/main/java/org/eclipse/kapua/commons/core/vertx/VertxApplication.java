@@ -19,7 +19,11 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Singleton;
+
 import org.eclipse.kapua.commons.core.Application;
+import org.eclipse.kapua.commons.core.CommonsModule;
+import org.eclipse.kapua.commons.core.CommonsModuleManager;
 import org.eclipse.kapua.commons.core.Configuration;
 import org.eclipse.kapua.commons.core.ConfigurationImpl;
 import org.eclipse.kapua.commons.core.ConfigurationSourceFactoryImpl;
@@ -30,6 +34,7 @@ import org.eclipse.kapua.commons.core.spi.ConfigurationSourceFactory;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SharedMetricRegistries;
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.name.Names;
@@ -160,6 +165,15 @@ public abstract class VertxApplication<M extends AbstractMainVerticle> implement
                 }
             }
 
+        });
+
+        CommonsModuleManager.manager().setCommonsModule(new CommonsModule() {
+
+            @Override
+            public void configure(Binder binder) {
+                binder.bind(Vertx.class).toInstance(vertx);
+                binder.bind(AsyncClientProviderImpl.class).in(Singleton.class);;
+            }
         });
 
         Injector injector = Guice.createInjector(modules);

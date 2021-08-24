@@ -12,17 +12,21 @@
  *******************************************************************************/
 package org.eclipse.kapua.locator.guice;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
-import com.google.common.reflect.ClassPath.ClassInfo;
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-import com.google.inject.matcher.Matcher;
-import com.google.inject.matcher.Matchers;
-import com.google.inject.multibindings.Multibinder;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.eclipse.kapua.KapuaErrorCodes;
 import org.eclipse.kapua.KapuaRuntimeException;
+import org.eclipse.kapua.commons.core.CommonsModuleManager;
 import org.eclipse.kapua.commons.core.InterceptorBind;
 import org.eclipse.kapua.commons.core.ServiceModule;
 import org.eclipse.kapua.commons.core.ServiceModuleProvider;
@@ -34,16 +38,14 @@ import org.eclipse.kapua.service.KapuaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+import com.google.common.reflect.ClassPath.ClassInfo;
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
+import com.google.inject.matcher.Matcher;
+import com.google.inject.matcher.Matchers;
+import com.google.inject.multibindings.Multibinder;
 
 public class KapuaModule extends AbstractModule {
 
@@ -68,6 +70,8 @@ public class KapuaModule extends AbstractModule {
     @Override
     protected void configure() {
         try {
+            install(CommonsModuleManager.manager().getCommonsModule());
+
             // Find locator configuration file
             List<URL> locatorConfigurations = Arrays.asList(ResourceUtils.getResource(resourceName));
             if (locatorConfigurations.isEmpty()) {

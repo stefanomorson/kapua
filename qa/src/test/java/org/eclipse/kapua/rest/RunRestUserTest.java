@@ -14,6 +14,7 @@ package org.eclipse.kapua.rest;
 import cucumber.api.CucumberOptions;
 import org.eclipse.kapua.test.cucumber.CucumberProperty;
 import org.eclipse.kapua.test.cucumber.CucumberWithProperties;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 @RunWith(CucumberWithProperties.class)
@@ -30,5 +31,6 @@ import org.junit.runner.RunWith;
 @CucumberProperty(key="certificate.jwt.certificate", value= "cert/certificate.pem")
 @CucumberProperty(key="commons.db.schema", value="TEST")
 @CucumberProperty(key="commons.db.schema.update", value="true")
+@Ignore
 public class RunRestUserTest {
 }

@@ -59,11 +59,14 @@ public class EventBusClientResponse {
         return response.getString(EventBusMessageConstants.STATUS_MSG);
     }
 
-    public JsonObject getBody() {
+    public Object getBody() {
         return response.getJsonObject(EventBusMessageConstants.BODY);
     }
 
-    public void setBody(JsonObject body) {
-        response.put(EventBusMessageConstants.BODY, body);
+    public void setBody(Object aBody) {
+        if (aBody != null && !(aBody instanceof String || aBody instanceof JsonObject)) {
+            throw new IllegalArgumentException(String.format("Invalid body type %s", aBody.getClass().getName()));
+        }
+        response.put(EventBusMessageConstants.BODY, aBody);
     }
 }

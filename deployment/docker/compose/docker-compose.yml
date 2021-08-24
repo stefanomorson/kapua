@@ -6,6 +6,8 @@ services:
     ports:
       - 8181:8181
       - 3306:3306
+    volumes:
+      - db-data:/var/opt/h2/data
   es:
     image: elasticsearch:5.4.0
     ports:
@@ -17,6 +19,14 @@ services:
       - transport.host=_site_
       - transport.ping_schedule=-1
       - transport.tcp.connect_timeout=30s
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+  grafana:
+    image: grafana/grafana:5.3.1
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
   events-broker:
     image: kapua/kapua-events-broker:${IMAGE_VERSION}
     ports:
@@ -101,3 +111,7 @@ services:
       - broker
       - db
       - events-broker
+volumes:
+      db-data:
+      es-data:  
+      grafana-data:    

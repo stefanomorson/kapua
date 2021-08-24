@@ -29,6 +29,9 @@
         <module>certificate</module>
         <module>registration</module>
         <module>shiro</module>
+        <module>server</module>
+        <module>client</module>
+        <module>proxy-http</module>
     </modules>
 
 </project>
