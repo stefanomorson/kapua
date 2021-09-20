@@ -12,24 +12,17 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core;
 
-import java.util.Set;
-
-import javax.inject.Inject;
+import org.eclipse.kapua.KapuaException;
 
 /**
- * @deprecated
- * This class will be removed in a future version of Kapua.
+ * A class that represents a service handlder. Implementations of this interface are 
+ * collected by {@link ServiceContainer}.
+ * {@link #init()} is invoked during container initializaton while {@link #destroy()} 
+ * is invoked during container destruction.
  */
-@Deprecated
-public class ServiceModuleProviderImpl implements ServiceModuleProvider {
+public interface ServiceHandler {
 
+    public void init(ServiceContext context) throws KapuaException;
 
-    @Inject
-    private Set<ServiceModule> modules;
-
-    @Override
-    public Set<ServiceModule> getModules() {
-        return modules;
-    }
-
+    public void destroy();
 }

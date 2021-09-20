@@ -14,6 +14,15 @@ package org.eclipse.kapua.commons.core;
 
 import org.eclipse.kapua.KapuaException;
 
+/**
+ * Implementations of this interface are collected by {@link ServiceModuleBundle}.
+ * {@link #start()} is invoked during bundle startup while {@link #stop()} is invoked 
+ * during shutdown.
+ * @deprecated
+ * This interface is replaced by {@link ServiceHandler} and will be removed in a future
+ * version of Kapua.
+ */
+@Deprecated
 public interface ServiceModule {
 
     void start() throws KapuaException;

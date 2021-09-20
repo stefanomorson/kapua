@@ -14,6 +14,12 @@ package org.eclipse.kapua.commons.core;
 
 import java.util.Set;
 
+/**
+ * Used to inject the list of {@link ServiceModule}(s) defined using bindings in {@link KapuaModule}
+ * @deprecated
+ * This interface will be removed in a future version of Kapua.
+ */
+@Deprecated
 public interface ServiceModuleProvider {
 
     Set<ServiceModule> getModules();

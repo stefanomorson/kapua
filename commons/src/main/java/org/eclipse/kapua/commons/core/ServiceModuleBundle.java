@@ -12,14 +12,22 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core;
 
+import java.util.Set;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.event.ServiceEventBusManager;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
+/**
+ * This class should be used by the wrapping applications. {@link #startup()} should 
+ * be invoked before using any Kapua resource while {@link #shutdown()} should be 
+ * invoked when Kapua resources are no longer needed, e.g. before exiting the application.
+ * @deprecated
+ * This class will be removed in a future version of Kapua. 
+ */
+@Deprecated
 public class ServiceModuleBundle {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceModuleBundle.class);

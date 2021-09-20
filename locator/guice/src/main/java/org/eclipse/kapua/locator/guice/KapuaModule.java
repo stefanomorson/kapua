@@ -45,6 +45,11 @@ import com.google.inject.matcher.Matcher;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 
+/**
+ * @deprecated 
+ * This class will be removed in a future version of Kapua.
+ */
+@Deprecated
 public class KapuaModule extends AbstractKapuaModule {
 
     private static final Logger logger = LoggerFactory.getLogger(KapuaModule.class);

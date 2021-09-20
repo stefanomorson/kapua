@@ -15,6 +15,14 @@ package org.eclipse.kapua.commons.core;
 
 import java.util.Set;
 
+/**
+ * Utility class used by {@link GuiceLocatorImpl} to pass out {@link ServiceModule}(s) 
+ * to {@link ServiceModuleBundle}.
+ * This class is for internal use, you should not need to use it in client code.
+ * @deprecated
+ * This class will be removed in a future version of Kapua
+ */
+@Deprecated
 public class ServiceModuleConfiguration {
 
     public interface ConfigurationProvider {

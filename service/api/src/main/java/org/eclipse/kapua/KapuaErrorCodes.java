@@ -94,13 +94,24 @@ public enum KapuaErrorCodes implements KapuaErrorCode {
     EXTERNAL_ID_ALREADY_EXIST_IN_ANOTHER_ACCOUNT,
     /**
      * The device has returned an error when starting bundle
+     * @deprecated
+     * Will be removed in future version with no replacement
      */
+    @Deprecated
     BUNDLE_START_ERROR,
 
     /**
      * The device has returned an error when stopping bundle
+     * @deprecated
+     * Will be removed in future version with no replacement
      */
+    @Deprecated
     BUNDLE_STOP_ERROR,
+
+    /**
+     * General service event error
+     */
+    SERVICE_HANDLER_ERROR,
 
     /**
      * Syntax error in Package URI

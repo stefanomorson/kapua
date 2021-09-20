@@ -12,24 +12,17 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.core;
 
-import java.util.Set;
-
-import javax.inject.Inject;
+import org.eclipse.kapua.event.ServiceEventBus;
+import org.eclipse.kapua.locator.KapuaLocator;
 
 /**
- * @deprecated
- * This class will be removed in a future version of Kapua.
+ * The runtime context required by the Kapua application.
  */
-@Deprecated
-public class ServiceModuleProviderImpl implements ServiceModuleProvider {
+public interface ServiceContext {
 
+    public ServiceConfig getServiceConfig();
 
-    @Inject
-    private Set<ServiceModule> modules;
+    public KapuaLocator getKapuaLocator();
 
-    @Override
-    public Set<ServiceModule> getModules() {
-        return modules;
-    }
-
+    public ServiceEventBus getServiceEventBus();
 }
