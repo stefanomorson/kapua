@@ -17,11 +17,12 @@ import java.util.HashMap;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
 
+import org.eclipse.kapua.app.api.core.JaxbClassProvider;
 import org.eclipse.kapua.app.api.core.KapuaSerializableBodyWriter;
 import org.eclipse.kapua.app.api.core.ListBodyWriter;
 import org.eclipse.kapua.app.api.core.MoxyJsonConfigContextResolver;
+import org.eclipse.kapua.commons.core.ServiceModuleJaxbClassProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
-
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -43,7 +44,7 @@ public class RestApisApplication extends ResourceConfig {
         property(ServerProperties.MEDIA_TYPE_MAPPINGS, mappedMediaTypes);
         property(ServerProperties.WADL_FEATURE_DISABLE, true);
         register(UriConnegFilter.class);
-        register(JaxbContextResolver.class);
+        register(new JaxbContextResolver(new JaxbClassProvider() , new ServiceModuleJaxbClassProvider()));
         register(RestApiJAXBContextProvider.class);
         register(KapuaSerializableBodyWriter.class);
         register(ListBodyWriter.class);

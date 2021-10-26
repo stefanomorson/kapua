@@ -12,7 +12,11 @@
  *******************************************************************************/
 package org.eclipse.kapua.app.api.web;
 
+import javax.xml.bind.JAXBContext;
+
+import org.eclipse.kapua.app.api.core.JaxbClassProvider;
 import org.eclipse.kapua.app.api.core.exception.model.EntityNotFoundExceptionInfo;
+import org.eclipse.kapua.commons.core.ServiceModuleJaxbClassProvider;
 import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.qa.markers.junit.JUnitTests;
 import org.eclipse.kapua.service.account.Account;
@@ -33,8 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.xml.bind.JAXBContext;
-
 @Category(JUnitTests.class)
 public class JaxbContextResolverTest {
 
@@ -42,7 +44,7 @@ public class JaxbContextResolverTest {
 
     @Before
     public void initialize() {
-        jaxbContextResolver = new JaxbContextResolver();
+        jaxbContextResolver = new JaxbContextResolver(new JaxbClassProvider(), new ServiceModuleJaxbClassProvider());
     }
 
     @Test
