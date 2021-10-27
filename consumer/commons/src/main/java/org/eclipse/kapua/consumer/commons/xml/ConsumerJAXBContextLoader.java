@@ -13,6 +13,8 @@
 package org.eclipse.kapua.consumer.commons.xml;
 
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.commons.core.ClassProvider;
+import org.eclipse.kapua.commons.core.ServiceModuleJaxbClassProvider;
 import org.eclipse.kapua.commons.util.ClassUtil;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
@@ -31,6 +33,16 @@ public class ConsumerJAXBContextLoader {
 
     private static final String JAXB_CONTEXT_CLASS_NAME;
 
+    public static class TestB {
+
+    }
+
+    public static class TestA {
+        public TestA(TestB ... b) {
+
+        }
+    }
+
     static {
         ConsumerSetting config = ConsumerSetting.getInstance();
         JAXB_CONTEXT_CLASS_NAME = config.getString(ConsumerSettingKey.JAXB_CONTEXT_CLASS_NAME);
@@ -41,7 +53,11 @@ public class ConsumerJAXBContextLoader {
 
     public void init() throws KapuaException {
         logger.info(">>> Jaxb context loader... load context");
-        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME, null);
+        ClassProvider[] providers = new ClassProvider[] {new ServiceModuleJaxbClassProvider()};
+        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME,
+                null, 
+                new Class<?>[] {providers.getClass()}, 
+                new Object[] {providers});
         XmlUtil.setContextProvider(jaxbContextProvider);
         logger.info(">>> Jaxb context loader... load context DONE");
     }

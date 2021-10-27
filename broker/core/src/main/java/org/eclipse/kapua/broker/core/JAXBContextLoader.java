@@ -15,6 +15,8 @@ package org.eclipse.kapua.broker.core;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.broker.core.setting.BrokerSettingKey;
+import org.eclipse.kapua.commons.core.ClassProvider;
+import org.eclipse.kapua.commons.core.ServiceModuleJaxbClassProvider;
 import org.eclipse.kapua.commons.util.ClassUtil;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
@@ -41,7 +43,11 @@ public class JAXBContextLoader {
 
     public void init() throws KapuaException {
         logger.info(">>> Jaxb context loader... load context");
-        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME, null);
+        ClassProvider[] providers = new ClassProvider[] {new ServiceModuleJaxbClassProvider()};
+        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME, 
+                null,
+                new Class<?>[] {providers.getClass()},
+                new Object[] {providers});
         XmlUtil.setContextProvider(jaxbContextProvider);
         logger.info(">>> Jaxb context loader... load context DONE");
     }
