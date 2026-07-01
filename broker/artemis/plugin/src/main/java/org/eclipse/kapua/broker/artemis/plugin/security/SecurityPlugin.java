@@ -143,7 +143,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
     }
 
     //TODO SEE EXTERNAL FOR THE LOCK
-    private Subject authenticateInternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password,
+    protected Subject authenticateInternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password,
             RemotingConnection remotingConnection) {
         loginMetric.getInternalConnector().getAttempt().inc();
         String usernameToCompare = SystemSetting.getInstance().getString(SystemSettingKey.BROKER_INTERNAL_CONNECTOR_USERNAME);
@@ -173,7 +173,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         }
     }
 
-    private Subject authenticateExternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password, RemotingConnection remotingConnection) throws Exception {
+    protected Subject authenticateExternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password, RemotingConnection remotingConnection) throws Exception {
         if (connectionInfo.getClientId()==null) {
             logger.warn("Client Id is null for connection id {} - login denied", connectionId);
             return null;
