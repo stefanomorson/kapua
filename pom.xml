@@ -1120,6 +1120,12 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-service-authentication-app</artifactId>
+                <version>${project.version}</version>
+                <classifier>app</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-service-camel</artifactId>
                 <version>${project.version}</version>
             </dependency>
