@@ -28,6 +28,7 @@ public class DatastoreElasticsearchClientConfiguration extends ElasticsearchClie
 
     public DatastoreElasticsearchClientConfiguration() {
         setProviderClassName(ELASTICSEARCH_CLIENT_SETTINGS.getString(DatastoreElasticsearchClientSettingsKey.PROVIDER));
+        setPoolSize(ELASTICSEARCH_CLIENT_SETTINGS.getInt(DatastoreElasticsearchClientSettingsKey.POOL_SIZE));
         setModuleName(ELASTICSEARCH_CLIENT_SETTINGS.getString(DatastoreElasticsearchClientSettingsKey.MODULE));
 
         setClusterName(ELASTICSEARCH_CLIENT_SETTINGS.getString(DatastoreElasticsearchClientSettingsKey.CLUSTER));

@@ -27,6 +27,7 @@ public class ElasticsearchClientConfiguration {
 
     private String moduleName;
     private String providerClassName;
+    private int poolSize;
     private String clusterName;
     private List<ElasticsearchNode> nodes;
     private String username;
@@ -74,6 +75,26 @@ public class ElasticsearchClientConfiguration {
      */
     public ElasticsearchClientConfiguration setProviderClassName(String providerClassName) {
         this.providerClassName = providerClassName;
+        return this;
+    }
+
+    /** Gets the size of the client pool.
+    *
+    * @return the size of the provider pool.
+    * @since 1.6.0
+    */
+    public int getPoolSize() {
+        return this.poolSize;
+    }
+
+    /** Sets the size of the client pool.
+     *
+     * @param poolSize The size of the client pool
+     * @return This {@link ElasticsearchClientConfiguration} to chain method invocation.
+     * @since 1.6.0
+     */
+    public ElasticsearchClientConfiguration setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
         return this;
     }
 
