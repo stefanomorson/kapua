@@ -21,7 +21,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -44,7 +44,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -73,7 +73,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -102,7 +102,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -131,7 +131,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -160,7 +160,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -189,7 +189,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -218,7 +218,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -247,7 +247,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -276,7 +276,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -305,7 +305,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -334,7 +334,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -363,7 +363,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -392,7 +392,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -421,7 +421,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -450,7 +450,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -479,7 +479,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -508,7 +508,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -537,7 +537,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -566,7 +566,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -595,7 +595,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
@@ -624,7 +624,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-      - uses: actions/setup-java@v5 # Installs Node and NPM
+      - uses: actions/setup-node@v5 # Installs Node and NPM
         with:
           node-version: 16
       - name: Install Swagger CLI # Installs Swagger CLI to bundle OpenAPI files
