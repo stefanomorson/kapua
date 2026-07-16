@@ -327,7 +327,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                            <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>app</shadedClassifierName>
+
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -379,7 +384,6 @@
                                     <resource>META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports</resource>
                                 </transformer>
                             </transformers>
-                            <outputFile>${project.build.directory}/kapua-service-authentication-${project.version}-app.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
