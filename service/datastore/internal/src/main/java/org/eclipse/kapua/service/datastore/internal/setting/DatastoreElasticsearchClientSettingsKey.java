@@ -136,7 +136,13 @@ public enum DatastoreElasticsearchClientSettingsKey implements SettingKey {
      *
      * @since 2.1.0
      */
-    REQUEST_SOCKET_TIMEOUT_MILLIS("datastore.elasticsearch.request.socket.timeout.millis");
+    REQUEST_SOCKET_TIMEOUT_MILLIS("datastore.elasticsearch.request.socket.timeout.millis"),
+    /**
+     * Elasticsearch client pool size.
+     *
+     * @since 2.0.0
+    */
+    POOL_SIZE("datastore.elasticsearch.pool.size");
 
     /**
      * The key value in the configuration resources.
