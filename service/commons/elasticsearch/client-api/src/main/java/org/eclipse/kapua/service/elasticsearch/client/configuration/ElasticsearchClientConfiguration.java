@@ -26,12 +26,12 @@ import org.eclipse.kapua.service.elasticsearch.client.ElasticsearchClientWrapper
 public class ElasticsearchClientConfiguration {
 
     private String moduleName;
-    private String providerClassName;
     private String clusterName;
     private List<ElasticsearchNode> nodes;
     private String username;
     private String password;
     private Optional<Integer> numberOfIOThreads;
+    private int poolSize;
 
     private ElasticsearchClientReconnectConfiguration reconnectConfiguration;
     private ElasticsearchClientRequestConfiguration requestConfiguration;
@@ -266,6 +266,29 @@ public class ElasticsearchClientConfiguration {
     public ElasticsearchClientConfiguration setNumberOfIOThreads(Integer numberOfIOThreads) {
         this.numberOfIOThreads = Optional.ofNullable(numberOfIOThreads)
                 .filter(i -> i > 0);
+        return this;
+    }
+
+    /**
+     * Gets the size of the Elasticsearch client pool.
+     *
+     * @return The size of the Elasticsearch client pool.
+     * @since 1.6.0
+     */
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    /**
+     * Sets the size of the Elasticsearch client pool.
+     *
+     * @param poolSize 
+     *         The size of the Elasticsearch client pool.
+     * @return This {@link ElasticsearchClientConfiguration} to chain method invocation.
+     * @since 1.6.0
+     */
+    public ElasticsearchClientConfiguration setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
         return this;
     }
 }

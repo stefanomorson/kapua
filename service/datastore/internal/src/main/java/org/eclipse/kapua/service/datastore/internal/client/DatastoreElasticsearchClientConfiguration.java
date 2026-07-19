@@ -56,6 +56,8 @@ public class DatastoreElasticsearchClientConfiguration extends ElasticsearchClie
 
         setNumberOfIOThreads(elasticsearchClientSettings.getInt(DatastoreElasticsearchClientSettingsKey.NUMBER_OF_IO_THREADS, 0));
         getReconnectConfiguration().setReconnectDelay(30000);
+
+        setPoolSize(elasticsearchClientSettings.getInt(DatastoreElasticsearchClientSettingsKey.POOL_SIZE));
     }
 
     public static ElasticsearchClientConfiguration getInstance() {
