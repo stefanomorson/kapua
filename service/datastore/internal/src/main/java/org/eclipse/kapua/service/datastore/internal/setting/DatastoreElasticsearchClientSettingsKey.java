@@ -28,6 +28,12 @@ public enum DatastoreElasticsearchClientSettingsKey implements SettingKey {
      */
     PROVIDER("datastore.elasticsearch.provider"),
     /**
+     * Number of clients in the pool.
+     *
+     * @since 1.6.0
+    */
+    POOL_SIZE("datastore.elasticsearch.pool.size"),
+    /**
      * The name of the module which is managing the {@link org.eclipse.kapua.service.elasticsearch.client.ElasticsearchClient}.
      *
      * @since 1.3.0
