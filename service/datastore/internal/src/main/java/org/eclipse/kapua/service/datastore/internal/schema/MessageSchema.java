@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.kapua.message.Message;
 import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreUtils;
+import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettings;
+import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettingsKey;
 import org.eclipse.kapua.service.elasticsearch.client.SchemaKeys;
 import org.eclipse.kapua.service.storable.exception.MappingException;
 import org.eclipse.kapua.service.storable.model.utils.KeyValueEntry;
@@ -274,6 +276,22 @@ public class MessageSchema {
      * @since 1.0.0
      */
     public static JsonNode getMessageTypeSchema() throws MappingException {
+        return getMessageTypeSchema(null);
+    }
+
+    /**
+     * Create and return the Json representation of the message schema
+     *
+     * @param settings The datastore settings
+     * @return
+     * @throws MappingException
+     * @since 2.0.0
+     */
+    public static JsonNode getMessageTypeSchema(DatastoreSettings settings) throws MappingException {
+        boolean enableMetricsDynamicMapping = true;
+        if (settings != null) {
+            enableMetricsDynamicMapping = settings.getBoolean(DatastoreSettingsKey.CONFIG_MESSAGE_INDEX_DYNAMIC_METRIC_MAPPING);
+        }
         ObjectNode messageNode = MappingUtils.newObjectNode();
         {
             ObjectNode sourceMessage = MappingUtils.newObjectNode(new KeyValueEntry[]{new KeyValueEntry(SchemaKeys.KEY_ENABLED, true)});
@@ -349,7 +367,7 @@ public class MessageSchema {
 
             ObjectNode messageMetrics = MappingUtils.newObjectNode(
                     new KeyValueEntry[]{new KeyValueEntry(SchemaKeys.KEY_TYPE, SchemaKeys.TYPE_OBJECT), new KeyValueEntry(SchemaKeys.KEY_ENABLED, true),
-                            new KeyValueEntry(SchemaKeys.KEY_DYNAMIC, true)});
+                            new KeyValueEntry(SchemaKeys.KEY_DYNAMIC, enableMetricsDynamicMapping)});
             propertiesNode.set(MESSAGE_METRICS, messageMetrics);
 
             ObjectNode messageBody = MappingUtils.newObjectNode(new KeyValueEntry[]{new KeyValueEntry(SchemaKeys.KEY_TYPE, SchemaKeys.TYPE_BINARY), new KeyValueEntry(SchemaKeys.KEY_INDEX, SchemaKeys.VALUE_FALSE)});

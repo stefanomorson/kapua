@@ -66,7 +66,7 @@ public class MessageElasticsearchRepository extends DatastoreElasticSearchReposi
     @Override
     protected JsonNode getIndexSchema() {
         try {
-            return MessageSchema.getMessageTypeSchema();
+            return MessageSchema.getMessageTypeSchema(datastoreSettings);
         } catch (MappingException e) {
             throw new RuntimeException(e);
         }

@@ -109,7 +109,11 @@ public enum DatastoreSettingsKey implements SettingKey {
     /**
      * Elasticsearch limit+offset maximum value
      */
-    MAX_RESULT_WINDOW_VALUE("datastore.max_result_window");
+    MAX_RESULT_WINDOW_VALUE("datastore.max_result_window"),
+    /**
+     * Elasticsearch index enable dynamic mappings in metrics object
+     */
+    CONFIG_MESSAGE_INDEX_DYNAMIC_METRIC_MAPPING("datastore.index.message.metric.mapping.dynamic");
 
     private String key;
 
