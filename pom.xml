@@ -35,7 +35,7 @@
         <aopalliance.version>1.0</aopalliance.version>
         <apache-sshd-core.version>2.16.0</apache-sshd-core.version>
         <artemis.version>2.19.0</artemis.version>
-        <assertj.version>3.2.0</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <camel.version>2.16.3</camel.version>
         <checker-framework.version>3.15.0</checker-framework.version>
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
