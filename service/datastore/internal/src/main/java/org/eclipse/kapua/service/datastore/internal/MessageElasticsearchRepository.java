@@ -105,17 +105,17 @@ public class MessageElasticsearchRepository extends DatastoreElasticSearchReposi
 
         final String indexName = indexResolver(messageToStore.getScopeId(), messageTime);
 
-        if (!metricsByIndex.containsKey(indexName)) {
-            synchronized (DatastoreMessage.class) {
+        synchronized (DatastoreMessage.class) {
+            if (!metricsByIndex.containsKey(indexName)) {
                 doUpsertIndex(indexName);
                 doUpsertMappings(indexName, metrics);
                 metricsByIndex.put(indexName, metrics);
-            }
-        } else {
-            final Map<String, Metric> newMetrics = getMessageMappingDiffs(metricsByIndex.get(indexName), metrics);
-            synchronized (DatastoreMessage.class) {
-                doUpsertMappings(indexName, metrics);
-                metricsByIndex.get(indexName).putAll(newMetrics);
+            } else {
+                final Map<String, Metric> newMetrics = getMessageMappingDiffs(metricsByIndex.get(indexName), metrics);
+                if (newMetrics != null && !newMetrics.isEmpty()) {
+                    doUpsertMappings(indexName, metrics);
+                    metricsByIndex.get(indexName).putAll(newMetrics);
+                }
             }
         }
         final InsertRequest insertRequest = new InsertRequest(idExtractor(messageToStore).toString(), indexName, messageToStore);
