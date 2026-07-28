@@ -65,10 +65,10 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
 
     protected static Logger logger = LoggerFactory.getLogger(SecurityPlugin.class);
 
-    private final LoginMetric loginMetric;
-    private final PublishMetric publishMetric;
-    private final SubscribeMetric subscribeMetric;
-    private final PluginUtility pluginUtility;
+    protected final LoginMetric loginMetric;
+    protected final PublishMetric publishMetric;
+    protected final SubscribeMetric subscribeMetric;
+    protected final PluginUtility pluginUtility;
 
     protected ServerContext serverContext;
     //to avoid deadlock this field will be initialized by the first internal login call
@@ -117,6 +117,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                         clientId,//clientId
                         clientIp,//clientIp
                         remotingConnection.getTransportConnection().getConnectorConfig().getName(),//connectorName
+                        isDevice(username, remotingConnection),
                         remotingConnection.getProtocolName(),//transportProtocol
                         (String) remotingConnection.getTransportConnection().getConnectorConfig().getCombinedParams().get("sslEnabled"),//sslEnabled
                         getPeerCertificates(remotingConnection));//clientsCertificates
@@ -131,7 +132,14 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         }
     }
 
-    private String extractAndValidateClientId(RemotingConnection remotingConnection) {
+    //useful method to customize the detection of "real devices" connected to the system
+    //(for example to exclude internal connection for lifecycle/datastore consumers)
+    //In that way an accurate value could be exposed through a metric
+    protected boolean isDevice(String username, RemotingConnection remotingConnection) {
+        return true;
+    }
+
+    protected String extractAndValidateClientId(RemotingConnection remotingConnection) {
         String clientId = remotingConnection.getClientID();
         //leave the clientId validation to the DeviceCreator. Here just check for / or ::
         //ArgumentValidator.match(clientId, DeviceValidationRegex.CLIENT_ID, "deviceCreator.clientId");
@@ -143,7 +151,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
     }
 
     //TODO SEE EXTERNAL FOR THE LOCK
-    private Subject authenticateInternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password,
+    protected Subject authenticateInternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password,
             RemotingConnection remotingConnection) {
         loginMetric.getInternalConnector().getAttempt().inc();
         String usernameToCompare = SystemSetting.getInstance().getString(SystemSettingKey.BROKER_INTERNAL_CONNECTOR_USERNAME);
@@ -173,7 +181,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         }
     }
 
-    private Subject authenticateExternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password, RemotingConnection remotingConnection) throws Exception {
+    protected Subject authenticateExternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password, RemotingConnection remotingConnection) throws Exception {
         if (connectionInfo.getClientId()==null) {
             logger.warn("Client Id is null for connection id {} - login denied", connectionId);
             return null;
