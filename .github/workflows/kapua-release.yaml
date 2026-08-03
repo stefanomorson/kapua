@@ -89,7 +89,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Build and Publish Kapua Docker Images
-        run: mvn -B clean deploy -DskipTests -P docker
+        run: mvn -B clean deploy -DskipTests -f assembly -P docker
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
