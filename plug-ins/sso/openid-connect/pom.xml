@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.eclipse.kapua</groupId>
         <artifactId>kapua-sso</artifactId>
-        <version>1.6.14</version>
+        <version>1.6.15-SNAPSHOT</version>
     </parent>
 
     <artifactId>kapua-openid-connect</artifactId>
