@@ -50,6 +50,11 @@ jobs:
       - name: Maven version
         run: mvn --version
 
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: ${{ github.run_id }}-${{ github.run_number }}-maven-cache
+
       - name: Build and publish to Central
         run: mvn -B clean deploy -DskipTests -P javadoc,sing
         env:
@@ -87,6 +92,11 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: ${{ github.run_id }}-${{ github.run_number }}-maven-cache
 
       - name: Build and Publish Kapua Docker Images
         run: mvn -B clean deploy -DskipTests -f assembly -P docker
