@@ -39,7 +39,7 @@ Scenario: Starting and stopping the simulator should create a device entry and p
   is recorded properly.
 
   Given The account name is kapua-sys and the client ID is sim-1
-    And The broker URI is tcp://kapua-broker:kapua-password@localhost:1883
+    And The broker URI is tcp://kapua-broker:Kapua-password123!@localhost:1883
     And My credentials are username "kapua-sys" and password "kapua-password"
 
   When I start the simulator
@@ -67,7 +67,7 @@ Scenario: Starting and stopping the simulator should create a device entry and p
 
 Scenario: Installing a package
   Given The account name is kapua-sys and the client ID is sim-1
-    And The broker URI is tcp://kapua-broker:kapua-password@localhost:1883
+    And The broker URI is tcp://kapua-broker:Kapua-password123!@localhost:1883
     And My credentials are username "kapua-sys" and password "kapua-password"
 
   When I start the simulator

@@ -40,6 +40,9 @@ public class BasicSteps extends TestBase {
     private static final String ASSERT_ERROR_NAME = "AssertErrorName";
     private static final String ASSERT_ERROR_CAUGHT = "AssertErrorCaught";
 
+    private static final String KAPUA_BROKER_USERNAME = "kapua-broker";
+    private static final String KAPUA_BROKER_PASSWORD = "Kapua-password123!";
+
     /**
      * Scenario scoped step data.
      */
