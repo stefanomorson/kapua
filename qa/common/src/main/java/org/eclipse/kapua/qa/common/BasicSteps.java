@@ -40,8 +40,8 @@ public class BasicSteps extends TestBase {
     private static final String ASSERT_ERROR_NAME = "AssertErrorName";
     private static final String ASSERT_ERROR_CAUGHT = "AssertErrorCaught";
 
-    private static final String KAPUA_BROKER_USERNAME = "kapua-broker";
-    private static final String KAPUA_BROKER_PASSWORD = "Kapua-password123!";
+    public static final String KAPUA_BROKER_USERNAME = "kapua-broker";
+    public static final String KAPUA_BROKER_PASSWORD = "Kapua-password123!"; //Due to checks on password validity on credential service, we cannot use the old "kapua-password"
 
     /**
      * Scenario scoped step data.
