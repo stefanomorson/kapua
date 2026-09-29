@@ -23,9 +23,11 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -33,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -42,8 +45,10 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.StyleInjector;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.eclipse.kapua.app.console.module.api.client.GwtKapuaErrorCode;
 import org.eclipse.kapua.app.console.module.api.client.GwtKapuaException;
@@ -54,10 +59,13 @@ import org.eclipse.kapua.app.console.module.api.client.ui.button.DiscardButton;
 import org.eclipse.kapua.app.console.module.api.client.ui.button.KapuaButton;
 import org.eclipse.kapua.app.console.module.api.client.ui.button.RefreshButton;
 import org.eclipse.kapua.app.console.module.api.client.ui.button.SaveButton;
+import org.eclipse.kapua.app.console.module.api.client.ui.button.SplitButton;
+import org.eclipse.kapua.app.console.module.api.client.ui.dialog.FileUploadDialog;
 import org.eclipse.kapua.app.console.module.api.client.ui.dialog.InfoDialog;
 import org.eclipse.kapua.app.console.module.api.client.ui.dialog.InfoDialog.InfoDialogType;
 import org.eclipse.kapua.app.console.module.api.client.ui.dialog.KapuaMessageBox;
 import org.eclipse.kapua.app.console.module.api.client.ui.label.Label;
+import org.eclipse.kapua.app.console.module.api.client.ui.widget.KapuaMenuItem;
 import org.eclipse.kapua.app.console.module.api.client.util.ConsoleInfo;
 import org.eclipse.kapua.app.console.module.api.client.util.CssLiterals;
 import org.eclipse.kapua.app.console.module.api.client.util.FailureHandler;
@@ -87,6 +95,8 @@ public class DeviceConfigComponents extends LayoutContainer {
     private final GwtDeviceManagementServiceAsync gwtDeviceManagementService = GWT.create(GwtDeviceManagementService.class);
     private final GwtSecurityTokenServiceAsync gwtXSRFService = GWT.create(GwtSecurityTokenService.class);
 
+    private static final String SERVLET_URL = "file/configuration/wiregraph";
+
     private boolean dirty;
     private boolean initialized;
     private GwtDevice selectedDevice;
@@ -102,6 +112,8 @@ public class DeviceConfigComponents extends LayoutContainer {
 
     private Button settings;
 
+    private SplitButton wireGraphButton;
+
     private ContentPanel configPanel;
     private DeviceConfigPanel devConfPanel;
     private BorderLayoutData centerData;
@@ -109,10 +121,11 @@ public class DeviceConfigComponents extends LayoutContainer {
     private BaseTreeLoader loader;
     private TreeStore<ModelData> treeStore;
     private TreePanel<ModelData> tree;
+    private FileUploadDialog fileUpload;
 
     protected boolean resetProcess;
-
     protected boolean applyProcess;
+    protected boolean uploadProcess;
 
     private GwtSession gwtSession;
 
@@ -264,6 +277,8 @@ public class DeviceConfigComponents extends LayoutContainer {
         toolBar.add(reset);
         toolBar.add(new SeparatorToolItem());
         toolBar.add(settings);
+
+        initWireGraphButtonsIfSupported();
     }
 
     private void initConfigPanel() {
@@ -388,6 +403,69 @@ public class DeviceConfigComponents extends LayoutContainer {
 
     }
 
+    private void initWireGraphButtonsIfSupported() {
+        if (selectedDevice.hasApplication(GwtDevice.GwtDeviceApplication.APP_WIRE_V1)) {
+
+            wireGraphButton = new SplitButton("Wire Graph", new KapuaIcon(IconSet.SITEMAP));
+
+            Menu wireGraphMenu = new Menu();
+            wireGraphButton.setMenu(wireGraphMenu);
+
+            // DOWNLOAD wire graph menu item
+            KapuaMenuItem downloadMenuItem = new KapuaMenuItem("Download Wire Graph Snapshot", IconSet.DOWNLOAD, new SelectionListener<MenuEvent>() {
+                @Override
+                public void componentSelected(MenuEvent menuEvent) {
+                    doDownloadWire();
+                }
+            });
+            wireGraphMenu.add(downloadMenuItem);
+
+            // UPLOAD wire graph menu item - with a prompt before deletion to recommend the user to delete the current wire graph before uploading a new one, to avoid potential conflicts between the two graphs.
+            KapuaMenuItem uploadMenuItem = new KapuaMenuItem("Upload/Apply Wire Graph Snapshot", IconSet.CLOUD_UPLOAD, new SelectionListener<MenuEvent>() {
+                @Override
+                public void componentSelected(MenuEvent menuEvent) {
+                    KapuaMessageBox.confirm(
+                            MSGS.confirm(),
+                            "Do you want to also delete the current wire graph before the upload (recommended)?",
+                            new Listener<MessageBoxEvent>() {
+                                @Override
+                                public void handleEvent(MessageBoxEvent ce) {
+                                    Dialog dialog = ce.getDialog();
+                                    if (dialog.yesText.equals(ce.getButtonClicked().getText())) {
+                                        doDeleteWire(uploadWireOnSuccess()); // Perform deletion before
+                                    } else {
+                                        doUploadWire(); // Don't perform deletion before
+                                    }
+                                }
+                            });
+                }
+            });
+            wireGraphMenu.add(uploadMenuItem);
+
+            // DELETE wire graph menu item
+            KapuaMenuItem deleteMenuItem = new KapuaMenuItem("Delete Wire Graph Snapshot", IconSet.TRASH, new SelectionListener<MenuEvent>() {
+                @Override
+                public void componentSelected(MenuEvent menuEvent) {
+                    KapuaMessageBox.confirm(
+                            MSGS.confirm(),
+                            "Are you sure you want to delete the wire graph configuration? This action cannot be undone.",
+                            new Listener<MessageBoxEvent>() {
+                                @Override
+                                public void handleEvent(MessageBoxEvent ce) {
+                                    Dialog dialog = ce.getDialog();
+                                    if (dialog.yesText.equals(ce.getButtonClicked().getText())) {
+                                        doDeleteWire(null);
+                                    }
+                                }
+                            });
+                }
+            });
+            wireGraphMenu.add(deleteMenuItem);
+
+            toolBar.add(new SeparatorToolItem());
+            toolBar.add(wireGraphButton);
+        }
+    }
     // --------------------------------------------------------------------------------------
     // Device Configuration Management
     // --------------------------------------------------------------------------------------
@@ -556,6 +634,122 @@ public class DeviceConfigComponents extends LayoutContainer {
                     }
                 });
     }
+
+    public void doDeleteWire(final AsyncCallback<Void> operationToPerformAfterDelete) {
+        configPanel.mask(MSGS.loading());
+        gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+            @Override
+            public void onFailure(Throwable ex) {
+                FailureHandler.handle(ex);
+                configPanel.unmask();
+            }
+
+            @Override
+            public void onSuccess(GwtXSRFToken token) {
+                gwtDeviceManagementService.deleteWireGraphConfiguration(
+                        token,
+                        selectedDevice,
+                        new AsyncCallback<Void>() {
+                            @Override
+                            public void onFailure(Throwable t) {
+                                if (operationToPerformAfterDelete != null) {
+                                    operationToPerformAfterDelete.onFailure(t);
+                                }
+                                FailureHandler.handle(t);
+                                configPanel.unmask();
+                            }
+
+                            @Override
+                            public void onSuccess(Void result) {
+                                if (operationToPerformAfterDelete != null) {
+                                    // Unmask the panel before handing off to the next operation,
+                                    // so the user does not see a masked panel behind the upload dialog.
+                                    configPanel.unmask();
+                                    operationToPerformAfterDelete.onSuccess(result);
+                                } else {
+                                    dirty = true;
+                                    refresh(); // refresh() → loader.load() → loaderLoad() → configPanel.unmask()
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    private void doDownloadWire() {
+        // Download is a purely synchronous operation (opens a new browser window),
+        // so no process flag or button disable/enable is needed.
+        if (selectedDevice != null) {
+            String url = "device_wiregraph?" +
+                    "&scopeId=" + URL.encodeQueryString(selectedDevice.getScopeId()) +
+                    "&deviceId=" + URL.encodeQueryString(selectedDevice.getId());
+            Window.open(url, "_blank", "location=no");
+        }
+    }
+
+    private void doUploadWire() {
+        if (!uploadProcess) {
+            uploadProcess = true;
+            wireGraphButton.setEnabled(false);
+
+            if (selectedDevice != null) {
+                HiddenField<String> accountField = new HiddenField<String>();
+                accountField.setName("scopeIdString");
+                accountField.setValue(selectedDevice.getScopeId());
+
+                HiddenField<String> clientIdField = new HiddenField<String>();
+                clientIdField.setName("deviceIdString");
+                clientIdField.setValue(selectedDevice.getId());
+
+                List<HiddenField<?>> hiddenFields = new ArrayList<HiddenField<?>>();
+                hiddenFields.add(accountField);
+                hiddenFields.add(clientIdField);
+
+                fileUpload = new FileUploadDialog(SERVLET_URL, hiddenFields, true);
+                fileUpload.addListener(Events.Hide, new Listener<BaseEvent>() {
+
+                    @Override
+                    public void handleEvent(BaseEvent be) {
+                        // Re-enable the button and reset the flag only when the dialog is actually closed.
+                        wireGraphButton.setEnabled(true);
+                        uploadProcess = false;
+                        dirty = true;
+                        refresh();
+                    }
+                });
+
+                fileUpload.setHeading(MSGS.upload());
+                fileUpload.addListener(Events.Render, new Listener<BaseEvent>() {
+
+                    @Override
+                    public void handleEvent(BaseEvent be) {
+                        fileUpload.getFileUploadField().setToolTip(DEVICE_MSGS.deviceWireFileTooltip());
+                    }
+                });
+                fileUpload.show();
+            } else {
+                // selectedDevice is null: nothing to do, re-enable immediately.
+                wireGraphButton.setEnabled(true);
+                uploadProcess = false;
+            }
+        }
+    }
+
+    private AsyncCallback<Void> uploadWireOnSuccess() {
+        return new AsyncCallback<Void>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                // Do nothing if previous operation fails (that op. will handle failure)
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                doUploadWire();
+            }
+        };
+    }
+
 
     public void reset() {
         final GwtConfigComponent comp = (GwtConfigComponent) tree.getSelectionModel().getSelectedItem();
