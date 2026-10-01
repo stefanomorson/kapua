@@ -55,8 +55,6 @@ public class DeviceWiresManagementServiceImpl extends AbstractDeviceManagementTr
 
     private static final Logger LOG = LoggerFactory.getLogger(DeviceWiresManagementServiceImpl.class);
     private final DeviceConfigurationFactory deviceConfigurationFactory;
-    private final XmlUtil xmlUtil;
-
     private static final String SCOPE_ID = "scopeId";
     private static final String DEVICE_ID = "deviceId";
 
@@ -66,8 +64,7 @@ public class DeviceWiresManagementServiceImpl extends AbstractDeviceManagementTr
                                                     DeviceEventService deviceEventService,
                                                     DeviceEventFactory deviceEventFactory,
                                                     DeviceRegistryService deviceRegistryService,
-                                                    DeviceConfigurationFactory deviceConfigurationFactory,
-                                            XmlUtil xmlUtil) {
+                                                    DeviceConfigurationFactory deviceConfigurationFactory) {
         super(txManager,
                 authorizationService,
                 permissionFactory,
@@ -76,7 +73,6 @@ public class DeviceWiresManagementServiceImpl extends AbstractDeviceManagementTr
                 deviceRegistryService
         );
         this.deviceConfigurationFactory = deviceConfigurationFactory;
-        this.xmlUtil = xmlUtil;
     }
 
     @Override
@@ -131,7 +127,7 @@ public class DeviceWiresManagementServiceImpl extends AbstractDeviceManagementTr
         try {
             put(scopeId,
                     deviceId,
-                    xmlUtil.unmarshalJson(jsonDeviceConfig, DeviceConfigurationImpl.class),
+                    XmlUtil.unmarshalJson(jsonDeviceConfig, DeviceConfigurationImpl.class),
                     timeout);
         } catch (JAXBException | SAXException e) {
             throw new KapuaIllegalArgumentException("jsonDeviceConfig", jsonDeviceConfig);
