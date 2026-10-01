@@ -18,8 +18,8 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
         logicalFilePath="KapuaDB/changelog-user-0.2.0.xml">
 
-    <include relativeToChangelogFile="true" file="./user-patched.xml"/>
+    <include relativeToChangelogFile="true" file="./user.xml"/>
     <include relativeToChangelogFile="true" file="./user-configuration.xml"/>
-    <include relativeToChangelogFile="true" file="./user-domain-patched.xml"/>
+    <include relativeToChangelogFile="true" file="./user-domain.xml"/>
 
 </databaseChangeLog>
