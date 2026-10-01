@@ -15,7 +15,6 @@ package org.eclipse.kapua.service.device.management.wire.internal;
 import com.google.inject.Provides;
 import org.eclipse.kapua.commons.core.AbstractKapuaModule;
 import org.eclipse.kapua.commons.jpa.KapuaJpaTxManagerFactory;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
 import org.eclipse.kapua.service.device.management.configuration.DeviceConfigurationFactory;
@@ -41,8 +40,7 @@ public class DeviceManagementWiresModule extends AbstractKapuaModule {
             DeviceEventFactory deviceEventFactory,
             DeviceRegistryService deviceRegistryService,
             DeviceConfigurationFactory deviceConfigurationFactory,
-            KapuaJpaTxManagerFactory jpaTxManagerFactory,
-            XmlUtil xmlUtil) {
+            KapuaJpaTxManagerFactory jpaTxManagerFactory) {
         return new DeviceWiresManagementServiceImpl(
                 jpaTxManagerFactory.create("kapua-device_management_operation_registry"),
                 authorizationService,
@@ -50,8 +48,7 @@ public class DeviceManagementWiresModule extends AbstractKapuaModule {
                 deviceEventService,
                 deviceEventFactory,
                 deviceRegistryService,
-                deviceConfigurationFactory,
-                xmlUtil
+                deviceConfigurationFactory
         );
     }
 }
