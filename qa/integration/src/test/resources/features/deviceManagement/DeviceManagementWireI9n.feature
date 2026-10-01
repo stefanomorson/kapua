@@ -22,7 +22,8 @@ Feature: Device Management Wire Graph Service Tests
 
   @setup
   Scenario: Start full docker environment
-    Given Init Security Context
+    Given Init Jaxb Context
+    And Init Security Context
     And Start full docker environment
 
   #
