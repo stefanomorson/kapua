@@ -67,7 +67,7 @@ Feature: Device Broker Integration
     Then No exception was thrown
     Then I logout
     Given I expect the exception "MqttSecurityException" with the text "Not authorized to connect"
-    When Client with name "dev-123" with client id "dev-123" user "kapua-broker" password "kapua-password" is connected
+    When Client with name "dev-123" with client id "dev-123" user "kapua-broker" password "Kapua-password123!" is connected
     Then An exception was thrown
 
   Scenario: Creating a device with enabled status and trying to connect to the broker
@@ -81,7 +81,7 @@ Feature: Device Broker Integration
       | dev-123  | dply-Name_123@#$% | ReliaGate 10-20 | 12541234ABC  | ENABLED | 1       |
     Then No exception was thrown
     Then I logout
-    When Client with name "dev-12" with client id "dev-12" user "kapua-broker" password "kapua-password" is connected
+    When Client with name "dev-12" with client id "dev-12" user "kapua-broker" password "Kapua-password123!" is connected
     Then No exception was thrown
 
 
