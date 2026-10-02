@@ -19,6 +19,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
+import org.eclipse.kapua.model.id.KapuaId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class BasicSteps extends TestBase {
     private static final String ASSERT_ERROR_NAME = "AssertErrorName";
     private static final String ASSERT_ERROR_CAUGHT = "AssertErrorCaught";
 
+    public static final KapuaId KAPUA_BROKER_SCOPE_ID = KapuaId.ONE;
     public static final String KAPUA_BROKER_USERNAME = "kapua-broker";
     public static final String KAPUA_BROKER_PASSWORD = "Kapua-password123!"; //Due to checks on password validity on credential service, we cannot use the old "kapua-password"
 

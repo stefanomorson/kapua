@@ -63,7 +63,7 @@ Feature: Device Broker Cluster tests
         all clients locally. This emulates that those clients were connected on another broker.
 
     Given Client with name "client-1" with client id "client-1" user "kapua-broker" password "Kapua-password123!" is connected
-        And Client with name "client-sys" with client id "client-sys" user "kapua-sys" password "Kapua-password123!" is connected
+        And Client with name "client-sys" with client id "client-sys" user "kapua-sys" password "kapua-password" is connected
         And topic "$EDC/kapua-sys/client-1/MQTT/BIRTH" content "/mqtt/rpione3_MQTT_BIRTH.mqtt" is published by client named "client-1"
         And I wait 2 seconds
         And Client with name "client-2" with client id "client-2" user "kapua-broker" password "Kapua-password123!" is connected
