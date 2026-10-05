@@ -25,6 +25,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.conn.NoopIOSessionStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
@@ -62,6 +63,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -400,16 +402,20 @@ public class RestElasticsearchClientProvider implements ElasticsearchClientProvi
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
             }
 
+            PoolingNHttpClientConnectionManager poolConnManager;
             DefaultConnectingIOReactor ioReactor = getDefaultConnectingIOReactor();
             if (sslContext != null) {
                 //we need to set SSL context inside the connectionManager because it hides SSL settings that are set directly to the builder
                 SSLIOSessionStrategy s = new SSLIOSessionStrategy(sslContext);
                 RegistryBuilder<SchemeIOSessionStrategy> rb = RegistryBuilder.create();
                 rb.register("https", s).register("http", NoopIOSessionStrategy.INSTANCE);
-                httpClientBuilder.setConnectionManager(new PoolingNHttpClientConnectionManager(ioReactor, rb.build()));
+                poolConnManager = new PoolingNHttpClientConnectionManager(ioReactor, rb.build());
             } else {
-                httpClientBuilder.setConnectionManager(new PoolingNHttpClientConnectionManager(ioReactor));
+                poolConnManager = new PoolingNHttpClientConnectionManager(ioReactor);
             }
+            getClientConfiguration().getAsyncConnConfiguration().getMaxTotal().ifPresent(val -> poolConnManager.setMaxTotal(val));
+            getClientConfiguration().getAsyncConnConfiguration().getDefaultMaxPerRoute().ifPresent(val -> poolConnManager.setDefaultMaxPerRoute(val));
+            httpClientBuilder.setConnectionManager(poolConnManager);
         } catch (IOReactorException e) {
             throw new RuntimeException(e);
         }
@@ -454,8 +460,17 @@ public class RestElasticsearchClientProvider implements ElasticsearchClientProvi
      * @since 1.3.0
      */
     private DefaultConnectingIOReactor getDefaultConnectingIOReactor() throws IOReactorException {
-        DefaultConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
-
+        final DefaultConnectingIOReactor ioReactor;
+        final Optional<Integer> numberOfIOThreads = getClientConfiguration().getAsyncConnConfiguration().getNumberOfIOThreads();
+        if (numberOfIOThreads.isPresent()) {
+            ioReactor = new DefaultConnectingIOReactor(
+                    IOReactorConfig.custom().setIoThreadCount(
+                            numberOfIOThreads.get()
+                    ).build()
+            );
+        } else {
+            ioReactor = new DefaultConnectingIOReactor();
+        }
         ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
 
             @Override

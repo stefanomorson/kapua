@@ -14,6 +14,7 @@ package org.eclipse.kapua.service.elasticsearch.client.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.kapua.service.elasticsearch.client.ElasticsearchClientWrapper;
 
@@ -25,7 +26,6 @@ import org.eclipse.kapua.service.elasticsearch.client.ElasticsearchClientWrapper
 public class ElasticsearchClientConfiguration {
 
     private String moduleName;
-    private String providerClassName;
     private String clusterName;
     private List<ElasticsearchNode> nodes;
     private String username;
@@ -35,6 +35,7 @@ public class ElasticsearchClientConfiguration {
     private ElasticsearchClientReconnectConfiguration reconnectConfiguration;
     private ElasticsearchClientRequestConfiguration requestConfiguration;
     private ElasticsearchClientSslConfiguration sslConfiguration;
+    private ElasticsearchClientAsyncConnConfiguration asyncConnConfiguration;
 
     /**
      * Gets the module name which is managing the {@link ElasticsearchClientWrapper} instance.
@@ -259,6 +260,26 @@ public class ElasticsearchClientConfiguration {
     }
 
     /**
+     * @deprecated Replaced by corresponding method in {@link ElasticsearchClientAsyncConnConfiguration}
+     * @return
+     */
+    @Deprecated
+    public Optional<Integer> getNumberOfIOThreads() {
+        return this.getAsyncConnConfiguration().getNumberOfIOThreads();
+    }
+
+    /**
+     * @deprecated Replaced by corresponding method in {@link ElasticsearchClientAsyncConnConfiguration}
+     * @param numberOfIOThreads
+     * @return
+     */
+    @Deprecated
+    public ElasticsearchClientConfiguration setNumberOfIOThreads(Integer numberOfIOThreads) {
+        this.getAsyncConnConfiguration().setNumberOfIOThreads(Optional.of(numberOfIOThreads));
+        return this;
+    }
+
+    /**
      * Gets the size of the Elasticsearch client pool.
      *
      * @return The size of the Elasticsearch client pool.
@@ -278,6 +299,33 @@ public class ElasticsearchClientConfiguration {
      */
     public ElasticsearchClientConfiguration setPoolSize(int poolSize) {
         this.poolSize = poolSize;
+        return this;
+    }
+
+    /**
+     * Gets the {@link ElasticsearchClientAsyncConnConfiguration}
+     *
+     * @return The {@link ElasticsearchClientAsyncConnConfiguration}
+     * @since 1.6.016
+     */
+    public ElasticsearchClientAsyncConnConfiguration getAsyncConnConfiguration() {
+        if (asyncConnConfiguration == null) {
+            asyncConnConfiguration = new ElasticsearchClientAsyncConnConfiguration();
+        }
+
+        return asyncConnConfiguration;
+    }
+
+    /**
+     * Sets the {@link ElasticsearchClientAsyncConnConfiguration}
+     *
+     * @param asyncConnConfiguration
+     *         The {@link ElasticsearchClientAsyncConnConfiguration}
+     * @return This {@link ElasticsearchClientAsyncConnConfiguration} to chain method invocation.
+     * @since 1.6.16
+     */
+    public ElasticsearchClientConfiguration setAsyncConnConfiguration(ElasticsearchClientAsyncConnConfiguration asyncConnConfiguration) {
+        this.asyncConnConfiguration = asyncConnConfiguration;
         return this;
     }
 }
