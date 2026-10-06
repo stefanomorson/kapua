@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal;
 
+import org.eclipse.kapua.commons.cache.ExpiryPolicy;
+import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.datastore.internal.mediator.ConfigurationException;
 import org.eclipse.kapua.service.datastore.internal.mediator.MessageStoreConfiguration;
@@ -23,13 +25,29 @@ public abstract class AbstractDatastoreFacade {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDatastoreFacade.class);
 
     protected final ConfigurationProvider configProvider;
+    // TODO Make the Cache size configurable.
+    private static final LocalCache<String, MessageStoreConfiguration> MESSAGE_STORE_CONFIGS_CACHE = new LocalCache<>(1000, 60, ExpiryPolicy.MODIFIED, null);
+
 
     public AbstractDatastoreFacade(ConfigurationProvider configProvider) {
         this.configProvider = configProvider;
     }
 
+    protected MessageStoreConfiguration getMessageStoreConfiguration(KapuaId scopeId) throws ConfigurationException {
+        MessageStoreConfiguration messageStoreConfig;
+        String compactId = scopeId.toCompactId();
+        if (MESSAGE_STORE_CONFIGS_CACHE.get(compactId) == null) {
+            LOG.info("Reloading message store configuration local cache for scope Id: {}", compactId);
+            messageStoreConfig = configProvider.getConfiguration(scopeId);
+            MESSAGE_STORE_CONFIGS_CACHE.put(compactId, messageStoreConfig);
+        } else {
+            messageStoreConfig = MESSAGE_STORE_CONFIGS_CACHE.get(compactId);
+        }
+        return messageStoreConfig;
+    }
+
     protected boolean isDatastoreServiceEnabled(KapuaId scopeId) throws ConfigurationException {
-        MessageStoreConfiguration messageStoreConfiguration = configProvider.getConfiguration(scopeId);
+        MessageStoreConfiguration messageStoreConfiguration = getMessageStoreConfiguration(scopeId);
         long ttl = messageStoreConfiguration.getDataTimeToLiveMilliseconds();
 
         return messageStoreConfiguration.getDataStorageEnabled() && ttl != MessageStoreConfiguration.DISABLED;

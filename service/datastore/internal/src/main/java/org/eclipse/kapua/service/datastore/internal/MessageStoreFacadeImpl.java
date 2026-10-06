@@ -12,6 +12,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.service.datastore.internal;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.commons.util.ArgumentValidator;
@@ -56,12 +63,6 @@ import org.eclipse.kapua.service.storable.model.id.StorableId;
 import org.eclipse.kapua.service.storable.model.id.StorableIdFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Message store facade
@@ -137,11 +138,12 @@ public final class MessageStoreFacadeImpl extends AbstractDatastoreFacade implem
             throw new DatastoreDisabledException(message.getScopeId());
         }
 
+        MessageStoreConfiguration accountServicePlan = this.getMessageStoreConfiguration(message.getScopeId());
+
         Date capturedOn = message.getCapturedOn();
         // Overwrite timestamp if necessary
         // Use the account service plan to determine whether we will give
-        // precede to the device time
-        MessageStoreConfiguration accountServicePlan = configProvider.getConfiguration(message.getScopeId());
+        // precede to the device time        
         long indexedOn = KapuaDateUtils.getKapuaSysDate().toEpochMilli();
         if (DataIndexBy.DEVICE_TIMESTAMP.equals(accountServicePlan.getDataIndexBy())) {
             if (capturedOn != null) {
@@ -152,7 +154,6 @@ public final class MessageStoreFacadeImpl extends AbstractDatastoreFacade implem
         }
         // Extract schema metadata
         Date indexedOnDate = new Date(indexedOn);
-
         if (!newInsert && !MessageUniquenessCheck.NONE.equals(accountServicePlan.getMessageUniquenessCheck())) {
             DatastoreMessage datastoreMessage = MessageUniquenessCheck.FULL.equals(accountServicePlan.getMessageUniquenessCheck()) ?
                     messageRepository.find(message.getScopeId(), storableIdFactory.newStorableId(messageId)) :
@@ -185,8 +186,8 @@ public final class MessageStoreFacadeImpl extends AbstractDatastoreFacade implem
         final String storedId = messageRepository.store(messageToStore, metrics);
         messageToStore.setDatastoreId(storableIdFactory.newStorableId(storedId));
 
-        MessageInfo messageInfo = configProvider.getInfo(message.getScopeId());
-        this.onAfterMessageStore(messageInfo, messageToStore);
+        //MessageInfo messageInfo = configProvider.getInfo(message.getScopeId());
+        this.onAfterMessageStore(null, messageToStore);
 
         return storableIdFactory.newStorableId(storedId);
     }
